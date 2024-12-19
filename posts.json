@@ -1,0 +1,10 @@
+[
+    {
+        "title": "My First Blog Post",
+        "filename": "post1.md",
+        "date": "2024-12-19",
+        "author": "Your Name",
+        "bio": "A short description of what this blog post is about. This will appear on the main page as a preview.",
+        "categories": ["Tech", "Tutorial"]
+    }
+]

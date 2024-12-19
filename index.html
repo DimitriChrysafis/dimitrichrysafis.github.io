@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Retro Blog</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.2.12/marked.min.js"></script>
+    <style>
+        :root {
+            --bg: #f4f4f4;
+            --text: #1a1a1a;
+            --accent: #ff3e00;
+            --border: #333;
+            --card: #ffffff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "IBM Plex Mono", monospace;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        .header {
+            padding: 40px 20px;
+            border-bottom: 2px solid var(--border);
+            margin-bottom: 40px;
+            background: var(--card);
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header-title {
+            font-size: 24px;
+            letter-spacing: -0.5px;
+            margin-bottom: 8px;
+        }
+
+        .header-subtitle {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .posts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .post-card {
+            background: var(--card);
+            border: 2px solid var(--border);
+            padding: 20px;
+            cursor: pointer;
+            transition: border-color 0.2s ease;
+        }
+
+        .post-card:hover {
+            border-color: var(--accent);
+        }
+
+        .post-title {
+            font-size: 18px;
+            margin-bottom: 12px;
+            font-family: "IBM Plex Mono", monospace;
+        }
+
+        .post-meta {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 12px;
+        }
+
+        .post-bio {
+            font-size: 14px;
+            margin-bottom: 16px;
+            line-height: 1.5;
+        }
+
+        .categories {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .category {
+            font-size: 12px;
+            padding: 4px 8px;
+            border: 1px solid var(--border);
+            transition: all 0.2s ease;
+            font-family: "IBM Plex Mono", monospace;
+        }
+
+        .category:hover {
+            background: var(--border);
+            color: var(--card);
+        }
+
+        /* Full Post View */
+        .post-page {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 40px;
+            background: var(--card);
+            border: 2px solid var(--border);
+        }
+
+        .back-button {
+            display: inline-block;
+            padding: 8px 16px;
+            margin-bottom: 24px;
+            border: 2px solid var(--border);
+            background: none;
+            font-family: "IBM Plex Mono", monospace;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .back-button:hover {
+            background: var(--border);
+            color: var(--card);
+        }
+
+        .post-header {
+            margin-bottom: 32px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .post-header h1 {
+            font-size: 24px;
+            margin-bottom: 12px;
+        }
+
+        .markdown-content {
+            font-size: 16px;
+            line-height: 1.8;
+        }
+
+        .markdown-content h1,
+        .markdown-content h2,
+        .markdown-content h3 {
+            margin: 24px 0 16px;
+            font-family: "IBM Plex Mono", monospace;
+        }
+
+        .markdown-content p {
+            margin-bottom: 16px;
+        }
+
+        @media (max-width: 768px) {
+            .posts-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .post-page {
+                margin: 20px;
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <h1 class="header-title">RETRO.LOG</h1>
+            <div class="header-subtitle">A minimalist writing space</div>
+        </div>
+    </header>
+
+    <main class="content">
+        <div id="main-content"></div>
+    </main>
+
+    <script>
+        let posts = [];
+
+        async function loadPosts() {
+            try {
+                const response = await fetch('posts.json');
+                posts = await response.json();
+                handleRoute();
+            } catch (error) {
+                console.error('Error loading posts:', error);
+                document.getElementById('main-content').innerHTML = 'Error loading posts. Please try again later.';
+            }
+        }
+
+        function displayPosts() {
+            const mainContent = document.getElementById('main-content');
+            mainContent.innerHTML = `
+                <div class="posts-grid">
+                    ${posts.map(post => `
+                        <article class="post-card" onclick="navigateToPost('${post.filename}')">
+                            <h2 class="post-title">${post.title}</h2>
+                            <div class="post-meta">
+                                ${new Date(post.date).toLocaleDateString('en-US', {
+                                    year: 'numeric',
+                                    month: 'long',
+                                    day: 'numeric'
+                                })} • ${post.author}
+                            </div>
+                            <div class="post-bio">${post.bio}</div>
+                            <div class="categories">
+                                ${post.categories.map(category =>
+                                    `<span class="category">${category}</span>`
+                                ).join('')}
+                            </div>
+                        </article>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        async function loadPost(filename) {
+            try {
+                const response = await fetch(`folder/${filename}`);
+                const markdown = await response.text();
+                const post = posts.find(p => p.filename === filename);
+
+                const mainContent = document.getElementById('main-content');
+                mainContent.innerHTML = `
+                    <article class="post-page">
+                        <button onclick="navigateToHome()" class="back-button">
+                            ← BACK
+                        </button>
+                        <header class="post-header">
+                            <h1>${post.title}</h1>
+                            <div class="post-meta">
+                                ${new Date(post.date).toLocaleDateString('en-US', {
+                                    year: 'numeric',
+                                    month: 'long',
+                                    day: 'numeric'
+                                })} • ${post.author}
+                            </div>
+                        </header>
+                        <div class="markdown-content">${marked.parse(markdown)}</div>
+                    </article>
+                `;
+            } catch (error) {
+                console.error('Error loading post:', error);
+                document.getElementById('main-content').innerHTML = 'Error loading post. Please try again later.';
+            }
+        }
+
+        function navigateToPost(filename) {
+            window.location.hash = `post/${filename}`;
+        }
+
+        function navigateToHome() {
+            window.location.hash = '';
+        }
+
+        function handleRoute() {
+            const hash = window.location.hash.slice(1);
+            if (hash.startsWith('post/')) {
+                const filename = hash.slice(5);
+                routes.post(filename);
+            } else {
+                routes.home();
+            }
+        }
+
+        const routes = {
+            home: displayPosts,
+            post: loadPost
+        };
+
+        // Initialize
+        loadPosts();
+        window.addEventListener('hashchange', handleRoute);
+    </script>
+</body>
+</html>
