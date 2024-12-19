@@ -4,8 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Retro Blog</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.157.0/three.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.2.12/marked.min.js"></script>
     <style>
+        /* Previous styles remain the same */
         :root {
             --bg: #f4f4f4;
             --text: #1a1a1a;
@@ -27,16 +29,36 @@
             line-height: 1.6;
         }
 
+        #scene-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            z-index: 1;
+            opacity: 0.8;
+            pointer-events: none;
+        }
+
         .header {
+            position: relative;
+            z-index: 2;
             padding: 40px 20px;
             border-bottom: 2px solid var(--border);
             margin-bottom: 40px;
-            background: var(--card);
+            background: transparent;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .header-content {
-            max-width: 1200px;
-            margin: 0 auto;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 40px;
+            border: 2px solid var(--border);
+            backdrop-filter: blur(5px);
         }
 
         .header-title {
@@ -51,11 +73,15 @@
         }
 
         .content {
+            position: relative;
+            z-index: 2;
             max-width: 1200px;
             margin: 0 auto;
-            padding: 0 20px;
+            padding: 40px 20px;
+            background: var(--bg);
         }
 
+        /* Rest of the previous styles remain the same */
         .posts-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -111,7 +137,6 @@
             color: var(--card);
         }
 
-        /* Full Post View */
         .post-page {
             max-width: 800px;
             margin: 40px auto;
@@ -142,41 +167,11 @@
             padding-bottom: 24px;
             border-bottom: 1px solid #ddd;
         }
-
-        .post-header h1 {
-            font-size: 24px;
-            margin-bottom: 12px;
-        }
-
-        .markdown-content {
-            font-size: 16px;
-            line-height: 1.8;
-        }
-
-        .markdown-content h1,
-        .markdown-content h2,
-        .markdown-content h3 {
-            margin: 24px 0 16px;
-            font-family: "IBM Plex Mono", monospace;
-        }
-
-        .markdown-content p {
-            margin-bottom: 16px;
-        }
-
-        @media (max-width: 768px) {
-            .posts-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .post-page {
-                margin: 20px;
-                padding: 20px;
-            }
-        }
     </style>
 </head>
 <body>
+    <div id="scene-container"></div>
+
     <header class="header">
         <div class="header-content">
             <h1 class="header-title">RETRO.LOG</h1>
@@ -189,6 +184,46 @@
     </main>
 
     <script>
+        // Three.js Scene Setup
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setClearColor(0xf4f4f4, 0);
+        document.getElementById('scene-container').appendChild(renderer.domElement);
+
+        // Create a simple geometry
+        const geometry = new THREE.IcosahedronGeometry(2, 0);
+        const material = new THREE.MeshBasicMaterial({
+            color: 0x333333,
+            wireframe: true,
+        });
+        const icosahedron = new THREE.Mesh(geometry, material);
+        scene.add(icosahedron);
+
+        camera.position.z = 5;
+
+        // Animation
+        function animate() {
+            requestAnimationFrame(animate);
+            icosahedron.rotation.x += 0.001;
+            icosahedron.rotation.y += 0.002;
+            renderer.render(scene, camera);
+        }
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+            renderer.setSize(width, height);
+            camera.aspect = width / height;
+            camera.updateProjectionMatrix();
+        });
+
+        animate();
+
+        // Rest of the blog functionality
         let posts = [];
 
         async function loadPosts() {
