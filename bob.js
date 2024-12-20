@@ -32,15 +32,13 @@ async function loadPost(filename) {
   const markdown = await response.text();
   const post = posts.find(p => p.filename === filename);
 
-  // Configure marked to better handle LaTeX
   const renderer = new marked.Renderer();
 
-  // Preserve LaTeX delimiters
   renderer.text = function(text) {
     return text
-      .replace(/\\\$/g, '@@DOLLAR@@')  // Temporarily replace escaped dollars
-      .replace(/\$/g, '\\$')           // Escape all dollars for MathJax
-      .replace(/@@DOLLAR@@/g, '\\$');  // Restore escaped dollars
+      .replace(/\\\$/g, '@@DOLLAR@@')
+      .replace(/\$/g, '\\$')
+      .replace(/@@DOLLAR@@/g, '\\$');  
   };
 
   marked.setOptions({
