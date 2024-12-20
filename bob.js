@@ -55,7 +55,7 @@ async function loadPost(filename) {
 async function renderMath() {
   if (window.MathJax) {
     try {
-      await MathJax.typesetPromise(); 
+      await MathJax.typesetPromise();
     } catch (e) {
       console.error("MathJax rendering failed:", e);
     }
