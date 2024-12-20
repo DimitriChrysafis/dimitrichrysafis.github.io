@@ -4,7 +4,7 @@ let colors = {};
 async function loadTemplates() {
   const response = await fetch('templates.html');
   const html = await response.text();
-  document.body.insertAdjacentHTML('beforeend', html); 
+  document.body.insertAdjacentHTML('beforeend', html);
 }
 
 async function displayPosts() {
@@ -148,7 +148,6 @@ async function displayMiniPosts() {
 // do NOT touch
 loadTemplates().then(async () => {
   await Promise.all([loadColors(), loadPosts(), loadMiniPosts()]);
-  handleRoute();
   displayMiniPosts();
 });
 
