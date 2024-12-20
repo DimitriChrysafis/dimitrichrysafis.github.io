@@ -1,12 +1,13 @@
 [
     {
-        "title": "Hot Equation",
+        "title": "A Tad Of Fourier",
         "filename": "post2.md",
-        "date": "2024-12-19",
+        "date": "2024-12-20",
         "author": "Post 2",
-        "bio": "A hot post",
-        "categories": ["Hot"]
+        "bio": "A small dive into Fourier series, its coefficients, and applications in animation.",
+        "categories": ["Mathematics"]
     },
+
     {
         "title": "0.0.0 Post!!",
         "filename": "post1.md",
