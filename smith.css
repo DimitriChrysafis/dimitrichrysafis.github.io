@@ -19,6 +19,7 @@ body {
     line-height: 1.6;
 }
 
+
 #scene-container {
     position: fixed;
     top: 0;
@@ -117,6 +118,7 @@ body {
     border: 1px solid var(--border);
     transition: all 0.2s ease;
 }
+
 
 .category:hover {
     background: var(--border);

@@ -1,3 +1,6 @@
+let posts = [];
+let colors = {};
+
 async function loadTemplates() {
   const response = await fetch('templates.html');
   const html = await response.text();
@@ -16,7 +19,10 @@ async function displayPosts() {
     postCardTemplate.querySelector('.post-meta').innerHTML = `${new Date(post.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })} • ${post.author}`;
     postCardTemplate.querySelector('.post-bio').textContent = post.bio;
 
-    const categories = post.categories.map(category => `<span class="category">${category}</span>`).join('');
+    const categories = post.categories.map(category => {
+      const color = colors[category] || 'gray'; // Default color if category not in colors.json
+      return `<span class="category" style="background-color: ${color}; color: white;">${category}</span>`;
+    }).join('');
     postCardTemplate.querySelector('.categories').innerHTML = categories;
 
     postGrid.appendChild(postCardTemplate);
@@ -51,7 +57,6 @@ async function loadPost(filename) {
   await renderMath();
 }
 
-
 async function renderMath() {
   if (window.MathJax) {
     try {
@@ -61,7 +66,6 @@ async function renderMath() {
     }
   }
 }
-
 
 function navigateToPost(filename) {
   window.location.hash = `post/${filename}`;
@@ -89,11 +93,17 @@ const routes = {
 async function loadPosts() {
   const response = await fetch('posts.json');
   posts = await response.json();
-  handleRoute();
 }
 
-loadTemplates().then(() => {
-  loadPosts();
+async function loadColors() {
+  const response = await fetch('colors.json');
+  colors = await response.json();
+}
+
+// Ensure colors and posts are loaded before initializing routes
+loadTemplates().then(async () => {
+  await Promise.all([loadColors(), loadPosts()]);
+  handleRoute(); // Handle the route after colors and posts are loaded
 });
 
 window.addEventListener('keydown', function(event) {

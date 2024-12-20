@@ -1,6 +1,6 @@
 [
     {
-        "title": "A Tad Of Fourier",
+        "title": "LaTeX Now Works",
         "filename": "post2.md",
         "date": "2024-12-20",
         "author": "Post 2",
@@ -13,8 +13,8 @@
         "filename": "post1.md",
         "date": "2024-12-19",
         "author": "Post 1",
-        "bio": "Initial Commit",
-        "categories": ["Blog", "First"]
+        "bio": "git commit 'intial commit' --> git push -u origin main\n",
+        "categories": ["Fun"]
     }
 
 
