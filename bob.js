@@ -1,4 +1,3 @@
-
 async function loadTemplates() {
   const response = await fetch('templates.html');
   const html = await response.text();
@@ -32,26 +31,6 @@ async function loadPost(filename) {
   const markdown = await response.text();
   const post = posts.find(p => p.filename === filename);
 
-  const renderer = new marked.Renderer();
-
-  renderer.text = function(text) {
-    return text
-      .replace(/\\\$/g, '@@DOLLAR@@')
-      .replace(/\$/g, '\\$')
-      .replace(/@@DOLLAR@@/g, '\\$');  
-  };
-
-  marked.setOptions({
-    renderer: renderer,
-    gfm: true,
-    breaks: true,
-    pedantic: false,
-    smartLists: true,
-    smartypants: false,
-    mangle: false,
-    headerIds: false
-  });
-
   const mainContent = document.getElementById('main-content');
   const postPageTemplate = document.getElementById('post-page-template').content.cloneNode(true);
 
@@ -59,29 +38,31 @@ async function loadPost(filename) {
   postPageTemplate.querySelector('.post-meta').innerHTML =
     `${new Date(post.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })} • ${post.author}`;
 
-  // Parse markdown and insert content
+  // Parse and insert the markdown content
   const content = marked.parse(markdown);
   const markdownContent = postPageTemplate.querySelector('.markdown-content');
   markdownContent.innerHTML = content;
 
+  // Add the post to the page
   mainContent.innerHTML = '';
   mainContent.appendChild(postPageTemplate);
 
-  // Trigger MathJax rendering
-  if (window.MathJax !== undefined) {
+  // Trigger MathJax rendering after content is added
+  await renderMath();
+}
+
+
+async function renderMath() {
+  if (window.MathJax) {
     try {
-      if (typeof window.MathJax.typesetPromise === 'function') {
-        // MathJax v3
-        await window.MathJax.typesetPromise([markdownContent]);
-      } else if (typeof window.MathJax.Hub !== 'undefined') {
-        // MathJax v2
-        window.MathJax.Hub.Queue(["Typeset", window.MathJax.Hub, markdownContent]);
-      }
+      await MathJax.typesetPromise(); 
     } catch (e) {
-      console.error('MathJax rendering failed:', e);
+      console.error("MathJax rendering failed:", e);
     }
   }
 }
+
+
 function navigateToPost(filename) {
   window.location.hash = `post/${filename}`;
 }
@@ -114,14 +95,15 @@ async function loadPosts() {
 loadTemplates().then(() => {
   loadPosts();
 });
+
 window.addEventListener('keydown', function(event) {
-    if (event.key === 'P' || event.key === 'p') {
-        const script = document.createElement('script');
-        script.src = '3.js';
-        script.type = 'module';
-        document.body.appendChild(script);
-        console.log("3.js IS IN!");
-    }
+  if (event.key === 'P' || event.key === 'p') {
+    const script = document.createElement('script');
+    script.src = '3.js';
+    script.type = 'module';
+    document.body.appendChild(script);
+    console.log("3.js IS IN!");
+  }
 });
 
 window.addEventListener('hashchange', handleRoute);
