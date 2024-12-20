@@ -83,27 +83,28 @@ function handleRoute() {
 }
 
 const routes = {
-  home: async () => {
-    await displayPosts();
-    displayMiniPosts();
-  },
-  post: loadPost
+    home: async () => {
+        await displayPosts();
+    },
+    post: loadPost
 };
 
+
 async function loadPosts() {
-  const response = await fetch('posts.json');
+  const response = await fetch('json/posts.json');
   posts = await response.json();
 }
 
 async function loadColors() {
-  const response = await fetch('colors.json');
+  const response = await fetch('json/colors.json');
   colors = await response.json();
 }
 
 loadTemplates().then(async () => {
-  await Promise.all([loadColors(), loadPosts()]);
-  handleRoute();
+    await Promise.all([loadColors(), loadPosts(), loadMiniPosts()]);
+    handleRoute();
 });
+
 
 window.addEventListener('keydown', function(event) {
   if (event.key === 'P' || event.key === 'p') {
@@ -120,7 +121,7 @@ window.addEventListener('hashchange', handleRoute);
 let miniPosts = [];
 
 async function loadMiniPosts() {
-  const response = await fetch('mini.json');
+  const response = await fetch('json/mini.json');
   miniPosts = await response.json();
 }
 
@@ -152,15 +153,38 @@ loadTemplates().then(async () => {
 });
 
 
+let emojis = [];
+let lastSparkleTime = 0;
+
+fetch('json/emojis.json')
+    .then((response) => {
+        return response.json();
+    })
+    .then((data) => {
+        emojis = data;
+    })
+    .catch((error) => console.error(error));
+
 document.addEventListener('mousemove', (e) => {
+    if (emojis.length === 0) return;
+
+    const now = Date.now();
+
+    if (now - lastSparkleTime < 100) return;
+    lastSparkleTime = now;
+
+    const randomEmoji = emojis[Math.floor(Math.random() * emojis.length)];
+
     const sparkle = document.createElement('div');
     sparkle.className = 'sparkle';
+    sparkle.textContent = randomEmoji;
     sparkle.style.left = `${e.pageX}px`;
     sparkle.style.top = `${e.pageY}px`;
 
     document.body.appendChild(sparkle);
 
+    // Automatically remove sparkle after 1 second
     setTimeout(() => {
         sparkle.remove();
-    }, 500);
+    }, 1000);
 });

@@ -158,7 +158,10 @@ body {
     margin-top: 40px;
     padding-top: 20px;
     border-top: 2px solid var(--border);
+    width: calc(40%);
+    height: auto; /* Make height 50% of its parent's height */
 }
+
 
 .mini-post {
     margin-bottom: 20px;
@@ -166,13 +169,10 @@ body {
     background: var(--card);
     border: 1px solid var(--border);
     transition: background 0.2s ease, transform 0.2s ease;
+
 }
 
-.mini-post:hover {
-    background: var(--accent);
-    color: white;
-    transform: scale(1.02);
-}
+
 
 .mini-title {
     font-size: 16px;
@@ -194,13 +194,9 @@ body {
 
 .sparkle {
     position: absolute;
-    width: 8px;
-    height: 8px;
-    background-color: var(--accent);
-    border-radius: 50%;
     pointer-events: none;
-    box-shadow: 0 0 10px var(--accent), 0 0 20px var(--accent);
-    animation: sparkle-animation 0.5s ease-out forwards;
+    font-size: 16px; /* Adjust as needed */
+    animation: sparkle-animation 0.15s ease-out forwards;
 }
 
 @keyframes sparkle-animation {
@@ -210,9 +206,10 @@ body {
     }
     100% {
         opacity: 0;
-        transform: scale(0.5);
+        transform: scale(1.5); /* Increase scale for more spacing */
     }
 }
+
 
 
 
