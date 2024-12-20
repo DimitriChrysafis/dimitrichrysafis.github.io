@@ -4,7 +4,7 @@ let colors = {};
 async function loadTemplates() {
   const response = await fetch('templates.html');
   const html = await response.text();
-  document.body.insertAdjacentHTML('beforeend', html); // Append templates to the body
+  document.body.insertAdjacentHTML('beforeend', html); 
 }
 
 async function displayPosts() {
@@ -44,16 +44,13 @@ async function loadPost(filename) {
   postPageTemplate.querySelector('.post-meta').innerHTML =
     `${new Date(post.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })} • ${post.author}`;
 
-  // Parse and insert the markdown content
   const content = marked.parse(markdown);
   const markdownContent = postPageTemplate.querySelector('.markdown-content');
   markdownContent.innerHTML = content;
 
-  // Add the post to the page
   mainContent.innerHTML = '';
   mainContent.appendChild(postPageTemplate);
 
-  // Trigger MathJax rendering after content is added
   await renderMath();
 }
 
@@ -86,7 +83,10 @@ function handleRoute() {
 }
 
 const routes = {
-  home: displayPosts,
+  home: async () => {
+    await displayPosts();
+    displayMiniPosts();
+  },
   post: loadPost
 };
 
@@ -100,10 +100,9 @@ async function loadColors() {
   colors = await response.json();
 }
 
-// Ensure colors and posts are loaded before initializing routes
 loadTemplates().then(async () => {
   await Promise.all([loadColors(), loadPosts()]);
-  handleRoute(); // Handle the route after colors and posts are loaded
+  handleRoute();
 });
 
 window.addEventListener('keydown', function(event) {
@@ -117,3 +116,52 @@ window.addEventListener('keydown', function(event) {
 });
 
 window.addEventListener('hashchange', handleRoute);
+
+let miniPosts = [];
+
+async function loadMiniPosts() {
+  const response = await fetch('mini.json');
+  miniPosts = await response.json();
+}
+
+async function displayMiniPosts() {
+  const mainContent = document.getElementById('main-content');
+  const miniPostsContainer = document.createElement('div');
+  miniPostsContainer.className = 'mini-posts';
+
+  miniPosts.forEach(miniPost => {
+    const miniPostElement = document.createElement('div');
+    miniPostElement.className = 'mini-post';
+
+    miniPostElement.innerHTML = `
+      <h3 class="mini-title">${miniPost.title}</h3>
+      <p class="mini-date">${new Date(miniPost.date).toLocaleDateString('en-US')}</p>
+      <p class="mini-content">${miniPost.content}</p>
+    `;
+
+    miniPostsContainer.appendChild(miniPostElement);
+  });
+
+  mainContent.appendChild(miniPostsContainer);
+}
+
+// do NOT touch
+loadTemplates().then(async () => {
+  await Promise.all([loadColors(), loadPosts(), loadMiniPosts()]);
+  handleRoute();
+  displayMiniPosts();
+});
+
+
+document.addEventListener('mousemove', (e) => {
+    const sparkle = document.createElement('div');
+    sparkle.className = 'sparkle';
+    sparkle.style.left = `${e.pageX}px`;
+    sparkle.style.top = `${e.pageY}px`;
+
+    document.body.appendChild(sparkle);
+
+    setTimeout(() => {
+        sparkle.remove();
+    }, 500);
+});
