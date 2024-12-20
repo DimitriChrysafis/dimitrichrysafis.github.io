@@ -31,8 +31,7 @@ async function loadPost(filename) {
   const response = await fetch(`folder/${filename}`);
   const markdown = await response.text();
   const post = posts.find(p => p.filename === filename);
-
-  // Configure marked to preserve LaTeX delimiters
+  
   marked.setOptions({
     renderer: new marked.Renderer(),
     gfm: true,
@@ -51,13 +50,11 @@ async function loadPost(filename) {
   postPageTemplate.querySelector('.post-meta').innerHTML =
     `${new Date(post.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })} • ${post.author}`;
 
-  // Parse markdown and insert content
   postPageTemplate.querySelector('.markdown-content').innerHTML = marked.parse(markdown);
 
-  mainContent.innerHTML = ''; // Clear existing content
+  mainContent.innerHTML = '';
   mainContent.appendChild(postPageTemplate);
 
-  // Trigger MathJax to process the new content using MathJax 2.7.7 method
   if (window.MathJax) {
     window.MathJax.Hub.Queue(["Typeset", window.MathJax.Hub]);
   }
