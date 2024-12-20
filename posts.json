@@ -1,20 +1,21 @@
 [
     {
-        "title": "0.0.0 Post!!",
-        "filename": "post1.md",
-        "date": "2024-12-19",
-        "author": "Post 1",
-        "bio": "Initial Commit",
-        "categories": ["Blog", "First"]
-    },
-
-    {
         "title": "Hot Equation",
         "filename": "post2.md",
         "date": "2024-12-19",
         "author": "Post 2",
         "bio": "A hot post",
         "categories": ["Hot"]
+    },
+    {
+        "title": "0.0.0 Post!!",
+        "filename": "post1.md",
+        "date": "2024-12-19",
+        "author": "Post 1",
+        "bio": "Initial Commit",
+        "categories": ["Blog", "First"]
     }
+
+
 
 ]

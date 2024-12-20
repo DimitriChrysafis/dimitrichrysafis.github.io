@@ -21,7 +21,7 @@ Just for myself.
 ### Cool Fourier Demo For My Next Post
 
 <video width="600" controls>
-  <source src="../media/myfirstblogvideo.mp4" type="video/mp4">
+  <source src="../media/post1/myfirstblogvideo.mp4" type="video/mp4">
   Your browser does not support the video tag.
 </video>
 
