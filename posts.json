@@ -9,12 +9,12 @@
     },
 
     {
-        "title": "My Second Blog Post",
+        "title": "Hot Equation",
         "filename": "post2.md",
         "date": "2024-12-19",
         "author": "Post 2",
-        "bio": "A test post",
-        "categories": []
+        "bio": "A hot post",
+        "categories": ["Hot"]
     }
 
 ]

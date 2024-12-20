@@ -32,17 +32,36 @@ async function loadPost(filename) {
   const markdown = await response.text();
   const post = posts.find(p => p.filename === filename);
 
+  // Configure marked to preserve LaTeX delimiters
+  marked.setOptions({
+    renderer: new marked.Renderer(),
+    gfm: true,
+    breaks: true,
+    pedantic: false,
+    smartLists: true,
+    smartypants: false,
+    mangle: false,
+    headerIds: false
+  });
+
   const mainContent = document.getElementById('main-content');
   const postPageTemplate = document.getElementById('post-page-template').content.cloneNode(true);
 
   postPageTemplate.querySelector('.post-header h1').textContent = post.title;
-  postPageTemplate.querySelector('.post-meta').innerHTML = `${new Date(post.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })} • ${post.author}`;
+  postPageTemplate.querySelector('.post-meta').innerHTML =
+    `${new Date(post.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })} • ${post.author}`;
+
+  // Parse markdown and insert content
   postPageTemplate.querySelector('.markdown-content').innerHTML = marked.parse(markdown);
 
   mainContent.innerHTML = ''; // Clear existing content
   mainContent.appendChild(postPageTemplate);
-}
 
+  // Trigger MathJax to process the new content using MathJax 2.7.7 method
+  if (window.MathJax) {
+    window.MathJax.Hub.Queue(["Typeset", window.MathJax.Hub]);
+  }
+}
 function navigateToPost(filename) {
   window.location.hash = `post/${filename}`;
 }
