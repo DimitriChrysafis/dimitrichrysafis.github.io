@@ -31,9 +31,20 @@ async function loadPost(filename) {
   const response = await fetch(`folder/${filename}`);
   const markdown = await response.text();
   const post = posts.find(p => p.filename === filename);
-  
+
+  // Configure marked to better handle LaTeX
+  const renderer = new marked.Renderer();
+
+  // Preserve LaTeX delimiters
+  renderer.text = function(text) {
+    return text
+      .replace(/\\\$/g, '@@DOLLAR@@')  // Temporarily replace escaped dollars
+      .replace(/\$/g, '\\$')           // Escape all dollars for MathJax
+      .replace(/@@DOLLAR@@/g, '\\$');  // Restore escaped dollars
+  };
+
   marked.setOptions({
-    renderer: new marked.Renderer(),
+    renderer: renderer,
     gfm: true,
     breaks: true,
     pedantic: false,
@@ -50,13 +61,27 @@ async function loadPost(filename) {
   postPageTemplate.querySelector('.post-meta').innerHTML =
     `${new Date(post.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })} • ${post.author}`;
 
-  postPageTemplate.querySelector('.markdown-content').innerHTML = marked.parse(markdown);
+  // Parse markdown and insert content
+  const content = marked.parse(markdown);
+  const markdownContent = postPageTemplate.querySelector('.markdown-content');
+  markdownContent.innerHTML = content;
 
   mainContent.innerHTML = '';
   mainContent.appendChild(postPageTemplate);
 
-  if (window.MathJax) {
-    window.MathJax.Hub.Queue(["Typeset", window.MathJax.Hub]);
+  // Trigger MathJax rendering
+  if (window.MathJax !== undefined) {
+    try {
+      if (typeof window.MathJax.typesetPromise === 'function') {
+        // MathJax v3
+        await window.MathJax.typesetPromise([markdownContent]);
+      } else if (typeof window.MathJax.Hub !== 'undefined') {
+        // MathJax v2
+        window.MathJax.Hub.Queue(["Typeset", window.MathJax.Hub, markdownContent]);
+      }
+    } catch (e) {
+      console.error('MathJax rendering failed:', e);
+    }
   }
 }
 function navigateToPost(filename) {
