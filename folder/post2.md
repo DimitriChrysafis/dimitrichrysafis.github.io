@@ -20,7 +20,7 @@ $$
 
 Where:
 
-- \( a_0 \) is the **DC component** AVERAGE VALUE OVER A PERIOD
+- $a_0$  is the **DC component** AVERAGE VALUE OVER A PERIOD
 - \( a_n \) and \( b_n \) are the **Fourier coefficients**, determining how much sin there is and how much cos there is
 - $$\( \omega_0 = \frac{2\pi}{T} \)$$ is the **fundamental angular frequency** (the smallest frequency of the function).
 

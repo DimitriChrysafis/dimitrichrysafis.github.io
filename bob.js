@@ -69,8 +69,9 @@ function navigateToPost(filename) {
 }
 
 function navigateToHome() {
-  window.location.hash = '';
+  window.location.href = 'https://dimitrichrysafis.github.io/';
 }
+
 
 function handleRoute() {
   const hash = window.location.hash.slice(1);
