@@ -1,12 +1,13 @@
 [
     {
-        "title": "Mini Post 1",
-        "date": "2024-12-01",
-        "content": "This is the content of the first mini post."
+        "title": "Mini Post 2-- 3b1b is a teacher",
+        "date": "2024-12-22",
+        "content": "Instead of teaching kids Scratch, they should teach them Manim instead. Not only will it eliminate the kids who will probably drop out of cs later, but they also don't hit the limiting factors of scratch and can actually play with the beauty of computer science. "
     },
     {
-        "title": "Mini Post 2",
-        "date": "2024-12-15",
-        "content": "Another piece of interesting content for the mini posts."
+        "title": "Mini Post 1-- And they probably pay over 200 for them",
+        "date": "2024-12-21",
+        "content": "With an arduino uni, relay module, sensor, breadboard, and  and 150 bytes of code I can make a service to detect movement and toggle a facuet. Hardware and labor it'll be under 40 dollars. How come faucets with sensors in public restrooms still aren't able to trigger at the right time when I need to "
     }
+
 ]
