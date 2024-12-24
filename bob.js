@@ -86,9 +86,11 @@ function handleRoute() {
 const routes = {
     home: async () => {
         await displayPosts();
+        await displayMiniPosts();  // should fix bug
     },
     post: loadPost
 };
+
 
 
 async function loadPosts() {
@@ -150,7 +152,6 @@ async function displayMiniPosts() {
 // do NOT touch
 loadTemplates().then(async () => {
   await Promise.all([loadColors(), loadPosts(), loadMiniPosts()]);
-  displayMiniPosts();
 });
 
 
