@@ -1,5 +1,13 @@
 [
     {
+        "title": "Blending Spheres",
+        "filename": "post3.md",
+        "date": "2024-12-26",
+        "author": "Post 3",
+        "bio": "How to blend spheres together.",
+        "categories": ["Mathematics", "Computer"]
+    },
+    {
         "title": "LaTeX Now Works",
         "filename": "post2.md",
         "date": "2024-12-20",

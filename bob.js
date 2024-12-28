@@ -59,7 +59,7 @@ async function renderMath() {
     try {
       await MathJax.typesetPromise();
     } catch (e) {
-      console.error("MathJax rendering failed:", e);
+      console.error("MathJax rendering bomb:", e);
     }
   }
 }
@@ -108,6 +108,13 @@ loadTemplates().then(async () => {
     handleRoute();
 });
 
+/*
+loadTemplates().then(async () => {
+    await Promise.all([loadColors(), loadPosts(), loadMiniPosts()]);
+    handleRoute();
+});
+
+ */
 
 window.addEventListener('keydown', function(event) {
   if (event.key === 'P' || event.key === 'p') {
