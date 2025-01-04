@@ -1,5 +1,5 @@
 # Companion Matrix Explanation
-
+ 
 The **companion matrix** is a square matrix associated with a polynomial whose eigenvalues correspond to the roots of the polynomial. By constructing the companion matrix and solving for its eigenvalues, we can find the roots of the polynomial.
 
 ---
