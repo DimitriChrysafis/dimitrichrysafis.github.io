@@ -1,3 +1,9 @@
+$$
+\begin{bmatrix}
+a & b \\
+c & d
+\end{bmatrix}
+$$
 # Smooth Blending of Spheres
 
 <video width="600" controls>
