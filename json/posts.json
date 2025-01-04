@@ -1,5 +1,13 @@
 [
     {
+        "title": "Solving a Polynomial",
+        "filename": "post4.md",
+        "date": "2025-1-3",
+        "author": "Post 4",
+        "bio": "How to solve an equation",
+        "categories": ["Mathematics"]
+    },
+    {
         "title": "Blending Spheres",
         "filename": "post3.md",
         "date": "2024-12-26",

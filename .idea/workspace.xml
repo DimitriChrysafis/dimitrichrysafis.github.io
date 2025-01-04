@@ -4,16 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="5b79210f-ace1-4c6d-8a9e-c09f32e7ec5c" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/folder/post3.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/media/post3/blubblubblub.mp4" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/media/post3/miniblub.mp4" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bob.js" beforeDir="false" afterPath="$PROJECT_DIR$/bob.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/json/colors.json" beforeDir="false" afterPath="$PROJECT_DIR$/json/colors.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/json/posts.json" beforeDir="false" afterPath="$PROJECT_DIR$/json/posts.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates.html" afterDir="false" />
-    </list>
+    <list default="true" id="5b79210f-ace1-4c6d-8a9e-c09f32e7ec5c" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -74,7 +65,7 @@
       <workItem from="1734732521982" duration="14646000" />
       <workItem from="1735066921264" duration="826000" />
       <workItem from="1735170197695" duration="2613000" />
-      <workItem from="1735415372685" duration="2411000" />
+      <workItem from="1735415372685" duration="3215000" />
     </task>
     <servers />
   </component>

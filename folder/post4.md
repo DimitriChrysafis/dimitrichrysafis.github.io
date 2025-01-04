@@ -2,21 +2,11 @@
 
 The **companion matrix** is a square matrix associated with a polynomial whose eigenvalues correspond to the roots of the polynomial. By constructing the companion matrix and solving for its eigenvalues, we can find the roots of the polynomial.
 
-<br />
-
 ---
 
-## Example:
+## Example: 
 
-Consider the polynomial
-
-$$
-P(x) = x^4 - 10x^3 + 35x^2 - 50x + 24
-$$
-
-We will build the companion matrix for this polynomial and find its eigenvalues, which are the roots of the polynomial.
-
-<br />
+Consider the polynomial \( P(x) = x^4 - 10x^3 + 35x^2 - 50x + 24 \). We will build the companion matrix for this polynomial and find its eigenvalues, which are the roots of the polynomial.
 
 ### Step 1: Construct the Companion Matrix
 
@@ -26,12 +16,10 @@ $$
 a_4 = 1, \quad a_3 = -10, \quad a_2 = 35, \quad a_1 = -50, \quad a_0 = 24
 $$
 
-<br />
-
 The companion matrix \( C \) is constructed as follows:
 
-1. Normalize the coefficients by dividing each by the leading coefficient \( a_4 = 1 \) (no change in coefficients here).<br />
-2. Place ones on the subdiagonal.<br />
+1. Normalize the coefficients by dividing each by the leading coefficient \( a_4 = 1 \) (no change in coefficients here).
+2. Place ones on the subdiagonal.
 3. The first row contains the normalized coefficients in reverse order, negated.
 
 Thus, the companion matrix \( C \) is:
@@ -45,8 +33,6 @@ C =
 -24 & -50 & -35 & -10
 \end{bmatrix}
 $$
-
-<br />
 
 ---
 
@@ -89,8 +75,6 @@ $$
 -\lambda^4 + 10\lambda^3 - 35\lambda^2 + 50\lambda - 24 = 0
 $$
 
-<br />
-
 ---
 
 ### Step 3: Solve for the Roots
@@ -102,8 +86,6 @@ $$
 $$
 
 Thus, the roots of the polynomial \( P(x) = x^4 - 10x^3 + 35x^2 - 50x + 24 \) are \( 2, 3, 4, 1 \).
-
-<br />
 
 ---
 
