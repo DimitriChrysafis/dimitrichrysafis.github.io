@@ -24,11 +24,5 @@ Just for myself.
   <source src="../media/post1/myfirstblogvideo.mp4" type="video/mp4">
   Your browser does not support the video tag.
 </video>
-$$
-\begin{bmatrix}
-a & b \\
-c & d
-\end{bmatrix}
-$$
 ---
 
