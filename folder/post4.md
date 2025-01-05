@@ -1,7 +1,17 @@
 # Version 1 Of Polynomial Solver
-Breaks into companion matrix --> get eigenvalues --> converge --> answer
+
+In this post, I will break down a simple method (with code) that:
+
+- Breaks into the companion matrix
+- Gets eigenvalues
+- Converges
+- Provides the answer
+
+[Link to the code](https://github.com/DimitriChrysafis/dimitrichrysafis.github.io/blob/main/media/post4/main.cpp)
+
 
 <br />
+
 
 ### Companion Matrix (a square matrix whose eigenvalues are the roots of the polynomial)
 
@@ -270,7 +280,7 @@ The goal of the QR decomposition is to separate the matrix $\( C \)$ into $\( Q 
 
 ### Step 2: Iteration Process
 
-After the decomposition, the next step is to form the new matrix \( C_{\text{new}} \):
+After the decomposition, the next step is to form the new matrix $\( C_{\text{new}} \):$
 
 <br />
 
@@ -288,13 +298,12 @@ This new matrix is the result of multiplying the upper triangular matrix \( R \)
 
 ### Step 3: Convergence
 
-The algorithm continues by repeating the QR decomposition on the new matrix. The iteration stops when the off-diagonal elements of the matrix become sufficiently small, indicating that the matrix is approximately diagonal. This is determined by checking the off-diagonal elements:
 
 $$
 |C_{ij}| < \epsilon \quad \text{for} \quad i \neq j
 $$
 
-where \( \epsilon \) is the tolerance (e.g., \( \epsilon = 10^{-15} \)).
+where $\( \epsilon \)$ is the tolerance (e.g., $\( \epsilon = 10^{-15} \))$.
 
 <br />
 
@@ -302,7 +311,7 @@ where \( \epsilon \) is the tolerance (e.g., \( \epsilon = 10^{-15} \)).
 
 ### Step 4: Eigenvalues
 
-Once the matrix is sufficiently diagonal, the eigenvalues are the diagonal elements of the matrix. These eigenvalues correspond to the roots of the polynomial. Specifically, the eigenvalues are the values \( \lambda_1, \lambda_2, \dots, \lambda_n \) on the diagonal.
+Once the matrix is sufficiently diagonal, the eigenvalues are the diagonal elements of the matrix. These eigenvalues correspond to the roots of the polynomial. 
 
 <br />
 
@@ -353,17 +362,17 @@ We want to find the eigenvalues of this matrix using the QR algorithm.
 
 <br />
 
-   Now compute \( C_{\text{new}} = RQ \).
+   Now compute $\( C_{\text{new}} = RQ \).$
 
 <br />
 
 2. **Subsequent Iterations:**
-   Repeat the process by computing the QR decomposition on \( C_{\text{new}} \). After a few iterations, the matrix will converge and become nearly diagonal.
+   Repeat the process by computing the QR decomposition on $\( C_{\text{new}} \)$. After a few iterations, the matrix will converge and become nearly diagonal.
 
 <br />
 
 3. **Final Matrix:**
-   After convergence, \( C_{\text{new}} \) will look something like this:
+   After convergence, $\( C_{\text{new}} \)$ will look something like this:
 
    $$
    C_{\text{new}} = 
@@ -375,7 +384,7 @@ We want to find the eigenvalues of this matrix using the QR algorithm.
    \end{bmatrix}
    $$
 
-   The values \( \lambda_1, \lambda_2, \lambda_3, \lambda_4 \) on the diagonal are the eigenvalues of \( C \), which are the roots of the polynomial.
+   The values $\( \lambda_1, \lambda_2, \lambda_3, \lambda_4 \)$ on the diagonal are the eigenvalues of \( C \), which are the roots of the polynomial.
 
 <br />
 
