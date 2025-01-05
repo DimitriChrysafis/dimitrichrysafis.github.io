@@ -1,113 +1,97 @@
-# Companion Matrix Explanation
+# Smooth Blending of Spheres
 
-The **companion matrix** is a square matrix associated with a polynomial whose eigenvalues correspond to the roots of the polynomial. By constructing the companion matrix and solving for its eigenvalues, we can find the roots of the polynomial.
+<video width="600" controls>  
+  <source src="../media/post3/blubblubblub.mp4" type="video/mp4">  
+  Your browser does not support the video tag.  
+</video>  
 
-<br />
+## Signed Distance Field Basics  
 
----
+An **SDF function** for a shape returns the shortest distance from a point $\mathbf{p}$ to the surface of the shape.  
+<br />  
+- $d(\mathbf{p}) > 0$: the point is outside the shape.  
+- $d(\mathbf{p}) < 0$: the point is inside the shape.  
+- $d(\mathbf{p}) = 0$: this lies exactly on the surface.  
+<br />  
+For two spheres centered at $\mathbf{c}_1$ and $\mathbf{c}_2$ with radii $r_1$ and $r_2$, their SDFs are:  
+$$  
+d_1(\mathbf{p}) = \|\mathbf{p} - \mathbf{c}_1\| - r_1  
+$$  
+$$  
+d_2(\mathbf{p}) = \|\mathbf{p} - \mathbf{c}_2\| - r_2  
+$$  
+<br />  
+## Smooth Union: Blending Two SDFs  
 
-## Example:
+To blend $d_1$ and $d_2$, we compute the **smooth union**:  
+$$  
+h = \text{clamp}\left(0.5 + 0.5 \cdot \frac{d_2 - d_1}{k}, 0, 1\right)  
+$$  
+Where:  
+- $d_1$: SDF of the first sphere.  
+- $d_2$: SDF of the second sphere.  
+- $k$: Smoothness parameter (controls blending radius).  
+- $\text{clamp}(x, 0, 1)$: Ensures $h$ stays in the range $[0, 1]$.  
 
-Consider the polynomial
+The blended SDF is given by:  
+$$  
+d_{\text{blend}} = \text{mix}(d_1, d_2, h) - k \cdot h \cdot (1 - h)  
+$$  
 
-$$
-P(x) = x^4 - 10x^3 + 35x^2 - 50x + 24
-$$
+## Explanation of Terms  
 
-We will build the companion matrix for this polynomial and find its eigenvalues, which are the roots of the polynomial.
+1. **Blend Weight**:  
+$$  
+h = \text{clamp}\left(0.5 + 0.5 \cdot \frac{d_2 - d_1}{k}, 0, 1\right)  
+$$  
+- $\frac{d_2 - d_1}{k}$: Scales the distance difference between the two shapes.  
+- $h$: Transition factor between the two shapes.  
 
-<br />
+2. **Blended Distance**:  
+$$  
+\text{mix}(d_1, d_2, h) = h \cdot d_2 + (1 - h) \cdot d_1  
+$$  
+- Combines the two distances based on $h$.  
 
-### Step 1: Construct the Companion Matrix
+3. **Adjustment Term**:  
+$$  
+-k \cdot h \cdot (1 - h)  
+$$  
+- Smooths the surface between the shapes.  
 
-Given the polynomial \( P(x) = x^4 - 10x^3 + 35x^2 - 50x + 24 \), the coefficients are:
+<br />  
 
-$$
-a_4 = 1, \quad a_3 = -10, \quad a_2 = 35, \quad a_1 = -50, \quad a_0 = 24
-$$
+## Material Blending (Optional)  
 
-<br />
+The visual properties (e.g., color, reflectivity (I HAVE NOT DONE)) are blended using the same $h$:  
+$$  
+\text{material}_{\text{blend}} = \text{mix}(\text{material}_1, \text{material}_2, h)  
+$$  
 
-The companion matrix \( C \) is constructed as follows:
+<br />  
 
-1. Normalize the coefficients by dividing each by the leading coefficient \( a_4 = 1 \) (no change in coefficients here).<br />
-2. Place ones on the subdiagonal.<br />
-3. The first row contains the normalized coefficients in reverse order, negated.
+## Example of Use  
 
-Thus, the companion matrix \( C \) is:
+If $k \to 0$, the result is a hard union (no blending). As $k$ increases, the transition becomes smoother.  
 
-$$
-C = 
-\begin{bmatrix}
-0 & 1 & 0 & 0 \\
-0 & 0 & 1 & 0 \\
-0 & 0 & 0 & 1 \\
--24 & -50 & -35 & -10
-\end{bmatrix}
-$$
+<br />  
 
-<br />
+## Graphical Visualization  
 
----
+**$k = 0$**: Hard edges.  
+**$k > 0$**: Smooth blend. Spheres "melt" into each other.  
 
-### Step 2: Find the Eigenvalues
+<br />  
 
-To find the eigenvalues of the companion matrix \( C \), solve the characteristic equation:
+## 2D and 3D Visualization of Blending  
 
-$$
-\text{det}(C - \lambda I) = 0
-$$
+<video width="600" controls>  
+  <source src="../media/post3/miniblub.mp4" type="video/mp4">  
+  Your browser does not support the video tag.  
+</video>  
 
-This is equivalent to:
+<br /> 
 
-$$
-\begin{vmatrix}
--\lambda & 1 & 0 & 0 \\
-0 & -\lambda & 1 & 0 \\
-0 & 0 & -\lambda & 1 \\
--24 & -50 & -35 & -10-\lambda
-\end{vmatrix} = 0
-$$
+### 2D Cross-Section  
 
-Expanding the determinant:
-
-$$
--\lambda \begin{vmatrix}
--\lambda & 1 & 0 \\
--50 & -35 & -10-\lambda \\
-0 & -\lambda & 1
-\end{vmatrix} + 1 \begin{vmatrix}
-0 & 1 & 0 \\
--24 & -50 & -35 \\
--50 & -35 & -10-\lambda
-\end{vmatrix} = 0
-$$
-
-This leads to the characteristic equation:
-
-$$
--\lambda^4 + 10\lambda^3 - 35\lambda^2 + 50\lambda - 24 = 0
-$$
-
-<br />
-
----
-
-### Step 3: Solve for the Roots
-
-Solving the characteristic equation, the roots of \( P(x) \) (and the eigenvalues of \( C \)) are:
-
-$$
-\lambda_1 = 2, \quad \lambda_2 = 3, \quad \lambda_3 = 4, \quad \lambda_4 = 1
-$$
-
-Thus, the roots of the polynomial \( P(x) = x^4 - 10x^3 + 35x^2 - 50x + 24 \) are \( 2, 3, 4, 1 \).
-
-<br />
-
----
-
-## Conclusion
-
-The companion matrix \( C \) for the polynomial \( P(x) = x^4 - 10x^3 + 35x^2 - 50x + 24 \) has eigenvalues \( 2, 3, 4, 1 \), which correspond to the roots of the polynomial.
-
+Consider a horizontal slice through the blended spheres. The SDF forms a smooth transition between the circles.  
