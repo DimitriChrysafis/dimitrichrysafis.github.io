@@ -1,5 +1,13 @@
 [
     {
+        "title": "Graphing Some English Words",
+        "filename": "post5.md",
+        "date": "2025-1-6",
+        "author": "Post 5",
+        "bio": "Making cool graphs with some words",
+        "categories": ["Graph Theory"]
+    },
+    {
         "title": "Solving a Polynomial",
         "filename": "post4.md",
         "date": "2025-1-3",

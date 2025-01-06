@@ -1,0 +1,127 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        
+            <script src="lib/bindings/utils.js"></script>
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/dist/vis-network.min.css" integrity="sha512-WgxfT5LWjfszlPHXRmBWHkV2eceiWTOBvrKCNbdgDYTHrT2AeLCGbF4sZlZw3UMN3WtL0tGUoIAKsu8mllg/XA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/vis-network.min.js" integrity="sha512-LnvoEWDFrqGHlHmDD2101OrLcbsfkrzoSpvtSQtxK3RMnRV0eOkhhBN2dXHKRrUU8p2DGRTk35n4O8nWSVe1mQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+            
+        
+<center>
+<h1></h1>
+</center>
+
+<!-- <link rel="stylesheet" href="../node_modules/vis/dist/vis.min.css" type="text/css" />
+<script type="text/javascript" src="../node_modules/vis/dist/vis.js"> </script>-->
+        <link
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+          integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6"
+          crossorigin="anonymous"
+        />
+        <script
+          src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"
+          integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf"
+          crossorigin="anonymous"
+        ></script>
+
+
+        <center>
+          <h1></h1>
+        </center>
+        <style type="text/css">
+
+             #mynetwork {
+                 width: 100%;
+                 height: 800px;
+                 background-color: #ffffff;
+                 border: 1px solid lightgray;
+                 position: relative;
+                 float: left;
+             }
+
+             
+
+             
+
+             
+        </style>
+    </head>
+
+
+    <body>
+        <div class="card" style="width: 100%">
+            
+            
+            <div id="mynetwork" class="card-body"></div>
+        </div>
+
+        
+        
+
+        <script type="text/javascript">
+
+              // initialize global variables.
+              var edges;
+              var nodes;
+              var allNodes;
+              var allEdges;
+              var nodeColors;
+              var originalNodes;
+              var network;
+              var container;
+              var options, data;
+              var filter = {
+                  item : '',
+                  property : '',
+                  value : []
+              };
+
+              
+
+              
+
+              // This method is responsible for drawing the graph, returns the drawn network
+              function drawGraph() {
+                  var container = document.getElementById('mynetwork');
+
+                  
+
+                  // parsing and collecting nodes and edges from the python
+                  nodes = new vis.DataSet([{"color": "rgb(31, 119, 180)", "id": "ad", "label": "ad", "shape": "dot", "size": 10, "value": 9}, {"color": "rgb(31, 119, 180)", "id": "ah", "label": "ah", "shape": "dot", "size": 10, "value": 12}, {"color": "rgb(31, 119, 180)", "id": "am", "label": "am", "shape": "dot", "size": 10, "value": 10}, {"color": "rgb(31, 119, 180)", "id": "an", "label": "an", "shape": "dot", "size": 10, "value": 10}, {"color": "rgb(31, 119, 180)", "id": "as", "label": "as", "shape": "dot", "size": 10, "value": 10}, {"color": "rgb(31, 119, 180)", "id": "at", "label": "at", "shape": "dot", "size": 10, "value": 9}, {"color": "rgb(31, 119, 180)", "id": "aw", "label": "aw", "shape": "dot", "size": 10, "value": 10}, {"color": "rgb(31, 119, 180)", "id": "ax", "label": "ax", "shape": "dot", "size": 10, "value": 10}, {"color": "rgb(31, 119, 180)", "id": "ay", "label": "ay", "shape": "dot", "size": 10, "value": 10}, {"color": "rgb(227, 119, 194)", "id": "id", "label": "id", "shape": "dot", "size": 10, "value": 5}, {"color": "rgb(255, 127, 14)", "id": "eh", "label": "eh", "shape": "dot", "size": 10, "value": 7}, {"color": "rgb(255, 127, 14)", "id": "oh", "label": "oh", "shape": "dot", "size": 10, "value": 11}, {"color": "rgb(44, 160, 44)", "id": "sh", "label": "sh", "shape": "dot", "size": 10, "value": 5}, {"color": "rgb(31, 119, 180)", "id": "uh", "label": "uh", "shape": "dot", "size": 10, "value": 7}, {"color": "rgb(31, 119, 180)", "id": "hm", "label": "hm", "shape": "dot", "size": 10, "value": 6}, {"color": "rgb(31, 119, 180)", "id": "um", "label": "um", "shape": "dot", "size": 10, "value": 5}, {"color": "rgb(227, 119, 194)", "id": "in", "label": "in", "shape": "dot", "size": 10, "value": 6}, {"color": "rgb(255, 127, 14)", "id": "on", "label": "on", "shape": "dot", "size": 10, "value": 9}, {"color": "rgb(227, 119, 194)", "id": "is", "label": "is", "shape": "dot", "size": 10, "value": 6}, {"color": "rgb(31, 119, 180)", "id": "us", "label": "us", "shape": "dot", "size": 10, "value": 5}, {"color": "rgb(227, 119, 194)", "id": "it", "label": "it", "shape": "dot", "size": 10, "value": 5}, {"color": "rgb(255, 127, 14)", "id": "ew", "label": "ew", "shape": "dot", "size": 10, "value": 5}, {"color": "rgb(255, 127, 14)", "id": "ow", "label": "ow", "shape": "dot", "size": 10, "value": 9}, {"color": "rgb(255, 127, 14)", "id": "ex", "label": "ex", "shape": "dot", "size": 10, "value": 5}, {"color": "rgb(255, 127, 14)", "id": "ox", "label": "ox", "shape": "dot", "size": 10, "value": 9}, {"color": "rgb(31, 119, 180)", "id": "by", "label": "by", "shape": "dot", "size": 10, "value": 4}, {"color": "rgb(31, 119, 180)", "id": "my", "label": "my", "shape": "dot", "size": 10, "value": 6}, {"color": "rgb(140, 86, 75)", "id": "be", "label": "be", "shape": "dot", "size": 10, "value": 7}, {"color": "rgb(148, 103, 189)", "id": "bi", "label": "bi", "shape": "dot", "size": 10, "value": 7}, {"color": "rgb(140, 86, 75)", "id": "he", "label": "he", "shape": "dot", "size": 10, "value": 9}, {"color": "rgb(140, 86, 75)", "id": "me", "label": "me", "shape": "dot", "size": 10, "value": 9}, {"color": "rgb(140, 86, 75)", "id": "re", "label": "re", "shape": "dot", "size": 10, "value": 5}, {"color": "rgb(140, 86, 75)", "id": "we", "label": "we", "shape": "dot", "size": 10, "value": 5}, {"color": "rgb(140, 86, 75)", "id": "ye", "label": "ye", "shape": "dot", "size": 10, "value": 7}, {"color": "rgb(148, 103, 189)", "id": "hi", "label": "hi", "shape": "dot", "size": 10, "value": 9}, {"color": "rgb(148, 103, 189)", "id": "mi", "label": "mi", "shape": "dot", "size": 10, "value": 9}, {"color": "rgb(148, 103, 189)", "id": "oi", "label": "oi", "shape": "dot", "size": 10, "value": 12}, {"color": "rgb(148, 103, 189)", "id": "pi", "label": "pi", "shape": "dot", "size": 10, "value": 6}, {"color": "rgb(148, 103, 189)", "id": "ti", "label": "ti", "shape": "dot", "size": 10, "value": 7}, {"color": "rgb(44, 160, 44)", "id": "do", "label": "do", "shape": "dot", "size": 10, "value": 8}, {"color": "rgb(44, 160, 44)", "id": "go", "label": "go", "shape": "dot", "size": 10, "value": 8}, {"color": "rgb(44, 160, 44)", "id": "ho", "label": "ho", "shape": "dot", "size": 10, "value": 12}, {"color": "rgb(44, 160, 44)", "id": "lo", "label": "lo", "shape": "dot", "size": 10, "value": 9}, {"color": "rgb(44, 160, 44)", "id": "mo", "label": "mo", "shape": "dot", "size": 10, "value": 12}, {"color": "rgb(44, 160, 44)", "id": "no", "label": "no", "shape": "dot", "size": 10, "value": 8}, {"color": "rgb(44, 160, 44)", "id": "so", "label": "so", "shape": "dot", "size": 10, "value": 9}, {"color": "rgb(44, 160, 44)", "id": "to", "label": "to", "shape": "dot", "size": 10, "value": 10}, {"color": "rgb(44, 160, 44)", "id": "yo", "label": "yo", "shape": "dot", "size": 10, "value": 10}, {"color": "rgb(255, 127, 14)", "id": "er", "label": "er", "shape": "dot", "size": 10, "value": 4}, {"color": "rgb(255, 127, 14)", "id": "or", "label": "or", "shape": "dot", "size": 10, "value": 8}, {"color": "rgb(214, 39, 40)", "id": "fa", "label": "fa", "shape": "dot", "size": 10, "value": 6}, {"color": "rgb(214, 39, 40)", "id": "ha", "label": "ha", "shape": "dot", "size": 10, "value": 10}, {"color": "rgb(214, 39, 40)", "id": "la", "label": "la", "shape": "dot", "size": 10, "value": 7}, {"color": "rgb(214, 39, 40)", "id": "ma", "label": "ma", "shape": "dot", "size": 10, "value": 10}, {"color": "rgb(214, 39, 40)", "id": "pa", "label": "pa", "shape": "dot", "size": 10, "value": 7}, {"color": "rgb(214, 39, 40)", "id": "ta", "label": "ta", "shape": "dot", "size": 10, "value": 8}, {"color": "rgb(214, 39, 40)", "id": "ya", "label": "ya", "shape": "dot", "size": 10, "value": 8}, {"color": "rgb(227, 119, 194)", "id": "if", "label": "if", "shape": "dot", "size": 10, "value": 5}, {"color": "rgb(255, 127, 14)", "id": "of", "label": "of", "shape": "dot", "size": 10, "value": 8}, {"color": "rgb(255, 127, 14)", "id": "op", "label": "op", "shape": "dot", "size": 10, "value": 8}, {"color": "rgb(31, 119, 180)", "id": "up", "label": "up", "shape": "dot", "size": 10, "value": 4}]);
+                  edges = new vis.DataSet([{"from": "ad", "to": "ah", "width": 1}, {"from": "ad", "to": "am", "width": 1}, {"from": "ad", "to": "an", "width": 1}, {"from": "ad", "to": "as", "width": 1}, {"from": "ad", "to": "at", "width": 1}, {"from": "ad", "to": "aw", "width": 1}, {"from": "ad", "to": "ax", "width": 1}, {"from": "ad", "to": "ay", "width": 1}, {"from": "ad", "to": "id", "width": 1}, {"from": "ah", "to": "am", "width": 1}, {"from": "ah", "to": "an", "width": 1}, {"from": "ah", "to": "as", "width": 1}, {"from": "ah", "to": "at", "width": 1}, {"from": "ah", "to": "aw", "width": 1}, {"from": "ah", "to": "ax", "width": 1}, {"from": "ah", "to": "ay", "width": 1}, {"from": "ah", "to": "eh", "width": 1}, {"from": "ah", "to": "oh", "width": 1}, {"from": "ah", "to": "sh", "width": 1}, {"from": "ah", "to": "uh", "width": 1}, {"from": "am", "to": "an", "width": 1}, {"from": "am", "to": "as", "width": 1}, {"from": "am", "to": "at", "width": 1}, {"from": "am", "to": "aw", "width": 1}, {"from": "am", "to": "ax", "width": 1}, {"from": "am", "to": "ay", "width": 1}, {"from": "am", "to": "hm", "width": 1}, {"from": "am", "to": "um", "width": 1}, {"from": "an", "to": "as", "width": 1}, {"from": "an", "to": "at", "width": 1}, {"from": "an", "to": "aw", "width": 1}, {"from": "an", "to": "ax", "width": 1}, {"from": "an", "to": "ay", "width": 1}, {"from": "an", "to": "in", "width": 1}, {"from": "an", "to": "on", "width": 1}, {"from": "as", "to": "at", "width": 1}, {"from": "as", "to": "aw", "width": 1}, {"from": "as", "to": "ax", "width": 1}, {"from": "as", "to": "ay", "width": 1}, {"from": "as", "to": "is", "width": 1}, {"from": "as", "to": "us", "width": 1}, {"from": "at", "to": "aw", "width": 1}, {"from": "at", "to": "ax", "width": 1}, {"from": "at", "to": "ay", "width": 1}, {"from": "at", "to": "it", "width": 1}, {"from": "aw", "to": "ax", "width": 1}, {"from": "aw", "to": "ay", "width": 1}, {"from": "aw", "to": "ew", "width": 1}, {"from": "aw", "to": "ow", "width": 1}, {"from": "ax", "to": "ay", "width": 1}, {"from": "ax", "to": "ex", "width": 1}, {"from": "ax", "to": "ox", "width": 1}, {"from": "ay", "to": "by", "width": 1}, {"from": "ay", "to": "my", "width": 1}, {"from": "be", "to": "bi", "width": 1}, {"from": "be", "to": "by", "width": 1}, {"from": "be", "to": "he", "width": 1}, {"from": "be", "to": "me", "width": 1}, {"from": "be", "to": "re", "width": 1}, {"from": "be", "to": "we", "width": 1}, {"from": "be", "to": "ye", "width": 1}, {"from": "bi", "to": "by", "width": 1}, {"from": "bi", "to": "hi", "width": 1}, {"from": "bi", "to": "mi", "width": 1}, {"from": "bi", "to": "oi", "width": 1}, {"from": "bi", "to": "pi", "width": 1}, {"from": "bi", "to": "ti", "width": 1}, {"from": "by", "to": "my", "width": 1}, {"from": "do", "to": "go", "width": 1}, {"from": "do", "to": "ho", "width": 1}, {"from": "do", "to": "lo", "width": 1}, {"from": "do", "to": "mo", "width": 1}, {"from": "do", "to": "no", "width": 1}, {"from": "do", "to": "so", "width": 1}, {"from": "do", "to": "to", "width": 1}, {"from": "do", "to": "yo", "width": 1}, {"from": "eh", "to": "er", "width": 1}, {"from": "eh", "to": "ew", "width": 1}, {"from": "eh", "to": "ex", "width": 1}, {"from": "eh", "to": "oh", "width": 1}, {"from": "eh", "to": "sh", "width": 1}, {"from": "eh", "to": "uh", "width": 1}, {"from": "er", "to": "ew", "width": 1}, {"from": "er", "to": "ex", "width": 1}, {"from": "er", "to": "or", "width": 1}, {"from": "ew", "to": "ex", "width": 1}, {"from": "ew", "to": "ow", "width": 1}, {"from": "ex", "to": "ox", "width": 1}, {"from": "fa", "to": "ha", "width": 1}, {"from": "fa", "to": "la", "width": 1}, {"from": "fa", "to": "ma", "width": 1}, {"from": "fa", "to": "pa", "width": 1}, {"from": "fa", "to": "ta", "width": 1}, {"from": "fa", "to": "ya", "width": 1}, {"from": "go", "to": "ho", "width": 1}, {"from": "go", "to": "lo", "width": 1}, {"from": "go", "to": "mo", "width": 1}, {"from": "go", "to": "no", "width": 1}, {"from": "go", "to": "so", "width": 1}, {"from": "go", "to": "to", "width": 1}, {"from": "go", "to": "yo", "width": 1}, {"from": "ha", "to": "he", "width": 1}, {"from": "ha", "to": "hi", "width": 1}, {"from": "ha", "to": "hm", "width": 1}, {"from": "ha", "to": "ho", "width": 1}, {"from": "ha", "to": "la", "width": 1}, {"from": "ha", "to": "ma", "width": 1}, {"from": "ha", "to": "pa", "width": 1}, {"from": "ha", "to": "ta", "width": 1}, {"from": "ha", "to": "ya", "width": 1}, {"from": "he", "to": "hi", "width": 1}, {"from": "he", "to": "hm", "width": 1}, {"from": "he", "to": "ho", "width": 1}, {"from": "he", "to": "me", "width": 1}, {"from": "he", "to": "re", "width": 1}, {"from": "he", "to": "we", "width": 1}, {"from": "he", "to": "ye", "width": 1}, {"from": "hi", "to": "hm", "width": 1}, {"from": "hi", "to": "ho", "width": 1}, {"from": "hi", "to": "mi", "width": 1}, {"from": "hi", "to": "oi", "width": 1}, {"from": "hi", "to": "pi", "width": 1}, {"from": "hi", "to": "ti", "width": 1}, {"from": "hm", "to": "ho", "width": 1}, {"from": "hm", "to": "um", "width": 1}, {"from": "ho", "to": "lo", "width": 1}, {"from": "ho", "to": "mo", "width": 1}, {"from": "ho", "to": "no", "width": 1}, {"from": "ho", "to": "so", "width": 1}, {"from": "ho", "to": "to", "width": 1}, {"from": "ho", "to": "yo", "width": 1}, {"from": "id", "to": "if", "width": 1}, {"from": "id", "to": "in", "width": 1}, {"from": "id", "to": "is", "width": 1}, {"from": "id", "to": "it", "width": 1}, {"from": "if", "to": "in", "width": 1}, {"from": "if", "to": "is", "width": 1}, {"from": "if", "to": "it", "width": 1}, {"from": "if", "to": "of", "width": 1}, {"from": "in", "to": "is", "width": 1}, {"from": "in", "to": "it", "width": 1}, {"from": "in", "to": "on", "width": 1}, {"from": "is", "to": "it", "width": 1}, {"from": "is", "to": "us", "width": 1}, {"from": "la", "to": "lo", "width": 1}, {"from": "la", "to": "ma", "width": 1}, {"from": "la", "to": "pa", "width": 1}, {"from": "la", "to": "ta", "width": 1}, {"from": "la", "to": "ya", "width": 1}, {"from": "lo", "to": "mo", "width": 1}, {"from": "lo", "to": "no", "width": 1}, {"from": "lo", "to": "so", "width": 1}, {"from": "lo", "to": "to", "width": 1}, {"from": "lo", "to": "yo", "width": 1}, {"from": "ma", "to": "me", "width": 1}, {"from": "ma", "to": "mi", "width": 1}, {"from": "ma", "to": "mo", "width": 1}, {"from": "ma", "to": "my", "width": 1}, {"from": "ma", "to": "pa", "width": 1}, {"from": "ma", "to": "ta", "width": 1}, {"from": "ma", "to": "ya", "width": 1}, {"from": "me", "to": "mi", "width": 1}, {"from": "me", "to": "mo", "width": 1}, {"from": "me", "to": "my", "width": 1}, {"from": "me", "to": "re", "width": 1}, {"from": "me", "to": "we", "width": 1}, {"from": "me", "to": "ye", "width": 1}, {"from": "mi", "to": "mo", "width": 1}, {"from": "mi", "to": "my", "width": 1}, {"from": "mi", "to": "oi", "width": 1}, {"from": "mi", "to": "pi", "width": 1}, {"from": "mi", "to": "ti", "width": 1}, {"from": "mo", "to": "my", "width": 1}, {"from": "mo", "to": "no", "width": 1}, {"from": "mo", "to": "so", "width": 1}, {"from": "mo", "to": "to", "width": 1}, {"from": "mo", "to": "yo", "width": 1}, {"from": "no", "to": "so", "width": 1}, {"from": "no", "to": "to", "width": 1}, {"from": "no", "to": "yo", "width": 1}, {"from": "of", "to": "oh", "width": 1}, {"from": "of", "to": "oi", "width": 1}, {"from": "of", "to": "on", "width": 1}, {"from": "of", "to": "op", "width": 1}, {"from": "of", "to": "or", "width": 1}, {"from": "of", "to": "ow", "width": 1}, {"from": "of", "to": "ox", "width": 1}, {"from": "oh", "to": "oi", "width": 1}, {"from": "oh", "to": "on", "width": 1}, {"from": "oh", "to": "op", "width": 1}, {"from": "oh", "to": "or", "width": 1}, {"from": "oh", "to": "ow", "width": 1}, {"from": "oh", "to": "ox", "width": 1}, {"from": "oh", "to": "sh", "width": 1}, {"from": "oh", "to": "uh", "width": 1}, {"from": "oi", "to": "on", "width": 1}, {"from": "oi", "to": "op", "width": 1}, {"from": "oi", "to": "or", "width": 1}, {"from": "oi", "to": "ow", "width": 1}, {"from": "oi", "to": "ox", "width": 1}, {"from": "oi", "to": "pi", "width": 1}, {"from": "oi", "to": "ti", "width": 1}, {"from": "on", "to": "op", "width": 1}, {"from": "on", "to": "or", "width": 1}, {"from": "on", "to": "ow", "width": 1}, {"from": "on", "to": "ox", "width": 1}, {"from": "op", "to": "or", "width": 1}, {"from": "op", "to": "ow", "width": 1}, {"from": "op", "to": "ox", "width": 1}, {"from": "op", "to": "up", "width": 1}, {"from": "or", "to": "ow", "width": 1}, {"from": "or", "to": "ox", "width": 1}, {"from": "ow", "to": "ox", "width": 1}, {"from": "pa", "to": "pi", "width": 1}, {"from": "pa", "to": "ta", "width": 1}, {"from": "pa", "to": "ya", "width": 1}, {"from": "pi", "to": "ti", "width": 1}, {"from": "re", "to": "we", "width": 1}, {"from": "re", "to": "ye", "width": 1}, {"from": "sh", "to": "so", "width": 1}, {"from": "sh", "to": "uh", "width": 1}, {"from": "so", "to": "to", "width": 1}, {"from": "so", "to": "yo", "width": 1}, {"from": "ta", "to": "ti", "width": 1}, {"from": "ta", "to": "to", "width": 1}, {"from": "ta", "to": "ya", "width": 1}, {"from": "ti", "to": "to", "width": 1}, {"from": "to", "to": "yo", "width": 1}, {"from": "uh", "to": "um", "width": 1}, {"from": "uh", "to": "up", "width": 1}, {"from": "uh", "to": "us", "width": 1}, {"from": "um", "to": "up", "width": 1}, {"from": "um", "to": "us", "width": 1}, {"from": "up", "to": "us", "width": 1}, {"from": "we", "to": "ye", "width": 1}, {"from": "ya", "to": "ye", "width": 1}, {"from": "ya", "to": "yo", "width": 1}, {"from": "ye", "to": "yo", "width": 1}]);
+
+                  nodeColors = {};
+                  allNodes = nodes.get({ returnType: "Object" });
+                  for (nodeId in allNodes) {
+                    nodeColors[nodeId] = allNodes[nodeId].color;
+                  }
+                  allEdges = edges.get({ returnType: "Object" });
+                  // adding nodes and edges to the graph
+                  data = {nodes: nodes, edges: edges};
+
+                  var options = {"nodes": {"borderWidth": 1, "borderWidthSelected": 2, "shape": "dot", "size": 10, "color": {"background": "#f1c40f", "border": "#e67e22"}, "font": {"size": 14, "color": "#2c3e50", "face": "arial"}}, "edges": {"width": 2, "color": {"color": "#7f8c8d", "highlight": "#e74c3c"}, "smooth": {"enabled": true, "type": "continuous", "roundness": 0.5}}, "physics": {"enabled": true, "barnesHut": {"gravitationalConstant": -20000, "springLength": 100, "springConstant": 0.05, "damping": 0.4}, "minVelocity": 0.75, "stabilization": {"enabled": true, "iterations": 200}}, "interaction": {"zoomView": true, "selectable": true, "selectConnectedEdges": true, "hover": true, "keyboard": {"enabled": true, "bindToWindow": false}}, "clustering": {"enabled": true, "clusterEdgeThreshold": 150, "clusterNodeProperties": {"borderWidth": 3, "color": {"background": "#FFD700", "border": "#FFA500"}, "size": 50}}};
+
+                  
+
+
+                  
+
+                  network = new vis.Network(container, data, options);
+
+                  
+
+                  
+
+                  
+
+
+                  
+
+                  return network;
+
+              }
+              drawGraph();
+        </script>
+    </body>
+</html>

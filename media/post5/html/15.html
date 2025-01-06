@@ -1,0 +1,222 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        
+            <script src="lib/bindings/utils.js"></script>
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/dist/vis-network.min.css" integrity="sha512-WgxfT5LWjfszlPHXRmBWHkV2eceiWTOBvrKCNbdgDYTHrT2AeLCGbF4sZlZw3UMN3WtL0tGUoIAKsu8mllg/XA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/vis-network.min.js" integrity="sha512-LnvoEWDFrqGHlHmDD2101OrLcbsfkrzoSpvtSQtxK3RMnRV0eOkhhBN2dXHKRrUU8p2DGRTk35n4O8nWSVe1mQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+            
+        
+<center>
+<h1></h1>
+</center>
+
+<!-- <link rel="stylesheet" href="../node_modules/vis/dist/vis.min.css" type="text/css" />
+<script type="text/javascript" src="../node_modules/vis/dist/vis.js"> </script>-->
+        <link
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+          integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6"
+          crossorigin="anonymous"
+        />
+        <script
+          src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"
+          integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf"
+          crossorigin="anonymous"
+        ></script>
+
+
+        <center>
+          <h1></h1>
+        </center>
+        <style type="text/css">
+
+             #mynetwork {
+                 width: 100%;
+                 height: 800px;
+                 background-color: #ffffff;
+                 border: 1px solid lightgray;
+                 position: relative;
+                 float: left;
+             }
+
+             
+             #loadingBar {
+                 position:absolute;
+                 top:0px;
+                 left:0px;
+                 width: 100%;
+                 height: 800px;
+                 background-color:rgba(200,200,200,0.8);
+                 -webkit-transition: all 0.5s ease;
+                 -moz-transition: all 0.5s ease;
+                 -ms-transition: all 0.5s ease;
+                 -o-transition: all 0.5s ease;
+                 transition: all 0.5s ease;
+                 opacity:1;
+             }
+
+             #bar {
+                 position:absolute;
+                 top:0px;
+                 left:0px;
+                 width:20px;
+                 height:20px;
+                 margin:auto auto auto auto;
+                 border-radius:11px;
+                 border:2px solid rgba(30,30,30,0.05);
+                 background: rgb(0, 173, 246); /* Old browsers */
+                 box-shadow: 2px 0px 4px rgba(0,0,0,0.4);
+             }
+
+             #border {
+                 position:absolute;
+                 top:10px;
+                 left:10px;
+                 width:500px;
+                 height:23px;
+                 margin:auto auto auto auto;
+                 box-shadow: 0px 0px 4px rgba(0,0,0,0.2);
+                 border-radius:10px;
+             }
+
+             #text {
+                 position:absolute;
+                 top:8px;
+                 left:530px;
+                 width:30px;
+                 height:50px;
+                 margin:auto auto auto auto;
+                 font-size:22px;
+                 color: #000000;
+             }
+
+             div.outerBorder {
+                 position:relative;
+                 top:400px;
+                 width:600px;
+                 height:44px;
+                 margin:auto auto auto auto;
+                 border:8px solid rgba(0,0,0,0.1);
+                 background: rgb(252,252,252); /* Old browsers */
+                 background: -moz-linear-gradient(top,  rgba(252,252,252,1) 0%, rgba(237,237,237,1) 100%); /* FF3.6+ */
+                 background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(252,252,252,1)), color-stop(100%,rgba(237,237,237,1))); /* Chrome,Safari4+ */
+                 background: -webkit-linear-gradient(top,  rgba(252,252,252,1) 0%,rgba(237,237,237,1) 100%); /* Chrome10+,Safari5.1+ */
+                 background: -o-linear-gradient(top,  rgba(252,252,252,1) 0%,rgba(237,237,237,1) 100%); /* Opera 11.10+ */
+                 background: -ms-linear-gradient(top,  rgba(252,252,252,1) 0%,rgba(237,237,237,1) 100%); /* IE10+ */
+                 background: linear-gradient(to bottom,  rgba(252,252,252,1) 0%,rgba(237,237,237,1) 100%); /* W3C */
+                 filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#fcfcfc', endColorstr='#ededed',GradientType=0 ); /* IE6-9 */
+                 border-radius:72px;
+                 box-shadow: 0px 0px 10px rgba(0,0,0,0.2);
+             }
+             
+
+             
+
+             
+        </style>
+    </head>
+
+
+    <body>
+        <div class="card" style="width: 100%">
+            
+            
+            <div id="mynetwork" class="card-body"></div>
+        </div>
+
+        
+            <div id="loadingBar">
+              <div class="outerBorder">
+                <div id="text">0%</div>
+                <div id="border">
+                  <div id="bar"></div>
+                </div>
+              </div>
+            </div>
+        
+        
+
+        <script type="text/javascript">
+
+              // initialize global variables.
+              var edges;
+              var nodes;
+              var allNodes;
+              var allEdges;
+              var nodeColors;
+              var originalNodes;
+              var network;
+              var container;
+              var options, data;
+              var filter = {
+                  item : '',
+                  property : '',
+                  value : []
+              };
+
+              
+
+              
+
+              // This method is responsible for drawing the graph, returns the drawn network
+              function drawGraph() {
+                  var container = document.getElementById('mynetwork');
+
+                  
+
+                  // parsing and collecting nodes and edges from the python
+                  nodes = new vis.DataSet([{"color": "rgb(140, 86, 75)", "id": "acclimatisation", "label": "acclimatisation", "shape": "dot", "size": 10, "value": 1}, {"color": "rgb(140, 86, 75)", "id": "acclimatization", "label": "acclimatization", "shape": "dot", "size": 10, "value": 1}, {"color": "rgb(227, 119, 194)", "id": "categorisations", "label": "categorisations", "shape": "dot", "size": 10, "value": 1}, {"color": "rgb(227, 119, 194)", "id": "categorizations", "label": "categorizations", "shape": "dot", "size": 10, "value": 1}, {"color": "rgb(127, 127, 127)", "id": "circumnavigated", "label": "circumnavigated", "shape": "dot", "size": 10, "value": 1}, {"color": "rgb(127, 127, 127)", "id": "circumnavigates", "label": "circumnavigates", "shape": "dot", "size": 10, "value": 1}, {"color": "rgb(188, 189, 34)", "id": "commercialising", "label": "commercialising", "shape": "dot", "size": 10, "value": 1}, {"color": "rgb(188, 189, 34)", "id": "commercializing", "label": "commercializing", "shape": "dot", "size": 10, "value": 1}, {"color": "rgb(23, 190, 207)", "id": "computerisation", "label": "computerisation", "shape": "dot", "size": 10, "value": 1}, {"color": "rgb(23, 190, 207)", "id": "computerization", "label": "computerization", "shape": "dot", "size": 10, "value": 1}, {"color": "rgb(31, 119, 180)", "id": "conceptualising", "label": "conceptualising", "shape": "dot", "size": 10, "value": 1}, {"color": "rgb(31, 119, 180)", "id": "conceptualizing", "label": "conceptualizing", "shape": "dot", "size": 10, "value": 1}, {"color": "rgb(255, 127, 14)", "id": "contextualising", "label": "contextualising", "shape": "dot", "size": 10, "value": 1}, {"color": "rgb(255, 127, 14)", "id": "contextualizing", "label": "contextualizing", "shape": "dot", "size": 10, "value": 1}, {"color": "rgb(44, 160, 44)", "id": "counterbalanced", "label": "counterbalanced", "shape": "dot", "size": 10, "value": 1}, {"color": "rgb(44, 160, 44)", "id": "counterbalances", "label": "counterbalances", "shape": "dot", "size": 10, "value": 1}, {"color": "rgb(214, 39, 40)", "id": "crystallisation", "label": "crystallisation", "shape": "dot", "size": 10, "value": 1}, {"color": "rgb(214, 39, 40)", "id": "crystallization", "label": "crystallization", "shape": "dot", "size": 10, "value": 1}, {"color": "rgb(148, 103, 189)", "id": "decriminalising", "label": "decriminalising", "shape": "dot", "size": 10, "value": 1}, {"color": "rgb(148, 103, 189)", "id": "decriminalizing", "label": "decriminalizing", "shape": "dot", "size": 10, "value": 1}, {"color": "rgb(140, 86, 75)", "id": "democratisation", "label": "democratisation", "shape": "dot", "size": 10, "value": 1}, {"color": "rgb(140, 86, 75)", "id": "democratization", "label": "democratization", "shape": "dot", "size": 10, "value": 1}, {"color": "rgb(227, 119, 194)", "id": "denationalising", "label": "denationalising", "shape": "dot", "size": 10, "value": 1}, {"color": "rgb(227, 119, 194)", "id": "denationalizing", "label": "denationalizing", "shape": "dot", "size": 10, "value": 1}, {"color": "rgb(127, 127, 127)", "id": "depersonalising", "label": "depersonalising", "shape": "dot", "size": 10, "value": 1}, {"color": "rgb(127, 127, 127)", "id": "depersonalizing", "label": "depersonalizing", "shape": "dot", "size": 10, "value": 1}, {"color": "rgb(188, 189, 34)", "id": "desensitisation", "label": "desensitisation", "shape": "dot", "size": 10, "value": 1}, {"color": "rgb(188, 189, 34)", "id": "desensitization", "label": "desensitization", "shape": "dot", "size": 10, "value": 1}, {"color": "rgb(23, 190, 207)", "id": "destabilisation", "label": "destabilisation", "shape": "dot", "size": 10, "value": 1}, {"color": "rgb(23, 190, 207)", "id": "destabilization", "label": "destabilization", "shape": "dot", "size": 10, "value": 1}, {"color": "rgb(31, 119, 180)", "id": "disenfranchised", "label": "disenfranchised", "shape": "dot", "size": 10, "value": 1}, {"color": "rgb(31, 119, 180)", "id": "disenfranchises", "label": "disenfranchises", "shape": "dot", "size": 10, "value": 1}, {"color": "rgb(255, 127, 14)", "id": "disorganisation", "label": "disorganisation", "shape": "dot", "size": 10, "value": 1}, {"color": "rgb(255, 127, 14)", "id": "disorganization", "label": "disorganization", "shape": "dot", "size": 10, "value": 1}, {"color": "rgb(44, 160, 44)", "id": "externalisation", "label": "externalisation", "shape": "dot", "size": 10, "value": 1}, {"color": "rgb(44, 160, 44)", "id": "externalization", "label": "externalization", "shape": "dot", "size": 10, "value": 1}, {"color": "rgb(214, 39, 40)", "id": "familiarisation", "label": "familiarisation", "shape": "dot", "size": 10, "value": 1}, {"color": "rgb(214, 39, 40)", "id": "familiarization", "label": "familiarization", "shape": "dot", "size": 10, "value": 1}, {"color": "rgb(148, 103, 189)", "id": "generalisations", "label": "generalisations", "shape": "dot", "size": 10, "value": 1}, {"color": "rgb(148, 103, 189)", "id": "generalizations", "label": "generalizations", "shape": "dot", "size": 10, "value": 1}, {"color": "rgb(140, 86, 75)", "id": "hospitalisation", "label": "hospitalisation", "shape": "dot", "size": 10, "value": 1}, {"color": "rgb(140, 86, 75)", "id": "hospitalization", "label": "hospitalization", "shape": "dot", "size": 10, "value": 1}, {"color": "rgb(227, 119, 194)", "id": "hyperventilated", "label": "hyperventilated", "shape": "dot", "size": 10, "value": 1}, {"color": "rgb(227, 119, 194)", "id": "hyperventilates", "label": "hyperventilates", "shape": "dot", "size": 10, "value": 1}, {"color": "rgb(127, 127, 127)", "id": "individualising", "label": "individualising", "shape": "dot", "size": 10, "value": 1}, {"color": "rgb(127, 127, 127)", "id": "individualizing", "label": "individualizing", "shape": "dot", "size": 10, "value": 1}, {"color": "rgb(188, 189, 34)", "id": "industrialising", "label": "industrialising", "shape": "dot", "size": 10, "value": 1}, {"color": "rgb(188, 189, 34)", "id": "industrializing", "label": "industrializing", "shape": "dot", "size": 10, "value": 1}, {"color": "rgb(23, 190, 207)", "id": "intellectualise", "label": "intellectualise", "shape": "dot", "size": 10, "value": 1}, {"color": "rgb(23, 190, 207)", "id": "intellectualize", "label": "intellectualize", "shape": "dot", "size": 10, "value": 1}, {"color": "rgb(31, 119, 180)", "id": "interchangeable", "label": "interchangeable", "shape": "dot", "size": 10, "value": 1}, {"color": "rgb(31, 119, 180)", "id": "interchangeably", "label": "interchangeably", "shape": "dot", "size": 10, "value": 1}, {"color": "rgb(255, 127, 14)", "id": "internalisation", "label": "internalisation", "shape": "dot", "size": 10, "value": 1}, {"color": "rgb(255, 127, 14)", "id": "internalization", "label": "internalization", "shape": "dot", "size": 10, "value": 1}, {"color": "rgb(44, 160, 44)", "id": "interventionism", "label": "interventionism", "shape": "dot", "size": 10, "value": 1}, {"color": "rgb(44, 160, 44)", "id": "interventionist", "label": "interventionist", "shape": "dot", "size": 10, "value": 1}, {"color": "rgb(214, 39, 40)", "id": "marginalisation", "label": "marginalisation", "shape": "dot", "size": 10, "value": 1}, {"color": "rgb(214, 39, 40)", "id": "marginalization", "label": "marginalization", "shape": "dot", "size": 10, "value": 1}, {"color": "rgb(148, 103, 189)", "id": "materialisation", "label": "materialisation", "shape": "dot", "size": 10, "value": 1}, {"color": "rgb(148, 103, 189)", "id": "materialization", "label": "materialization", "shape": "dot", "size": 10, "value": 1}, {"color": "rgb(140, 86, 75)", "id": "miniaturisation", "label": "miniaturisation", "shape": "dot", "size": 10, "value": 1}, {"color": "rgb(140, 86, 75)", "id": "miniaturization", "label": "miniaturization", "shape": "dot", "size": 10, "value": 1}, {"color": "rgb(227, 119, 194)", "id": "misappropriated", "label": "misappropriated", "shape": "dot", "size": 10, "value": 1}, {"color": "rgb(227, 119, 194)", "id": "misappropriates", "label": "misappropriates", "shape": "dot", "size": 10, "value": 1}, {"color": "rgb(214, 39, 40)", "id": "nationalisation", "label": "nationalisation", "shape": "dot", "size": 10, "value": 2}, {"color": "rgb(214, 39, 40)", "id": "nationalization", "label": "nationalization", "shape": "dot", "size": 10, "value": 2}, {"color": "rgb(214, 39, 40)", "id": "rationalisation", "label": "rationalisation", "shape": "dot", "size": 10, "value": 2}, {"color": "rgb(214, 39, 40)", "id": "rationalization", "label": "rationalization", "shape": "dot", "size": 10, "value": 2}, {"color": "rgb(127, 127, 127)", "id": "overcompensated", "label": "overcompensated", "shape": "dot", "size": 10, "value": 1}, {"color": "rgb(127, 127, 127)", "id": "overcompensates", "label": "overcompensates", "shape": "dot", "size": 10, "value": 1}, {"color": "rgb(188, 189, 34)", "id": "overemphasising", "label": "overemphasising", "shape": "dot", "size": 10, "value": 1}, {"color": "rgb(188, 189, 34)", "id": "overemphasizing", "label": "overemphasizing", "shape": "dot", "size": 10, "value": 1}, {"color": "rgb(44, 160, 44)", "id": "overgeneralised", "label": "overgeneralised", "shape": "dot", "size": 10, "value": 2}, {"color": "rgb(44, 160, 44)", "id": "overgeneralises", "label": "overgeneralises", "shape": "dot", "size": 10, "value": 2}, {"color": "rgb(44, 160, 44)", "id": "overgeneralized", "label": "overgeneralized", "shape": "dot", "size": 10, "value": 2}, {"color": "rgb(44, 160, 44)", "id": "overgeneralizes", "label": "overgeneralizes", "shape": "dot", "size": 10, "value": 2}, {"color": "rgb(23, 190, 207)", "id": "particularising", "label": "particularising", "shape": "dot", "size": 10, "value": 1}, {"color": "rgb(23, 190, 207)", "id": "particularizing", "label": "particularizing", "shape": "dot", "size": 10, "value": 1}, {"color": "rgb(31, 119, 180)", "id": "pedestrianising", "label": "pedestrianising", "shape": "dot", "size": 10, "value": 1}, {"color": "rgb(31, 119, 180)", "id": "pedestrianizing", "label": "pedestrianizing", "shape": "dot", "size": 10, "value": 1}, {"color": "rgb(255, 127, 14)", "id": "photojournalism", "label": "photojournalism", "shape": "dot", "size": 10, "value": 1}, {"color": "rgb(255, 127, 14)", "id": "photojournalist", "label": "photojournalist", "shape": "dot", "size": 10, "value": 1}, {"color": "rgb(44, 160, 44)", "id": "photosynthesise", "label": "photosynthesise", "shape": "dot", "size": 10, "value": 1}, {"color": "rgb(44, 160, 44)", "id": "photosynthesize", "label": "photosynthesize", "shape": "dot", "size": 10, "value": 1}, {"color": "rgb(214, 39, 40)", "id": "polyunsaturated", "label": "polyunsaturated", "shape": "dot", "size": 10, "value": 1}, {"color": "rgb(214, 39, 40)", "id": "polyunsaturates", "label": "polyunsaturates", "shape": "dot", "size": 10, "value": 1}, {"color": "rgb(148, 103, 189)", "id": "professionalise", "label": "professionalise", "shape": "dot", "size": 10, "value": 2}, {"color": "rgb(148, 103, 189)", "id": "professionalism", "label": "professionalism", "shape": "dot", "size": 10, "value": 1}, {"color": "rgb(148, 103, 189)", "id": "professionalize", "label": "professionalize", "shape": "dot", "size": 10, "value": 1}, {"color": "rgb(148, 103, 189)", "id": "psychoanalysing", "label": "psychoanalysing", "shape": "dot", "size": 10, "value": 1}, {"color": "rgb(148, 103, 189)", "id": "psychoanalyzing", "label": "psychoanalyzing", "shape": "dot", "size": 10, "value": 1}, {"color": "rgb(140, 86, 75)", "id": "reorganisations", "label": "reorganisations", "shape": "dot", "size": 10, "value": 1}, {"color": "rgb(140, 86, 75)", "id": "reorganizations", "label": "reorganizations", "shape": "dot", "size": 10, "value": 1}, {"color": "rgb(227, 119, 194)", "id": "revolutionising", "label": "revolutionising", "shape": "dot", "size": 10, "value": 1}, {"color": "rgb(227, 119, 194)", "id": "revolutionizing", "label": "revolutionizing", "shape": "dot", "size": 10, "value": 1}, {"color": "rgb(31, 119, 180)", "id": "sensationalised", "label": "sensationalised", "shape": "dot", "size": 10, "value": 2}, {"color": "rgb(31, 119, 180)", "id": "sensationalises", "label": "sensationalises", "shape": "dot", "size": 10, "value": 3}, {"color": "rgb(31, 119, 180)", "id": "sensationalized", "label": "sensationalized", "shape": "dot", "size": 10, "value": 2}, {"color": "rgb(31, 119, 180)", "id": "sensationalists", "label": "sensationalists", "shape": "dot", "size": 10, "value": 1}, {"color": "rgb(31, 119, 180)", "id": "sensationalizes", "label": "sensationalizes", "shape": "dot", "size": 10, "value": 2}, {"color": "rgb(255, 127, 14)", "id": "sentimentalised", "label": "sentimentalised", "shape": "dot", "size": 10, "value": 2}, {"color": "rgb(255, 127, 14)", "id": "sentimentalises", "label": "sentimentalises", "shape": "dot", "size": 10, "value": 3}, {"color": "rgb(255, 127, 14)", "id": "sentimentalized", "label": "sentimentalized", "shape": "dot", "size": 10, "value": 2}, {"color": "rgb(255, 127, 14)", "id": "sentimentalists", "label": "sentimentalists", "shape": "dot", "size": 10, "value": 1}, {"color": "rgb(255, 127, 14)", "id": "sentimentalizes", "label": "sentimentalizes", "shape": "dot", "size": 10, "value": 2}, {"color": "rgb(127, 127, 127)", "id": "specialisations", "label": "specialisations", "shape": "dot", "size": 10, "value": 1}, {"color": "rgb(127, 127, 127)", "id": "specializations", "label": "specializations", "shape": "dot", "size": 10, "value": 1}, {"color": "rgb(188, 189, 34)", "id": "standardisation", "label": "standardisation", "shape": "dot", "size": 10, "value": 1}, {"color": "rgb(188, 189, 34)", "id": "standardization", "label": "standardization", "shape": "dot", "size": 10, "value": 1}, {"color": "rgb(23, 190, 207)", "id": "synchronisation", "label": "synchronisation", "shape": "dot", "size": 10, "value": 1}, {"color": "rgb(23, 190, 207)", "id": "synchronization", "label": "synchronization", "shape": "dot", "size": 10, "value": 1}, {"color": "rgb(31, 119, 180)", "id": "systematisation", "label": "systematisation", "shape": "dot", "size": 10, "value": 1}, {"color": "rgb(31, 119, 180)", "id": "systematization", "label": "systematization", "shape": "dot", "size": 10, "value": 1}, {"color": "rgb(255, 127, 14)", "id": "teleconferenced", "label": "teleconferenced", "shape": "dot", "size": 10, "value": 1}, {"color": "rgb(255, 127, 14)", "id": "teleconferences", "label": "teleconferences", "shape": "dot", "size": 10, "value": 1}, {"color": "rgb(44, 160, 44)", "id": "topographically", "label": "topographically", "shape": "dot", "size": 10, "value": 1}, {"color": "rgb(44, 160, 44)", "id": "typographically", "label": "typographically", "shape": "dot", "size": 10, "value": 1}]);
+                  edges = new vis.DataSet([{"color": "red", "from": "acclimatisation", "to": "acclimatization", "width": 4}, {"color": "red", "from": "categorisations", "to": "categorizations", "width": 4}, {"color": "red", "from": "circumnavigated", "to": "circumnavigates", "width": 4}, {"color": "red", "from": "commercialising", "to": "commercializing", "width": 4}, {"color": "red", "from": "computerisation", "to": "computerization", "width": 4}, {"color": "red", "from": "conceptualising", "to": "conceptualizing", "width": 4}, {"color": "red", "from": "contextualising", "to": "contextualizing", "width": 4}, {"color": "red", "from": "counterbalanced", "to": "counterbalances", "width": 4}, {"color": "red", "from": "crystallisation", "to": "crystallization", "width": 4}, {"color": "red", "from": "decriminalising", "to": "decriminalizing", "width": 4}, {"color": "red", "from": "democratisation", "to": "democratization", "width": 4}, {"color": "red", "from": "denationalising", "to": "denationalizing", "width": 4}, {"color": "red", "from": "depersonalising", "to": "depersonalizing", "width": 4}, {"color": "red", "from": "desensitisation", "to": "desensitization", "width": 4}, {"color": "red", "from": "destabilisation", "to": "destabilization", "width": 4}, {"color": "red", "from": "disenfranchised", "to": "disenfranchises", "width": 4}, {"color": "red", "from": "disorganisation", "to": "disorganization", "width": 4}, {"color": "red", "from": "externalisation", "to": "externalization", "width": 4}, {"color": "red", "from": "familiarisation", "to": "familiarization", "width": 4}, {"color": "red", "from": "generalisations", "to": "generalizations", "width": 4}, {"color": "red", "from": "hospitalisation", "to": "hospitalization", "width": 4}, {"color": "red", "from": "hyperventilated", "to": "hyperventilates", "width": 4}, {"color": "red", "from": "individualising", "to": "individualizing", "width": 4}, {"color": "red", "from": "industrialising", "to": "industrializing", "width": 4}, {"color": "red", "from": "intellectualise", "to": "intellectualize", "width": 4}, {"color": "red", "from": "interchangeable", "to": "interchangeably", "width": 4}, {"color": "red", "from": "internalisation", "to": "internalization", "width": 4}, {"color": "red", "from": "interventionism", "to": "interventionist", "width": 4}, {"color": "red", "from": "marginalisation", "to": "marginalization", "width": 4}, {"color": "red", "from": "materialisation", "to": "materialization", "width": 4}, {"color": "red", "from": "miniaturisation", "to": "miniaturization", "width": 4}, {"color": "red", "from": "misappropriated", "to": "misappropriates", "width": 4}, {"from": "nationalisation", "to": "nationalization", "width": 1}, {"from": "nationalisation", "to": "rationalisation", "width": 1}, {"from": "nationalization", "to": "rationalization", "width": 1}, {"color": "red", "from": "overcompensated", "to": "overcompensates", "width": 4}, {"color": "red", "from": "overemphasising", "to": "overemphasizing", "width": 4}, {"from": "overgeneralised", "to": "overgeneralises", "width": 1}, {"from": "overgeneralised", "to": "overgeneralized", "width": 1}, {"from": "overgeneralises", "to": "overgeneralizes", "width": 1}, {"from": "overgeneralized", "to": "overgeneralizes", "width": 1}, {"color": "red", "from": "particularising", "to": "particularizing", "width": 4}, {"color": "red", "from": "pedestrianising", "to": "pedestrianizing", "width": 4}, {"color": "red", "from": "photojournalism", "to": "photojournalist", "width": 4}, {"color": "red", "from": "photosynthesise", "to": "photosynthesize", "width": 4}, {"color": "red", "from": "polyunsaturated", "to": "polyunsaturates", "width": 4}, {"color": "red", "from": "professionalise", "to": "professionalism", "width": 4}, {"color": "red", "from": "professionalise", "to": "professionalize", "width": 4}, {"color": "red", "from": "psychoanalysing", "to": "psychoanalyzing", "width": 4}, {"from": "rationalisation", "to": "rationalization", "width": 1}, {"color": "red", "from": "reorganisations", "to": "reorganizations", "width": 4}, {"color": "red", "from": "revolutionising", "to": "revolutionizing", "width": 4}, {"from": "sensationalised", "to": "sensationalises", "width": 1}, {"from": "sensationalised", "to": "sensationalized", "width": 1}, {"color": "red", "from": "sensationalises", "to": "sensationalists", "width": 4}, {"from": "sensationalises", "to": "sensationalizes", "width": 1}, {"from": "sensationalized", "to": "sensationalizes", "width": 1}, {"from": "sentimentalised", "to": "sentimentalises", "width": 1}, {"from": "sentimentalised", "to": "sentimentalized", "width": 1}, {"color": "red", "from": "sentimentalises", "to": "sentimentalists", "width": 4}, {"from": "sentimentalises", "to": "sentimentalizes", "width": 1}, {"from": "sentimentalized", "to": "sentimentalizes", "width": 1}, {"color": "red", "from": "specialisations", "to": "specializations", "width": 4}, {"color": "red", "from": "standardisation", "to": "standardization", "width": 4}, {"color": "red", "from": "synchronisation", "to": "synchronization", "width": 4}, {"color": "red", "from": "systematisation", "to": "systematization", "width": 4}, {"color": "red", "from": "teleconferenced", "to": "teleconferences", "width": 4}, {"color": "red", "from": "topographically", "to": "typographically", "width": 4}]);
+
+                  nodeColors = {};
+                  allNodes = nodes.get({ returnType: "Object" });
+                  for (nodeId in allNodes) {
+                    nodeColors[nodeId] = allNodes[nodeId].color;
+                  }
+                  allEdges = edges.get({ returnType: "Object" });
+                  // adding nodes and edges to the graph
+                  data = {nodes: nodes, edges: edges};
+
+                  var options = {"nodes": {"borderWidth": 1, "borderWidthSelected": 2, "shape": "dot", "size": 10, "color": {"background": "#f1c40f", "border": "#e67e22"}, "font": {"size": 14, "color": "#2c3e50", "face": "arial"}}, "edges": {"width": 2, "color": {"color": "#7f8c8d", "highlight": "#e74c3c"}, "smooth": {"enabled": true, "type": "continuous", "roundness": 0.5}}, "physics": {"enabled": true, "barnesHut": {"gravitationalConstant": -20000, "springLength": 100, "springConstant": 0.05, "damping": 0.4}, "minVelocity": 0.75, "stabilization": {"enabled": true, "iterations": 200}}, "interaction": {"zoomView": true, "selectable": true, "selectConnectedEdges": true, "hover": true, "keyboard": {"enabled": true, "bindToWindow": false}}, "clustering": {"enabled": true, "clusterEdgeThreshold": 150, "clusterNodeProperties": {"borderWidth": 3, "color": {"background": "#FFD700", "border": "#FFA500"}, "size": 50}}};
+
+                  
+
+
+                  
+
+                  network = new vis.Network(container, data, options);
+
+                  
+
+                  
+
+                  
+
+
+                  
+                      network.on("stabilizationProgress", function(params) {
+                          document.getElementById('loadingBar').removeAttribute("style");
+                          var maxWidth = 496;
+                          var minWidth = 20;
+                          var widthFactor = params.iterations/params.total;
+                          var width = Math.max(minWidth,maxWidth * widthFactor);
+                          document.getElementById('bar').style.width = width + 'px';
+                          document.getElementById('text').innerHTML = Math.round(widthFactor*100) + '%';
+                      });
+                      network.once("stabilizationIterationsDone", function() {
+                          document.getElementById('text').innerHTML = '100%';
+                          document.getElementById('bar').style.width = '496px';
+                          document.getElementById('loadingBar').style.opacity = 0;
+                          // really clean the dom element
+                          setTimeout(function () {document.getElementById('loadingBar').style.display = 'none';}, 500);
+                      });
+                  
+
+                  return network;
+
+              }
+              drawGraph();
+        </script>
+    </body>
+</html>
