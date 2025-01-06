@@ -1,0 +1,346 @@
+### BIG FILE: Aggregated Data ###
+
+### Data for Set 2 ###
+
+Longest Word Line (from /Users/dimitrichrysafis/Documents/GitHub/word-graphs/data/2/2_longest.txt):
+ah am an as at aw ax ay eh oh sh uh
+
+Max Degree Word (from /Users/dimitrichrysafis/Documents/GitHub/word-graphs/data/2/2.txt):
+WORD ah (DEGREE: 12)
+CONNECTED words:
+ad
+am
+an
+as
+at
+aw
+ax
+ay
+eh
+oh
+sh
+uh
+
+### Data for Set 3 ###
+
+Longest Word Line (from /Users/dimitrichrysafis/Documents/GitHub/word-graphs/data/3/3_longest.txt):
+bad bag bah ban bap bar bat bay bed bid bod bud cad dad fad gad had lad mad pad rad sad tad wad
+
+Max Degree Word (from /Users/dimitrichrysafis/Documents/GitHub/word-graphs/data/3/3.txt):
+WORD mad (DEGREE: 27)
+CONNECTED words:
+bad
+cad
+dad
+fad
+gad
+had
+lad
+mac
+mag
+mam
+man
+map
+mar
+mas
+mat
+maw
+max
+may
+med
+mid
+mod
+mud
+pad
+rad
+sad
+tad
+wad
+
+### Data for Set 4 ###
+
+Longest Word Line (from /Users/dimitrichrysafis/Documents/GitHub/word-graphs/data/4/4_longest.txt):
+bags bans baps bars bass bats bays begs bigs bogs bugs dags fags gags hags jags lags mags nags rags sags tags wags
+
+Max Degree Word (from /Users/dimitrichrysafis/Documents/GitHub/word-graphs/data/4/4.txt):
+WORD care (DEGREE: 24)
+CONNECTED words:
+bare
+cafe
+cage
+cake
+came
+cane
+cape
+carb
+card
+carp
+cars
+cart
+case
+cave
+core
+cure
+dare
+fare
+hare
+mare
+pare
+rare
+tare
+ware
+
+### Data for Set 5 ###
+
+Longest Word Line (from /Users/dimitrichrysafis/Documents/GitHub/word-graphs/data/5/5_longest.txt):
+backs balks banks barks basks becks bucks hacks jacks lacks macks packs racks sacks tacks wacks yacks
+
+Max Degree Word (from /Users/dimitrichrysafis/Documents/GitHub/word-graphs/data/5/5.txt):
+WORD cares (DEGREE: 23)
+CONNECTED words:
+bares
+cafes
+cages
+cakes
+canes
+capes
+carbs
+cards
+cared
+carer
+carps
+carts
+cases
+caves
+cores
+cures
+dares
+fares
+hares
+mares
+pares
+tares
+wares
+
+### Data for Set 6 ###
+
+Longest Word Line (from /Users/dimitrichrysafis/Documents/GitHub/word-graphs/data/6/6_longest.txt):
+bagged banged barged begged bigged bogged bugged fagged gagged jagged lagged nagged ragged sagged tagged wagged
+
+Max Degree Word (from /Users/dimitrichrysafis/Documents/GitHub/word-graphs/data/6/6.txt):
+WORD cowing (DEGREE: 16)
+CONNECTED words:
+bowing
+cawing
+coding
+coming
+coning
+cooing
+coping
+coring
+coxing
+lowing
+mowing
+rowing
+sowing
+towing
+vowing
+wowing
+
+### Data for Set 7 ###
+
+Longest Word Line (from /Users/dimitrichrysafis/Documents/GitHub/word-graphs/data/7/7_longest.txt):
+bagging banging barging begging bigging bogging bugging fagging gagging lagging nagging ragging sagging tagging wagging
+
+Max Degree Word (from /Users/dimitrichrysafis/Documents/GitHub/word-graphs/data/7/7.txt):
+WORD searing (DEGREE: 16)
+CONNECTED words:
+bearing
+fearing
+gearing
+hearing
+nearing
+rearing
+scaring
+sealing
+seating
+sharing
+snaring
+soaring
+sparing
+staring
+tearing
+wearing
+
+### Data for Set 8 ###
+
+Longest Word Line (from /Users/dimitrichrysafis/Documents/GitHub/word-graphs/data/8/8_longest.txt):
+battered batterer bettered buttered mattered nattered pattered tattered
+
+Max Degree Word (from /Users/dimitrichrysafis/Documents/GitHub/word-graphs/data/8/8.txt):
+WORD battered (DEGREE: 10)
+CONNECTED words:
+bantered
+bartered
+battened
+batterer
+bettered
+buttered
+mattered
+nattered
+pattered
+tattered
+
+### Data for Set 9 ###
+
+Longest Word Line (from /Users/dimitrichrysafis/Documents/GitHub/word-graphs/data/9/9_longest.txt):
+battering bettering buttering mattering nattering pattering
+
+Max Degree Word (from /Users/dimitrichrysafis/Documents/GitHub/word-graphs/data/9/9.txt):
+WORD battering (DEGREE: 8)
+CONNECTED words:
+bantering
+bartering
+battening
+bettering
+buttering
+mattering
+nattering
+pattering
+
+### Data for Set 10 ###
+
+Longest Word Line (from /Users/dimitrichrysafis/Documents/GitHub/word-graphs/data/10/10_longest.txt):
+antagonise antagonism antagonist antagonize
+
+Max Degree Word (from /Users/dimitrichrysafis/Documents/GitHub/word-graphs/data/10/10.txt):
+WORD convection (DEGREE: 4)
+CONNECTED words:
+confection
+connection
+convention
+conviction
+
+### Data for Set 11 ###
+
+Longest Word Line (from /Users/dimitrichrysafis/Documents/GitHub/word-graphs/data/11/11_longest.txt):
+nationalise nationalism nationalist nationalize rationalise
+
+Max Degree Word (from /Users/dimitrichrysafis/Documents/GitHub/word-graphs/data/11/11.txt):
+WORD antagonises (DEGREE: 4)
+CONNECTED words:
+antagonised
+antagonisms
+antagonists
+antagonizes
+
+### Data for Set 12 ###
+
+Longest Word Line (from /Users/dimitrichrysafis/Documents/GitHub/word-graphs/data/12/12_longest.txt):
+breathalysed breathalyser breathalyses breathalyzed
+
+Max Degree Word (from /Users/dimitrichrysafis/Documents/GitHub/word-graphs/data/12/12.txt):
+WORD nationalises (DEGREE: 4)
+CONNECTED words:
+nationalised
+nationalists
+nationalizes
+rationalises
+
+### Data for Set 13 ###
+
+Longest Word Line (from /Users/dimitrichrysafis/Documents/GitHub/word-graphs/data/13/13_longest.txt):
+individualise individualism individualist individualize
+
+Max Degree Word (from /Users/dimitrichrysafis/Documents/GitHub/word-graphs/data/13/13.txt):
+WORD anaesthetises (DEGREE: 3)
+CONNECTED words:
+anaesthetised
+anaesthetists
+anaesthetizes
+
+### Data for Set 14 ###
+
+Longest Word Line (from /Users/dimitrichrysafis/Documents/GitHub/word-graphs/data/14/14_longest.txt):
+psychoanalyses psychoanalysis psychoanalysts psychoanalyzes
+
+Max Degree Word (from /Users/dimitrichrysafis/Documents/GitHub/word-graphs/data/14/14.txt):
+WORD psychoanalyses (DEGREE: 4)
+CONNECTED words:
+psychoanalysed
+psychoanalysis
+psychoanalysts
+psychoanalyzes
+
+### Data for Set 15 ###
+
+Longest Word Line (from /Users/dimitrichrysafis/Documents/GitHub/word-graphs/data/15/15_longest.txt):
+nationalisation nationalization rationalisation
+
+Max Degree Word (from /Users/dimitrichrysafis/Documents/GitHub/word-graphs/data/15/15.txt):
+WORD sensationalises (DEGREE: 3)
+CONNECTED words:
+sensationalised
+sensationalists
+sensationalizes
+
+### Data for Set 16 ###
+
+Longest Word Line (from /Users/dimitrichrysafis/Documents/GitHub/word-graphs/data/16/16_longest.txt):
+internationalise internationalism internationalist internationalize
+
+Max Degree Word (from /Users/dimitrichrysafis/Documents/GitHub/word-graphs/data/16/16.txt):
+WORD internationalise (DEGREE: 3)
+CONNECTED words:
+internationalism
+internationalist
+internationalize
+
+### Data for Set 17 ###
+
+Longest Word Line (from /Users/dimitrichrysafis/Documents/GitHub/word-graphs/data/17/17_longest.txt):
+compartmentalised compartmentalises compartmentalized
+
+Max Degree Word (from /Users/dimitrichrysafis/Documents/GitHub/word-graphs/data/17/17.txt):
+WORD internationalises (DEGREE: 3)
+CONNECTED words:
+internationalised
+internationalists
+internationalizes
+
+### Data for Set 18 ###
+
+Longest Word Line (from /Users/dimitrichrysafis/Documents/GitHub/word-graphs/data/18/18_longest.txt):
+compartmentalising compartmentalizing
+
+Max Degree Word (from /Users/dimitrichrysafis/Documents/GitHub/word-graphs/data/18/18.txt):
+WORD compartmentalising (DEGREE: 1)
+CONNECTED words:
+compartmentalizing
+
+### Data for Set 19 ###
+
+Longest Word Line (from /Users/dimitrichrysafis/Documents/GitHub/word-graphs/data/19/19_longest.txt):
+professionalisation professionalization
+
+Max Degree Word (from /Users/dimitrichrysafis/Documents/GitHub/word-graphs/data/19/19.txt):
+WORD professionalisation (DEGREE: 1)
+CONNECTED words:
+professionalization
+
+### Data for Set 20 ###
+
+Longest Word Line (from /Users/dimitrichrysafis/Documents/GitHub/word-graphs/data/20/20_longest.txt):
+institutionalisation institutionalization
+
+Max Degree Word (from /Users/dimitrichrysafis/Documents/GitHub/word-graphs/data/20/20.txt):
+WORD institutionalisation (DEGREE: 1)
+CONNECTED words:
+institutionalization
+
+### Data for Set 21 ###
+Data files not found for this set.
+
+### Data for Set 22 ###
+Data files not found for this set.
+
