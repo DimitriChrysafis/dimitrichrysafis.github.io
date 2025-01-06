@@ -1,3 +1,10 @@
+
+FOR RAW IMAGES GO HERE
+
+https://github.com/DimitriChrysafis/word-graphs
+
+Note: your computer mmight be too weak to render some of them
+
 [Words With Length 2, Click Me](media/post5/html/2.html)
 
 [Words With Length 3, Click Me](media/post5/html/3.html)
