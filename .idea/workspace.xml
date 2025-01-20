@@ -5,14 +5,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="5b79210f-ace1-4c6d-8a9e-c09f32e7ec5c" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/media/post6/freezeframe1.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/media/post6/freezeframe2.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/media/post7/compressed.mp4" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/media/post7/index.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/folder/post6.md" beforeDir="false" afterPath="$PROJECT_DIR$/folder/post6.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/json/posts.json" beforeDir="false" afterPath="$PROJECT_DIR$/json/posts.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/media/post6/cool.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/media/post7/compressed.mp4" beforeDir="false" afterPath="$PROJECT_DIR$/media/post6/compressed.mp4" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/media/post7/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/media/post6/newton.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -88,7 +85,7 @@
       <workItem from="1736200645607" duration="2597000" />
       <workItem from="1737321603105" duration="448000" />
       <workItem from="1737339466146" duration="10106000" />
-      <workItem from="1737397809256" duration="1225000" />
+      <workItem from="1737397809256" duration="2498000" />
     </task>
     <servers />
   </component>
