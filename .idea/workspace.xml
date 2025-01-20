@@ -5,8 +5,16 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="5b79210f-ace1-4c6d-8a9e-c09f32e7ec5c" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/folder/post6.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/media/post6/bulb.mp4" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/media/post6/cool.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/media/post6/fragment.glsl" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/media/post6/garbage.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/media/post6/index.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/media/post6/script.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/media/post6/vertex.glsl" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/json/mini.json" beforeDir="false" afterPath="$PROJECT_DIR$/json/mini.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/json/posts.json" beforeDir="false" afterPath="$PROJECT_DIR$/json/posts.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -27,27 +35,28 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;ASKED_ADD_EXTERNAL_FILES&quot;: &quot;true&quot;,
-    &quot;JavaScript Debug.index.html.executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ASKED_ADD_EXTERNAL_FILES": "true",
+    "JavaScript Debug.index.html.executor": "Run",
+    "Node.js.script.js.executor": "Run",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "git-widget-placeholder": "main",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/media/post6" />
       <recent name="$PROJECT_DIR$/media/post5" />
       <recent name="$PROJECT_DIR$/media/post3" />
       <recent name="$PROJECT_DIR$/json" />
       <recent name="$PROJECT_DIR$" />
-      <recent name="$PROJECT_DIR$/media/post2" />
     </key>
   </component>
   <component name="SharedIndexes">
@@ -80,7 +89,7 @@
       <workItem from="1736122184718" duration="4697000" />
       <workItem from="1736200645607" duration="2597000" />
       <workItem from="1737321603105" duration="448000" />
-      <workItem from="1737339466146" duration="699000" />
+      <workItem from="1737339466146" duration="9778000" />
     </task>
     <servers />
   </component>
