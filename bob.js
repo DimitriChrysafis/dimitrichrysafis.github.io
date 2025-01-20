@@ -1,6 +1,6 @@
 let posts = [];
 let colors = {};
-
+// we
 async function loadTemplates() {
   const response = await fetch('templates.html');
   const html = await response.text();
