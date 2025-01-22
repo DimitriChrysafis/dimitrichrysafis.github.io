@@ -4,19 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="5b79210f-ace1-4c6d-8a9e-c09f32e7ec5c" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/media/post6/newton/code.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/media/post6/newton/fragmentShader.glsl" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/media/post6/newton/newton.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/media/post6/newton/style.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/media/post6/fragment.glsl" beforeDir="false" afterPath="$PROJECT_DIR$/media/post6/notnewton/fragment.glsl" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/media/post6/garbage.css" beforeDir="false" afterPath="$PROJECT_DIR$/media/post6/notnewton/garbage.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/media/post6/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/media/post6/notnewton/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/media/post6/newton.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/media/post6/script.js" beforeDir="false" afterPath="$PROJECT_DIR$/media/post6/notnewton/script.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/media/post6/vertex.glsl" beforeDir="false" afterPath="$PROJECT_DIR$/media/post6/notnewton/vertex.glsl" afterDir="false" />
-    </list>
+    <list default="true" id="5b79210f-ace1-4c6d-8a9e-c09f32e7ec5c" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -94,7 +82,7 @@
       <workItem from="1737321603105" duration="448000" />
       <workItem from="1737339466146" duration="10106000" />
       <workItem from="1737397809256" duration="3865000" />
-      <workItem from="1737506232212" duration="2440000" />
+      <workItem from="1737506232212" duration="2639000" />
     </task>
     <servers />
   </component>
