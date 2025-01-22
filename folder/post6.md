@@ -6,8 +6,8 @@ This post is merely a placeholder for me to showcase my work.
  https://dimitrichrysafis.github.io/media/post6/index.html
  https://dimitrichrysafis.github.io/media/post6/newton.html
 
-<iframe src="media/post6/newton.html" width="700" height="400"></iframe>
-<iframe src="media/post6/index.html" width="700" height="400"></iframe>
+<iframe src="media/post6/newton/newton.html" width="700" height="400"></iframe>
+<iframe src="media/post6/notnewton/index.html" width="700" height="400"></iframe>
 
 
 <img src="../media/post6/freezeframe1.png" width="700" height="500">
