@@ -3,7 +3,7 @@ I'm not going to sit here and explain everything about fractals. School has star
 This post is merely a placeholder for me to showcase my work.
 
 ## Click urls below for live demo. ON NEWTONS FRACTAL CLICK TO INTERACT
- https://dimitrichrysafis.github.io/misc/newton.html
+ https://dimitrichrysafis.github.io/media/post6/newton/combinedNewton.html
  https://dimitrichrysafis.github.io/media/post6/notnewton/index.html
 
 <iframe src="misc/newton.html" width="700" height="400"></iframe>
