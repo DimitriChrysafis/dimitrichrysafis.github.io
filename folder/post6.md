@@ -6,7 +6,7 @@ This post is merely a placeholder for me to showcase my work.
  https://dimitrichrysafis.github.io/media/post6/newton/combinedNewton.html
  https://dimitrichrysafis.github.io/media/post6/notnewton/index.html
 
-<iframe src="misc/newton.html" width="700" height="400"></iframe>
+<iframe src="media/post6/newton/combinedNewton.html" width="700" height="400"></iframe>
 <iframe src="media/post6/notnewton/index.html" width="700" height="400"></iframe>
 
 

@@ -4,14 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="5b79210f-ace1-4c6d-8a9e-c09f32e7ec5c" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/media/post6/newton/combinedNewton.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/folder/post6.md" beforeDir="false" afterPath="$PROJECT_DIR$/folder/post6.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/misc/code.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/misc/fragmentShader.glsl" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/misc/newton.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/misc/style.css" beforeDir="false" />
-    </list>
+    <list default="true" id="5b79210f-ace1-4c6d-8a9e-c09f32e7ec5c" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -93,7 +86,7 @@
       <workItem from="1737397809256" duration="3865000" />
       <workItem from="1737506232212" duration="2639000" />
       <workItem from="1737585651519" duration="2876000" />
-      <workItem from="1737614882718" duration="869000" />
+      <workItem from="1737614882718" duration="1249000" />
     </task>
     <servers />
   </component>
