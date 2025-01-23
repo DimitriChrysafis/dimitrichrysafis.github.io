@@ -1,1 +1,5 @@
-media/post5/* linguist-vendored
+# Exclude everything by default
+* linguist-vendored
+
+# Include files in the media/post4 directory
+!media/post4/* linguist-documentation
