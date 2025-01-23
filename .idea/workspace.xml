@@ -4,12 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="5b79210f-ace1-4c6d-8a9e-c09f32e7ec5c" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/media/newton/code.js" beforeDir="false" afterPath="$PROJECT_DIR$/media/post6/newton/code.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/media/newton/fragmentShader.glsl" beforeDir="false" afterPath="$PROJECT_DIR$/media/post6/newton/fragmentShader.glsl" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/media/newton/newton.html" beforeDir="false" afterPath="$PROJECT_DIR$/media/post6/newton/newton.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/media/newton/style.css" beforeDir="false" afterPath="$PROJECT_DIR$/media/post6/newton/style.css" afterDir="false" />
-    </list>
+    <list default="true" id="5b79210f-ace1-4c6d-8a9e-c09f32e7ec5c" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -48,11 +43,11 @@
 }</component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
-      <recent name="$PROJECT_DIR$/media/post6/notnewton" />
       <recent name="$PROJECT_DIR$/media/post6" />
+      <recent name="$PROJECT_DIR$/media" />
+      <recent name="$PROJECT_DIR$/media/post6/notnewton" />
       <recent name="$PROJECT_DIR$/media/post7" />
       <recent name="$PROJECT_DIR$/media/post5" />
-      <recent name="$PROJECT_DIR$/media/post3" />
     </key>
   </component>
   <component name="SharedIndexes">
@@ -88,7 +83,7 @@
       <workItem from="1737339466146" duration="10106000" />
       <workItem from="1737397809256" duration="3865000" />
       <workItem from="1737506232212" duration="2639000" />
-      <workItem from="1737585651519" duration="2582000" />
+      <workItem from="1737585651519" duration="2876000" />
     </task>
     <servers />
   </component>
