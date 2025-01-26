@@ -5,7 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="5b79210f-ace1-4c6d-8a9e-c09f32e7ec5c" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/json/posts.json" beforeDir="false" afterPath="$PROJECT_DIR$/json/posts.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/folder/post7.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -57,11 +57,11 @@
 }</component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/folder" />
       <recent name="$PROJECT_DIR$/media" />
       <recent name="$PROJECT_DIR$/media/post7" />
       <recent name="$PROJECT_DIR$/media/post6/newton" />
       <recent name="$PROJECT_DIR$/media/post6/notnewton" />
-      <recent name="$PROJECT_DIR$/misc" />
     </key>
   </component>
   <component name="SharedIndexes">
@@ -105,7 +105,7 @@
       <workItem from="1737700022239" duration="2518000" />
       <workItem from="1737787563234" duration="798000" />
       <workItem from="1737833473589" duration="1632000" />
-      <workItem from="1737870718963" duration="6997000" />
+      <workItem from="1737870718963" duration="7686000" />
     </task>
     <servers />
   </component>
