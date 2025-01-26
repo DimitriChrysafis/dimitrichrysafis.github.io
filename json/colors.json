@@ -1,5 +1,5 @@
 {
-    "Mathematics": "lightblue",
+    "Mathematics": "darkblue",
     "Fun": "red",
     "Blog": "green",
     "First": "orange",
@@ -7,6 +7,6 @@
     "Technology": "teal",
     "Art": "pink",
     "Education": "yellow",
-    "Computer": "yellow",
+    "Computer": "purple",
     "Graph Theory": "teal"
 }

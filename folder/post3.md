@@ -1,6 +1,6 @@
 # Smooth Blending of Spheres
 
-<video width="600" controls>  
+<video width="1000" controls>  
   <source src="../media/post3/blubblubblub.mp4" type="video/mp4">  
   Your browser does not support the video tag.  
 </video>  
@@ -85,7 +85,7 @@ If $k \to 0$, the result is a hard union (no blending). As $k$ increases, the tr
 
 ## 2D and 3D Visualization of Blending  
 
-<video width="600" controls>  
+<video width="1000" controls>  
   <source src="../media/post3/miniblub.mp4" type="video/mp4">  
   Your browser does not support the video tag.  
 </video>  
