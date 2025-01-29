@@ -1,11 +1,18 @@
 [
-    
     {
-        "title": "Kleinian limit set-Maskit",
+        "title": "Bubbles",
+        "filename": "post7.md",
+        "date": "2025-1-25",
+        "author": "Post 7",
+        "bio": "How to blow bubbles",
+        "categories": ["Computer"]
+    },
+    {
+        "title": "Cool Complex Shapes",
         "filename": "post6.md",
         "date": "2025-1-19",
         "author": "Post 6",
-        "bio": "Cool Shapes",
+        "bio": "Mandelebulb, Julia set, Kleinian limit set-Maskit, Newton's Fractal",
         "categories": ["Mathematics"]
     },
     {
