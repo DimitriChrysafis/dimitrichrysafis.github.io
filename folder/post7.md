@@ -2,7 +2,6 @@
 ## Bubbles
 
 This is not done im uploading to github as a backup
-# My Page
 
 <div id="image-container"></div>
 
