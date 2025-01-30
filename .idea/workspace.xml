@@ -4,7 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="5b79210f-ace1-4c6d-8a9e-c09f32e7ec5c" name="Changes" comment="" />
+    <list default="true" id="5b79210f-ace1-4c6d-8a9e-c09f32e7ec5c" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/folder/image-embed.html" beforeDir="false" afterPath="$PROJECT_DIR$/media/post7/image-embed.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/folder/post7.md" beforeDir="false" afterPath="$PROJECT_DIR$/folder/post7.md" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -24,41 +28,42 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;ASKED_ADD_EXTERNAL_FILES&quot;: &quot;true&quot;,
-    &quot;JavaScript Debug.1.html.executor&quot;: &quot;Run&quot;,
-    &quot;JavaScript Debug.2.html.executor&quot;: &quot;Run&quot;,
-    &quot;JavaScript Debug.3.html.executor&quot;: &quot;Run&quot;,
-    &quot;JavaScript Debug.4.html.executor&quot;: &quot;Run&quot;,
-    &quot;JavaScript Debug.5.html.executor&quot;: &quot;Run&quot;,
-    &quot;JavaScript Debug.fun.html.executor&quot;: &quot;Run&quot;,
-    &quot;JavaScript Debug.index.html.executor&quot;: &quot;Run&quot;,
-    &quot;JavaScript Debug.largenet.html.executor&quot;: &quot;Run&quot;,
-    &quot;JavaScript Debug.main.html.executor&quot;: &quot;Run&quot;,
-    &quot;JavaScript Debug.newton copy.html.executor&quot;: &quot;Run&quot;,
-    &quot;JavaScript Debug.newton.html.executor&quot;: &quot;Run&quot;,
-    &quot;JavaScript Debug.post7.executor&quot;: &quot;Run&quot;,
-    &quot;JavaScript Debug.templates.html.executor&quot;: &quot;Run&quot;,
-    &quot;JavaScript Debug.trans.html.executor&quot;: &quot;Run&quot;,
-    &quot;JavaScript Debug.what.html.executor&quot;: &quot;Run&quot;,
-    &quot;Node.js.script.js.executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ASKED_ADD_EXTERNAL_FILES": "true",
+    "JavaScript Debug.1.html.executor": "Run",
+    "JavaScript Debug.2.html.executor": "Run",
+    "JavaScript Debug.3.html.executor": "Run",
+    "JavaScript Debug.4.html.executor": "Run",
+    "JavaScript Debug.5.html.executor": "Run",
+    "JavaScript Debug.fun.html.executor": "Run",
+    "JavaScript Debug.image-embed.html.executor": "Run",
+    "JavaScript Debug.index.html.executor": "Run",
+    "JavaScript Debug.largenet.html.executor": "Run",
+    "JavaScript Debug.main.html.executor": "Run",
+    "JavaScript Debug.newton copy.html.executor": "Run",
+    "JavaScript Debug.newton.html.executor": "Run",
+    "JavaScript Debug.post7.executor": "Run",
+    "JavaScript Debug.templates.html.executor": "Run",
+    "JavaScript Debug.trans.html.executor": "Run",
+    "JavaScript Debug.what.html.executor": "Run",
+    "Node.js.script.js.executor": "Run",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "git-widget-placeholder": "main",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/media/post7" />
       <recent name="$PROJECT_DIR$/media/post6" />
       <recent name="$PROJECT_DIR$/folder" />
       <recent name="$PROJECT_DIR$/media" />
-      <recent name="$PROJECT_DIR$/media/post7" />
       <recent name="$PROJECT_DIR$/media/post6/newton" />
     </key>
   </component>
@@ -109,6 +114,7 @@
       <workItem from="1738128409863" duration="1060000" />
       <workItem from="1738178226726" duration="357000" />
       <workItem from="1738216155642" duration="1415000" />
+      <workItem from="1738276590703" duration="4239000" />
     </task>
     <servers />
   </component>
