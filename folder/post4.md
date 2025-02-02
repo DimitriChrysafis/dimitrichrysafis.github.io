@@ -109,7 +109,7 @@ For example, consider the matrix $\( C \)$:
 
 <br />
 
-Given the matrix \( C \):
+Given the matrix $\( C \)$:
 
 $$
 C = 
@@ -119,23 +119,23 @@ C =
 \end{bmatrix}
 $$
 
-We perform QR decomposition to express \( C \) as the product of two matrices \( Q \) and \( R \), where:
+We perform QR decomposition to express $\( C \)$ as the product of two matrices $\( Q \)$ and $\( R \)$, where:
 
 $$
 C = Q \cdot R
 $$
 
-### Step 1: Compute the first column of \( Q \)
+### Step 1: Compute the first column of $\( Q \)$
 
-We begin by computing the first column of \( Q \), denoted \( q_1 \). This is the normalized version of the first column of \( C \), denoted \( c_1 \).
+We begin by computing the first column of $\( Q \)$, denoted $\( q_1 \)$. This is the normalized version of the first column of \( C \), denoted \( c_1 \).
 
-The first column of \( C \) is:
+The first column of $\( C \)$ is:
 
 $$
 c_1 = \begin{bmatrix} 1 \\\\ 3 \end{bmatrix}
 $$
 
-We compute the norm of \( c_1 \):
+We compute the norm of $\( c_1 \):$
 
 $$
 \| c_1 \| = \sqrt{1^2 + 3^2} = \sqrt{10}
@@ -147,7 +147,7 @@ $$
 q_1 = \frac{1}{\| c_1 \|} \cdot c_1 = \frac{1}{\sqrt{10}} \cdot \begin{bmatrix} 1 \\\\ 3 \end{bmatrix} = \begin{bmatrix} 0.3162 \\ 0.9487 \end{bmatrix}
 $$
 
-Thus, the first column of \( Q \) is:
+Thus, the first column of $\( Q \)$ is:
 
 $$
 q_1 = \begin{bmatrix} 0.3162 \\\\ 0.9487 \end{bmatrix}
@@ -155,17 +155,17 @@ $$
 
 ### Step 2: Compute the second column of \( Q \)
 
-Next, we compute the second column of \( Q \), denoted \( q_2 \). We first find the component of the second column of \( C \) that is orthogonal to \( q_1 \).
+Next, we compute the second column of $\( Q \)$, denoted $\( q_2 \)$. We first find the component of the second column of $\( C \)$ that is orthogonal to $\( q_1 \).$
 
-The second column of \( C \) is:
+The second column of $\( C \)$ is:
 
 $$
 c_2 = \begin{bmatrix} 2 \\\\ 4 \end{bmatrix}
 $$
 
-#### Step 2a: Find the projection of \( c_2 \) onto \( q_1 \)
+#### Step 2a: Find the projection of $\( c_2 \)$ onto \( q_1 \)$
 
-The projection of \( c_2 \) onto \( q_1 \) is:
+The projection of $\( c_2 \) $onto $\( q_1 \)$ is:
 
 $$
 \text{proj}_{q_1}(c_2) = \left( \frac{c_2^T q_1}{q_1^T q_1} \right) q_1
@@ -185,7 +185,7 @@ $$
 
 #### Step 2b: Subtract the projection from \( c_2 \)
 
-Now, subtract the projection from \( c_2 \) to get the component of \( c_2 \) that is orthogonal to \( q_1 \):
+Now, subtract the projection from $\( c_2 \)$ to get the component of $\( c_2 \) $that is orthogonal to $\( q_1 \):$
 
 $$
 v_2 = c_2 - \text{proj}_{q_1}(c_2) = \begin{bmatrix} 2 \\\\ 4 \end{bmatrix} - \begin{bmatrix} 1.4 \\ 4.2 \end{bmatrix} = \begin{bmatrix} 0.6 \\ -0.2 \end{bmatrix}
@@ -193,21 +193,21 @@ $$
 
 #### Step 2c: Normalize \( v_2 \) to obtain \( q_2 \)
 
-Next, we normalize \( v_2 \) to obtain \( q_2 \):
+Next, we normalize $\( v_2 \)$ to obtain $\( q_2 \):$
 
 $$
 \| v_2 \| = \sqrt{(0.6)^2 + (-0.2)^2} = \sqrt{0.36 + 0.04} = \sqrt{0.4} = 0.6325
 $$
 
-Thus, the second column of \( Q \) is:
+Thus, the second column of $\( Q \)$ is:
 
 $$
 q_2 = \frac{1}{0.6325} \cdot \begin{bmatrix} 0.6 \\\\ -0.2 \end{bmatrix} = \begin{bmatrix} 0.9487 \\ -0.3162 \end{bmatrix}
 $$
 
-### Step 3: Construct the matrix \( Q \)
+### Step 3: Construct the matrix $\( Q \)$
 
-We now have the columns of \( Q \):
+We now have the columns of $\( Q \):$
 
 $$
 Q = 
@@ -217,15 +217,15 @@ Q =
 \end{bmatrix}
 $$
 
-### Step 4: Compute the matrix \( R \)
+### Step 4: Compute the matrix $\( R \)$
 
-Now, we compute the upper triangular matrix \( R \), where the elements are given by the dot products of the columns of \( C \) with the corresponding columns of \( Q \):
+Now, we compute the upper triangular matrix $\( R \)$, where the elements are given by the dot products of the columns of $\( C \)$ with the corresponding columns of $\( Q \):$
 
 $$
 R_{ij} = q_i^T c_j
 $$
 
-#### First row of \( R \):
+#### First row of $\( R \):$
 
 $$
 R_{11} = q_1^T c_1 = 0.3162 \times 1 + 0.9487 \times 3 = 0.3162 + 2.8461 = 3.1623
@@ -234,13 +234,13 @@ $$
 R_{12} = q_1^T c_2 = 0.3162 \times 2 + 0.9487 \times 4 = 0.6324 + 3.7948 = 4.4272
 $$
 
-#### Second row of \( R \):
+#### Second row of $\( R \):$
 
 $$
 R_{22} = q_2^T c_2 = 0.9487 \times 2 + (-0.3162) \times 4 = 1.8974 - 1.2648 = 0.6325
 $$
 
-Thus, the matrix \( R \) is:
+Thus, the matrix $\( R \)$ is:
 
 $$
 R = 
@@ -252,7 +252,7 @@ $$
 
 ### Final Result
 
-The QR decomposition of \( C \) is:
+The QR decomposition of $\( C \)$ is:
 
 $$
 Q = 
@@ -268,7 +268,7 @@ R =
 \end{bmatrix}
 $$
 
-Thus, \( C \) is the product of \( Q \) and \( R \), confirming the QR decomposition.
+Thus, $\( C \)$ is the product of $\( Q \)$ and$ \( R \)$, confirming the QR decomposition.
 
 <br />
 
@@ -319,7 +319,7 @@ Once the matrix is sufficiently diagonal, the eigenvalues are the diagonal eleme
 
 ### Example Walkthrough
 
-Consider the companion matrix \( C \) for a polynomial:
+Consider the companion matrix $\( C \)$ for a polynomial:
 
 $$
 C = 
@@ -336,7 +336,7 @@ $$
 We want to find the eigenvalues of this matrix using the QR algorithm.
 
 1. **First Iteration:**
-   Perform the QR decomposition on \( C \):
+   Perform the QR decomposition on $\( C \):$
 
    $$ C = QR $$
 
