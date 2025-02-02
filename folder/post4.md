@@ -141,7 +141,7 @@ $$
 \| c_1 \| = \sqrt{1^2 + 3^2} = \sqrt{10}
 $$
 
-Now, normalize \( c_1 \) to obtain \( q_1 \):
+Now, normalize $\( c_1 \)$ to obtain $\( q_1 \):$
 
 $$
 q_1 = \frac{1}{\| c_1 \|} \cdot c_1 = \frac{1}{\sqrt{10}} \cdot \begin{bmatrix} 1 \\\\ 3 \end{bmatrix} = \begin{bmatrix} 0.3162 \\ 0.9487 \end{bmatrix}
@@ -163,7 +163,7 @@ $$
 c_2 = \begin{bmatrix} 2 \\\\ 4 \end{bmatrix}
 $$
 
-#### Step 2a: Find the projection of $\( c_2 \)$ onto \( q_1 \)$
+#### Step 2a: Find the projection of $\( c_2 \)$ onto $\( q_1 \)$
 
 The projection of $\( c_2 \) $onto $\( q_1 \)$ is:
 
@@ -171,7 +171,7 @@ $$
 \text{proj}_{q_1}(c_2) = \left( \frac{c_2^T q_1}{q_1^T q_1} \right) q_1
 $$
 
-Since \( q_1^T q_1 = 1 \) (because \( q_1 \) is a unit vector), we compute \( c_2^T q_1 \):
+Since $\( q_1^T q_1 = 1 \)$ (because $\( q_1 \)$ is a unit vector), we compute $\( c_2^T q_1 \):$
 
 $$
 c_2^T q_1 = 2 \times 0.3162 + 4 \times 0.9487 = 0.6324 + 3.7948 = 4.4272
@@ -183,7 +183,7 @@ $$
 \text{proj}_{q_1}(c_2) = 4.4272 \cdot \begin{bmatrix} 0.3162 \\\\ 0.9487 \end{bmatrix} = \begin{bmatrix} 1.4 \\ 4.2 \end{bmatrix}
 $$
 
-#### Step 2b: Subtract the projection from \( c_2 \)
+#### Step 2b: Subtract the projection from $\( c_2 \)$
 
 Now, subtract the projection from $\( c_2 \)$ to get the component of $\( c_2 \) $that is orthogonal to $\( q_1 \):$
 
@@ -191,7 +191,7 @@ $$
 v_2 = c_2 - \text{proj}_{q_1}(c_2) = \begin{bmatrix} 2 \\\\ 4 \end{bmatrix} - \begin{bmatrix} 1.4 \\ 4.2 \end{bmatrix} = \begin{bmatrix} 0.6 \\ -0.2 \end{bmatrix}
 $$
 
-#### Step 2c: Normalize \( v_2 \) to obtain \( q_2 \)
+#### Step 2c: Normalize $\( v_2 \)$ to obtain $\( q_2 \)$
 
 Next, we normalize $\( v_2 \)$ to obtain $\( q_2 \):$
 
