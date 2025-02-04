@@ -106,7 +106,7 @@ $
 This count is $\( N(z_0) \).$
 
 <br />
-Points for which $\( N(z_0) \)$ is very low diverge quickly.
+Points for which $( N(z_0) )$ is very low diverge quickly.
 Points that never escape (or require a very large number of iterations) are considered part of the filled Julia set and we draw them
 
 
@@ -198,7 +198,7 @@ for a small threshold $$\( \varepsilon > 0 \).$$
 
 # Kleinian Groups and Their Goofy Circle Patterns
 
-A **Kleinian group** \( G \) is a discrete subgroup of \(\operatorname{PSL}(2,\mathbb{C})\). Its elements act on the Riemann sphere 
+A **Kleinian group** $\( G \)$ is a discrete subgroup of $\(\operatorname{PSL}(2,\mathbb{C})\)$. Its elements act on the Riemann sphere 
 $$
 \widehat{\mathbb{C}} = \mathbb{C} \cup \{\infty\}
 $$ 
@@ -216,13 +216,13 @@ A common normalization is
 $$
 ad - bc = 1.
 $$
-These transformations map circles and lines in \(\widehat{\mathbb{C}}\) to circles or lines, which is the key to the circular patterns observed.
+These transformations map circles and lines in $\(\widehat{\mathbb{C}}\)$ to circles or lines, which is the key to the circular patterns observed.
 
 ---
 
 ## 2. Group Action
 
-The group \( G \) acts on the Riemann sphere by
+The group $\( G \)$ acts on the Riemann sphere by
 $$
 G \times \widehat{\mathbb{C}} \to \widehat{\mathbb{C}}, \quad (g, z) \mapsto g(z).
 $$
@@ -232,11 +232,11 @@ The repeated action of different Möbius transformations from \( G \) produces c
 
 ## 3. Limit Set
 
-For any point \( z \in \widehat{\mathbb{C}} \), the orbit is defined as
+For any point $\( z \in \widehat{\mathbb{C}} \)$, the orbit is defined as
 $$
 G(z) = \{\, g(z) : g \in G \,\}.
 $$
-The **limit set** \(\Lambda(G)\) is
+The **limit set** $\(\Lambda(G)\)$ is
 $$
 \Lambda(G) = \overline{G(z)} \setminus \{\text{isolated points}\},
 $$
@@ -245,23 +245,18 @@ $$
 \Lambda(G) = \{\, w \in \widehat{\mathbb{C}} : \exists\, \{g_n\} \subset G \text{ with } g_n(z) \to w \,\}.
 $$
 
-**Properties:**
-- \(\Lambda(G)\) is the minimal closed \(G\)-invariant set.
-- For many Kleinian groups, \(\Lambda(G)\) exhibits fractal geometry.
-
 ---
 
 ## 4. Domain of Discontinuity
 
-The **domain of discontinuity** is given by
+TJA **domain of discontinuity** is given by
 $$
 \Omega(G) = \widehat{\mathbb{C}} \setminus \Lambda(G).
 $$
-On \(\Omega(G)\), the action of \( G \) is properly discontinuous:
+On $\(\Omega(G)\)$, the action of $\( G \)$ is properly discontinuous:
 $$
 \forall\, z \in \Omega(G), \quad \exists\, U \ni z \text{ such that } \{\, g \in G : g(U) \cap U \neq \varnothing \,\} \text{ is finite.}
 $$
-This domain typically consists of round disks or circular regions, which get mapped into one another under the group action.
 
 ---
 
@@ -273,34 +268,18 @@ The circular patterns emerge because:
    Möbius transformations preserve circles (and straight lines). Hence, even after repeated applications, the images of circles remain circles or become circular arcs.
 
 2. **Inversions and Reflections:**  
-   Many elements of Kleinian groups can be seen as inversions in circles. An inversion in a circle \( C \) (with center \( c \) and radius \( r \)) is given by
+   Many elements of Kleinian groups can be seen as inversions in circles. An inversion in a circle $\( C \)$ (with center $\( c \)$ and radius $\( r \))$ is given by
    $$
    z \mapsto c + \frac{r^2}{\overline{z-c}},
    $$
-   which maps the exterior of \( C \) to its interior and vice versa. The interplay of multiple inversions creates nested, self-similar circles.
+   which maps the exterior of \( C \) to its interior and vice versa. 
 
-3. **Fractal Limit Sets:**  
-   The limit set \(\Lambda(G)\) is typically fractal. As points are accumulated through infinite compositions of the group elements, the boundary of \(\Lambda(G)\) exhibits a circular and fractal structure. Zooming in reveals repeated patterns, which is a hallmark of fractals.
-
-4. **Symmetry and Self-Similarity:**  
-   Many Kleinian groups have symmetries that force the arrangement of circles into symmetric, repeating patterns. This results in intricate designs where circular elements recur at various scales.
-
----
-
-## 6. Maskit Combination (Outline)
-
-Given Kleinian groups \( G_1 \) and \( G_2 \) with a common subgroup \( H \), one may construct a new group by
-$$
-G = \langle G_1, G_2 \rangle,
-$$
-under conditions that ensure \( G \) is discrete. This method, known as the **Maskit combination**, helps in producing groups with desired geometric properties, further enriching the variety of circular patterns.
-
-
+   
 <iframe src="media/post6/notnewton/index.html" width="1000" height="400"></iframe>
 <img src="../media/post6/freezeframe2.png" width="700" height="1800">
 
 
-
+# im highkey lazy i do NOT wanna be writing this up
 
 <video width="1000" controls>  
   <source src="../media/post6/bulb.mp4" type="video/mp4">

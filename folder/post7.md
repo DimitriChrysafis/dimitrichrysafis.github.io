@@ -1,5 +1,5 @@
 
-## Bubbles
+## I HAVE NOT STARTED WRITING THE MATHEMATICAL EXPLANATION FOR THIS MOVE TO ANOTHER POST 
 
 This is not done im uploading to github as a backup
 
