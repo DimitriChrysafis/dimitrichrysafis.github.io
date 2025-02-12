@@ -14,7 +14,7 @@
 
 <br />
 
-### <span style="color:#FFD700">A infinite(kind of) zoom on Julia Fractal</span>, once again in swift in the same repo as above
+### <span style="color:#FFD700">A infinite(kind of) zoom on Julia Fractal</span>, once again in swift in the same repo as above https://github.com/DimitriChrysafis/Julia-Stuff ACTUAL SWIFT STUFF
 
 <br />
 
