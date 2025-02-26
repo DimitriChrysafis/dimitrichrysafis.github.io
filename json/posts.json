@@ -2,7 +2,7 @@
     {
         "title": "Small Physics Sim For Balls",
         "filename": "post7.md",
-        "date": "2025-2-17",
+        "date": "2025-2-25",
         "author": "Post 7",
         "bio": "Playing around with a balls in verlet integration",
         "categories": ["Computer Graphics", "Physics"]
