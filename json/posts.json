@@ -1,5 +1,12 @@
 [
-
+    {
+        "title": "Small Physics Sim For Balls",
+        "filename": "post7.md",
+        "date": "2025-2-17",
+        "author": "Post 7",
+        "bio": "Playing around with a balls in verlet integration",
+        "categories": ["Computer Graphics", "Physics"]
+    },
     {
         "title": "Cool Complex Shapes",
         "filename": "post6.md",
