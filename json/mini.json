@@ -1,5 +1,10 @@
 [
     {
+        "title": "Mini Post 6-- Mini Post",
+        "date": "2025-3-3",
+        "content": "Sphere packing is hard."
+    },
+    {
         "title": "Mini Post 5-- TDQM",
         "date": "2025-2-20",
         "content": "I use TDQ (the python library for a progress bar in terminal) a lot, and it's great for linear cases, but for things like physics simulations, the time predictions are never write! please include polynomial regression or something in it"
