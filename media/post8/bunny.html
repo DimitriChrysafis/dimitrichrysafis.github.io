@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sfere</title>
+  <style>body { margin: 0; }</style>
+</head>
+<body>
+  <script src="https://unpkg.com/three@0.128.0/build/three.min.js"></script>
+  <script src="https://unpkg.com/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.7/dat.gui.min.js"></script>
+  <script>
+    const dataUrl = "https://raw.githubusercontent.com/DimitriChrysafis/dimitrichrysafis.github.io/refs/heads/main/media/post8/BUNNY.json";
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 10000);
+    const renderer = new THREE.WebGLRenderer();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
+    scene.add(new THREE.AmbientLight(0x606060));
+    scene.add(new THREE.HemisphereLight(0xffffff, 0x444444, 1.2));
+    const dirLight = new THREE.DirectionalLight(0xffffff, 1.5);
+    dirLight.position.set(0, 100, 100);
+    scene.add(dirLight);
+    const controls = new THREE.OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.05;
+    controls.enableZoom = true;
+    function createCheckerboardTexture() {
+      const size = 512, squares = 8;
+      const canvas = document.createElement("canvas");
+      canvas.width = canvas.height = size;
+      const context = canvas.getContext("2d");
+      const squareSize = size / squares;
+      for (let i = 0; i < squares; i++) {
+        for (let j = 0; j < squares; j++) {
+          context.fillStyle = (i + j) % 2 === 0 ? "#ffffff" : "#000000";
+          context.fillRect(i * squareSize, j * squareSize, squareSize, squareSize);
+        }
+      }
+      const texture = new THREE.CanvasTexture(canvas);
+      texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+      texture.repeat.set(10, 10);
+      return texture;
+    }
+    const floorMaterial = new THREE.MeshBasicMaterial({
+      map: createCheckerboardTexture(),
+      side: THREE.DoubleSide,
+      transparent: true,
+      opacity: 0.2
+    });
+    let floor = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), floorMaterial);
+    floor.rotation.x = -Math.PI/2;
+    scene.add(floor);
+    let allSpheres = [];
+    let sphereMeshes = [];
+    const guiSettings = { percentage: 100, disperseStrength: 10 };
+    function loadSpheres(data) {
+      const rawBox = new THREE.Box3();
+      data.forEach(sphereData => {
+        const center = new THREE.Vector3(...sphereData.center);
+        rawBox.expandByPoint(center);
+      });
+      const rawSize = new THREE.Vector3();
+      rawBox.getSize(rawSize);
+      const maxDimRaw = Math.max(rawSize.x, rawSize.y, rawSize.z);
+      const desiredDim = 100;
+      const computedScaleFactor = (maxDimRaw > 0) ? (desiredDim / maxDimRaw) : 1;
+      console.log("Computed scale factor:", computedScaleFactor);
+      allSpheres = data.sort((a, b) => b.radius - a.radius);
+      const rawRadii = data.map(s => s.radius);
+      const minRadius = Math.min(...rawRadii);
+      const maxRadius = Math.max(...rawRadii);
+      const radiusRange = maxRadius - minRadius;
+      const hasRange = radiusRange > 1e-6;
+      sphereMeshes = allSpheres.map(sphereData => {
+        const scaledRadius = sphereData.radius * computedScaleFactor;
+        const geometry = new THREE.SphereGeometry(scaledRadius, 32, 32);
+        const norm = hasRange ? ((sphereData.radius - minRadius) / radiusRange) : 0.5;
+        let color;
+        if (norm < 0.5) {
+          color = new THREE.Color('blue').lerp(new THREE.Color('green'), norm / 0.5);
+        } else {
+          color = new THREE.Color('green').lerp(new THREE.Color('red'), (norm - 0.5) / 0.5);
+        }
+        const material = new THREE.MeshPhongMaterial({ color });
+        const sphere = new THREE.Mesh(geometry, material);
+        sphere.position.set(
+          sphereData.center[0] * computedScaleFactor,
+          sphereData.center[1] * computedScaleFactor,
+          sphereData.center[2] * computedScaleFactor
+        );
+        sphere.userData.originalPosition = sphere.position.clone();
+        sphere.userData.radius = scaledRadius;
+        sphere.visible = true;
+        scene.add(sphere);
+        return sphere;
+      });
+      if (sphereMeshes.length > 0) {
+        const scaledBox = new THREE.Box3();
+        sphereMeshes.forEach(mesh => { scaledBox.expandByPoint(mesh.userData.originalPosition); });
+        const center = new THREE.Vector3();
+        scaledBox.getCenter(center);
+        const scaledSize = new THREE.Vector3();
+        scaledBox.getSize(scaledSize);
+        const maxDimScaled = Math.max(scaledSize.x, scaledSize.y, scaledSize.z);
+        const cameraDistance = maxDimScaled * 0.5;
+        camera.position.set(center.x + cameraDistance, center.y + cameraDistance, center.z + cameraDistance);
+        controls.target.copy(center);
+        controls.autoRotate = true;
+        controls.autoRotateSpeed = 2.0;
+        controls.update();
+        const floorSize = maxDimScaled * 3;
+        floor.geometry.dispose();
+        floor.geometry = new THREE.PlaneGeometry(floorSize, floorSize);
+        const margin = 5;
+        floor.position.y = scaledBox.min.y - margin;
+      }
+      updateScene();
+    }
+    function updateScene() {
+      const N = Math.ceil(allSpheres.length * (guiSettings.percentage / 100));
+      sphereMeshes.forEach((sphere, index) => {
+        sphere.visible = index < N;
+      });
+    }
+    let disperseAnimationActive = false, disperseStartTime = 0, disperseDuration = 2000;
+    let dropAnimationActive = false, dropStartTime = 0, dropDuration = 2000;
+    function disperse() {
+      const center = new THREE.Vector3();
+      sphereMeshes.forEach(mesh => center.add(mesh.userData.originalPosition));
+      center.divideScalar(sphereMeshes.length);
+      sphereMeshes.forEach(mesh => {
+        const direction = mesh.userData.originalPosition.clone().sub(center).normalize();
+        const displacement = direction.multiplyScalar(guiSettings.disperseStrength / mesh.userData.radius);
+        mesh.userData.startPosition = mesh.position.clone();
+        mesh.userData.targetPosition = mesh.userData.originalPosition.clone().add(displacement);
+      });
+      disperseStartTime = performance.now();
+      disperseAnimationActive = true;
+    }
+    function drop() {
+      sphereMeshes.forEach(mesh => {
+        mesh.userData.startPosition = mesh.position.clone();
+        mesh.userData.targetPosition = mesh.position.clone();
+        mesh.userData.targetPosition.y = floor.position.y + mesh.userData.radius;
+      });
+      dropStartTime = performance.now();
+      dropAnimationActive = true;
+    }
+    function animate() {
+      requestAnimationFrame(animate);
+      if (dropAnimationActive) {
+        let t = (performance.now() - dropStartTime) / dropDuration;
+        if (t >= 1) { t = 1; dropAnimationActive = false; }
+        t = t * t;
+        sphereMeshes.forEach(mesh => {
+          mesh.position.copy(mesh.userData.startPosition.clone().lerp(mesh.userData.targetPosition, t));
+        });
+      } else if (disperseAnimationActive) {
+        let t = (performance.now() - disperseStartTime) / disperseDuration;
+        if (t >= 1) { t = 1; disperseAnimationActive = false; }
+        sphereMeshes.forEach(mesh => {
+          mesh.position.copy(mesh.userData.startPosition.clone().lerp(mesh.userData.targetPosition, t));
+        });
+      }
+      controls.update();
+      renderer.render(scene, camera);
+    }
+    animate();
+    fetch(dataUrl)
+      .then(response => response.json())
+      .then(data => loadSpheres(data));
+    const gui = new dat.GUI();
+    gui.add(guiSettings, 'percentage', 0, 100, 1).name('Largest %').onChange(updateScene);
+    gui.add(guiSettings, 'disperseStrength', 0, 50, 1).name('Dispersion');
+    gui.add({disperse: disperse}, 'disperse').name('Disperse');
+    gui.add({drop: drop}, 'drop').name('Drop');
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+  </script>
+</body>
+</html>
