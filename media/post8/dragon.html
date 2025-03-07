@@ -3,29 +3,93 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Sfere</title>
-  <style>body { margin: 0; }</style>
+  <title>Sfere Optimized with Color by Size</title>
+  <style>
+    body { margin: 0; }
+    #stats { position: absolute; top: 0; left: 0; z-index: 100; }
+  </style>
 </head>
 <body>
+  <div id="stats"></div>
   <script src="https://unpkg.com/three@0.128.0/build/three.min.js"></script>
   <script src="https://unpkg.com/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.7/dat.gui.min.js"></script>
+  <script src="https://mrdoob.github.io/stats.js/build/stats.min.js"></script>
   <script>
     const dataUrl = "https://raw.githubusercontent.com/DimitriChrysafis/dimitrichrysafis.github.io/refs/heads/main/media/post8/DRAGON.json";
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 10000);
-    const renderer = new THREE.WebGLRenderer();
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
+
     scene.add(new THREE.AmbientLight(0x606060));
     scene.add(new THREE.HemisphereLight(0xffffff, 0x444444, 1.2));
-    const dirLight = new THREE.DirectionalLight(0xffffff, 1.5);
-    dirLight.position.set(0, 100, 100);
-    scene.add(dirLight);
+
+    const dirLight1 = new THREE.DirectionalLight(0xffffff, 1.5);
+    dirLight1.position.set(0, 100, 100);
+    scene.add(dirLight1);
+
+    const dirLight2 = new THREE.DirectionalLight(0xffffff, 1.5);
+    dirLight2.position.set(100, 100, 0);
+    scene.add(dirLight2);
+
+    const dirLight3 = new THREE.DirectionalLight(0xffffff, 1.5);
+    dirLight3.position.set(-100, 100, 0);
+    scene.add(dirLight3);
+
+    const dirLight4 = new THREE.DirectionalLight(0xffffff, 1.5);
+    dirLight4.position.set(0, 100, -100);
+    scene.add(dirLight4);
+
+    const dirLight5 = new THREE.DirectionalLight(0xffffff, 1.5);
+    dirLight5.position.set(100, 0, 100);
+    scene.add(dirLight5);
+
+    const dirLight6 = new THREE.DirectionalLight(0xffffff, 1.5);
+    dirLight6.position.set(-100, 0, 100);
+    scene.add(dirLight6);
+
+    const pointLight1 = new THREE.PointLight(0xffffff, 1, 100);
+    pointLight1.position.set(50, 50, 50);
+    scene.add(pointLight1);
+
+    const pointLight2 = new THREE.PointLight(0xffffff, 1, 100);
+    pointLight2.position.set(-50, 50, -50);
+    scene.add(pointLight2);
+
+    const pointLight3 = new THREE.PointLight(0xffffff, 1, 100);
+    pointLight3.position.set(0, 50, -50);
+    scene.add(pointLight3);
+
+    const spotLight1 = new THREE.SpotLight(0xffffff, 1.5);
+    spotLight1.position.set(100, 100, 100);
+    spotLight1.target.position.set(0, 0, 0);
+    scene.add(spotLight1);
+
+    const spotLight2 = new THREE.SpotLight(0xffffff, 1.5);
+    spotLight2.position.set(-100, 100, 100);
+    spotLight2.target.position.set(0, 0, 0);
+    scene.add(spotLight2);
+
+    const spotLight3 = new THREE.SpotLight(0xffffff, 1.5);
+    spotLight3.position.set(100, 100, -100);
+    spotLight3.target.position.set(0, 0, 0);
+    scene.add(spotLight3);
+
+    scene.add(new THREE.DirectionalLightHelper(dirLight1, 5));
+    scene.add(new THREE.DirectionalLightHelper(dirLight2, 5));
+    scene.add(new THREE.DirectionalLightHelper(dirLight3, 5));
+    scene.add(new THREE.DirectionalLightHelper(dirLight4, 5));
+
     const controls = new THREE.OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
     controls.dampingFactor = 0.05;
     controls.enableZoom = true;
+
+    const stats = new Stats();
+    document.getElementById('stats').appendChild(stats.dom);
+
     function createCheckerboardTexture() {
       const size = 512, squares = 8;
       const canvas = document.createElement("canvas");
@@ -52,9 +116,17 @@
     let floor = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), floorMaterial);
     floor.rotation.x = -Math.PI/2;
     scene.add(floor);
-    let allSpheres = [];
-    let sphereMeshes = [];
+
+    let instancedMesh;
+    let instanceInfo = [];
+    let totalInstances = 0;
+    let allSpheresData = [];
+
     const guiSettings = { percentage: 100, disperseStrength: 10 };
+
+    let disperseAnimationActive = false, disperseStartTime = 0, disperseDuration = 2000;
+    let dropAnimationActive = false, dropStartTime = 0, dropDuration = 2000;
+
     function loadSpheres(data) {
       const rawBox = new THREE.Box3();
       data.forEach(sphereData => {
@@ -67,115 +139,163 @@
       const desiredDim = 100;
       const computedScaleFactor = (maxDimRaw > 0) ? (desiredDim / maxDimRaw) : 1;
       console.log("Computed scale factor:", computedScaleFactor);
-      allSpheres = data.sort((a, b) => b.radius - a.radius);
-      const rawRadii = data.map(s => s.radius);
+      allSpheresData = data.sort((a, b) => b.radius - a.radius);
+      totalInstances = allSpheresData.length;
+      instanceInfo = [];
+      const rawRadii = allSpheresData.map(s => s.radius);
       const minRadius = Math.min(...rawRadii);
       const maxRadius = Math.max(...rawRadii);
       const radiusRange = maxRadius - minRadius;
       const hasRange = radiusRange > 1e-6;
-      sphereMeshes = allSpheres.map(sphereData => {
+      const sphereGeometry = new THREE.SphereBufferGeometry(1, 16, 16);
+      const sphereMaterial = new THREE.MeshPhongMaterial({ vertexColors: true });
+      instancedMesh = new THREE.InstancedMesh(sphereGeometry, sphereMaterial, totalInstances);
+      const instanceColors = new Float32Array(totalInstances * 3);
+      const dummy = new THREE.Object3D();
+      for (let i = 0; i < totalInstances; i++) {
+        const sphereData = allSpheresData[i];
         const scaledRadius = sphereData.radius * computedScaleFactor;
-        const geometry = new THREE.SphereGeometry(scaledRadius, 32, 32);
+        const pos = new THREE.Vector3(
+          sphereData.center[0] * computedScaleFactor,
+          sphereData.center[1] * computedScaleFactor,
+          sphereData.center[2] * computedScaleFactor
+        );
         const norm = hasRange ? ((sphereData.radius - minRadius) / radiusRange) : 0.5;
-        let color;
+        let color = new THREE.Color();
         if (norm < 0.5) {
           color = new THREE.Color('blue').lerp(new THREE.Color('green'), norm / 0.5);
         } else {
           color = new THREE.Color('green').lerp(new THREE.Color('red'), (norm - 0.5) / 0.5);
         }
-        const material = new THREE.MeshPhongMaterial({ color });
-        const sphere = new THREE.Mesh(geometry, material);
-        sphere.position.set(
-          sphereData.center[0] * computedScaleFactor,
-          sphereData.center[1] * computedScaleFactor,
-          sphereData.center[2] * computedScaleFactor
-        );
-        sphere.userData.originalPosition = sphere.position.clone();
-        sphere.userData.radius = scaledRadius;
-        sphere.visible = true;
-        scene.add(sphere);
-        return sphere;
-      });
-      if (sphereMeshes.length > 0) {
-        const scaledBox = new THREE.Box3();
-        sphereMeshes.forEach(mesh => { scaledBox.expandByPoint(mesh.userData.originalPosition); });
-        const center = new THREE.Vector3();
-        scaledBox.getCenter(center);
-        const scaledSize = new THREE.Vector3();
-        scaledBox.getSize(scaledSize);
-        const maxDimScaled = Math.max(scaledSize.x, scaledSize.y, scaledSize.z);
-        const cameraDistance = maxDimScaled * 0.5;
-        camera.position.set(center.x + cameraDistance, center.y + cameraDistance, center.z + cameraDistance);
-        controls.target.copy(center);
-        controls.autoRotate = true;
-        controls.autoRotateSpeed = 2.0;
-        controls.update();
-        const floorSize = maxDimScaled * 3;
-        floor.geometry.dispose();
-        floor.geometry = new THREE.PlaneGeometry(floorSize, floorSize);
-        const margin = 5;
-        floor.position.y = scaledBox.min.y - margin;
+        instanceColors[i * 3] = color.r;
+        instanceColors[i * 3 + 1] = color.g;
+        instanceColors[i * 3 + 2] = color.b;
+        dummy.position.copy(pos);
+        dummy.scale.set(scaledRadius, scaledRadius, scaledRadius);
+        dummy.updateMatrix();
+        instancedMesh.setMatrixAt(i, dummy.matrix);
+        instanceInfo.push({
+          originalPosition: pos.clone(),
+          radius: scaledRadius,
+          currentPosition: pos.clone(),
+          startPosition: pos.clone(),
+          targetPosition: pos.clone()
+        });
       }
+      instancedMesh.instanceColor = new THREE.InstancedBufferAttribute(instanceColors, 3);
+      scene.add(instancedMesh);
+      const scaledBox = new THREE.Box3();
+      instanceInfo.forEach(info => { scaledBox.expandByPoint(info.originalPosition); });
+      const center = new THREE.Vector3();
+      scaledBox.getCenter(center);
+      const scaledSize = new THREE.Vector3();
+      scaledBox.getSize(scaledSize);
+      const maxDimScaled = Math.max(scaledSize.x, scaledSize.y, scaledSize.z);
+      const cameraDistance = maxDimScaled * 0.5;
+      camera.position.set(center.x + cameraDistance, center.y + cameraDistance, center.z + cameraDistance);
+      controls.target.copy(center);
+      controls.autoRotate = true;
+      controls.autoRotateSpeed = 2.0;
+      controls.update();
+      const floorSize = maxDimScaled * 3;
+      floor.geometry.dispose();
+      floor.geometry = new THREE.PlaneGeometry(floorSize, floorSize);
+      const margin = 5;
+      floor.position.y = scaledBox.min.y - margin;
       updateScene();
     }
+
     function updateScene() {
-      const N = Math.ceil(allSpheres.length * (guiSettings.percentage / 100));
-      sphereMeshes.forEach((sphere, index) => {
-        sphere.visible = index < N;
-      });
+      const N = Math.ceil(totalInstances * (guiSettings.percentage / 100));
+      if (instancedMesh) {
+        instancedMesh.count = N;
+      }
     }
-    let disperseAnimationActive = false, disperseStartTime = 0, disperseDuration = 2000;
-    let dropAnimationActive = false, dropStartTime = 0, dropDuration = 2000;
+
     function disperse() {
+      const N = instancedMesh.count;
       const center = new THREE.Vector3();
-      sphereMeshes.forEach(mesh => center.add(mesh.userData.originalPosition));
-      center.divideScalar(sphereMeshes.length);
-      sphereMeshes.forEach(mesh => {
-        const direction = mesh.userData.originalPosition.clone().sub(center).normalize();
-        const displacement = direction.multiplyScalar(guiSettings.disperseStrength / mesh.userData.radius);
-        mesh.userData.startPosition = mesh.position.clone();
-        mesh.userData.targetPosition = mesh.userData.originalPosition.clone().add(displacement);
-      });
+      for (let i = 0; i < N; i++) {
+        center.add(instanceInfo[i].originalPosition);
+      }
+      center.divideScalar(N);
+      for (let i = 0; i < N; i++) {
+        const info = instanceInfo[i];
+        const direction = new THREE.Vector3().subVectors(info.originalPosition, center).normalize();
+        const displacementMagnitude = guiSettings.disperseStrength / (info.radius || 1);
+        info.startPosition = info.currentPosition.clone();
+        info.targetPosition = info.originalPosition.clone().add(direction.multiplyScalar(displacementMagnitude));
+      }
       disperseStartTime = performance.now();
       disperseAnimationActive = true;
     }
+
     function drop() {
-      sphereMeshes.forEach(mesh => {
-        mesh.userData.startPosition = mesh.position.clone();
-        mesh.userData.targetPosition = mesh.position.clone();
-        mesh.userData.targetPosition.y = floor.position.y + mesh.userData.radius;
-      });
+      const N = instancedMesh.count;
+      for (let i = 0; i < N; i++) {
+        const info = instanceInfo[i];
+        info.startPosition = info.currentPosition.clone();
+        info.targetPosition = info.currentPosition.clone();
+        info.targetPosition.y = floor.position.y + info.radius;
+      }
       dropStartTime = performance.now();
       dropAnimationActive = true;
     }
+
+    function updateInstances() {
+      const dummy = new THREE.Object3D();
+      const N = instancedMesh.count;
+      for (let i = 0; i < N; i++) {
+        const info = instanceInfo[i];
+        dummy.position.copy(info.currentPosition);
+        dummy.scale.set(info.radius, info.radius, info.radius);
+        dummy.updateMatrix();
+        instancedMesh.setMatrixAt(i, dummy.matrix);
+      }
+      instancedMesh.instanceMatrix.needsUpdate = true;
+    }
+
     function animate() {
       requestAnimationFrame(animate);
+      stats.begin();
+      const now = performance.now();
       if (dropAnimationActive) {
-        let t = (performance.now() - dropStartTime) / dropDuration;
+        let t = (now - dropStartTime) / dropDuration;
         if (t >= 1) { t = 1; dropAnimationActive = false; }
         t = t * t;
-        sphereMeshes.forEach(mesh => {
-          mesh.position.copy(mesh.userData.startPosition.clone().lerp(mesh.userData.targetPosition, t));
-        });
+        const N = instancedMesh.count;
+        for (let i = 0; i < N; i++) {
+          const info = instanceInfo[i];
+          info.currentPosition.lerpVectors(info.startPosition, info.targetPosition, t);
+        }
+        updateInstances();
       } else if (disperseAnimationActive) {
-        let t = (performance.now() - disperseStartTime) / disperseDuration;
+        let t = (now - disperseStartTime) / disperseDuration;
         if (t >= 1) { t = 1; disperseAnimationActive = false; }
-        sphereMeshes.forEach(mesh => {
-          mesh.position.copy(mesh.userData.startPosition.clone().lerp(mesh.userData.targetPosition, t));
-        });
+        t = t * t;
+        const N = instancedMesh.count;
+        for (let i = 0; i < N; i++) {
+          const info = instanceInfo[i];
+          info.currentPosition.lerpVectors(info.startPosition, info.targetPosition, t);
+        }
+        updateInstances();
       }
       controls.update();
       renderer.render(scene, camera);
+      stats.end();
     }
     animate();
+
     fetch(dataUrl)
       .then(response => response.json())
       .then(data => loadSpheres(data));
+
     const gui = new dat.GUI();
     gui.add(guiSettings, 'percentage', 0, 100, 1).name('Largest %').onChange(updateScene);
     gui.add(guiSettings, 'disperseStrength', 0, 50, 1).name('Dispersion');
     gui.add({disperse: disperse}, 'disperse').name('Disperse');
     gui.add({drop: drop}, 'drop').name('Drop');
+
     window.addEventListener('resize', () => {
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
