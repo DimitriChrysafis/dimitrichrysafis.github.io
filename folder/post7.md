@@ -1,8 +1,11 @@
-# The 2 Demos<br /><br />
-<video width="1000" controls autoplay muted>  <br />
-  <source src="../media/post7/initial.mp4" type="video/mp4">  <br />
-  Your browser does not support the video tag.  <br />
-</video><br /><br />
+# Physics-Based Particle Simulations: A Deep Dive
+
+## Two Verlet Integration Demonstrations
+
+<video width="1000" controls autoplay muted>  
+  <source src="../media/post7/initial.mp4" type="video/mp4">  
+  Your browser does not support the video tag.  
+</video>
 
 <div style="position: relative; width: 100%; padding-bottom: 56.25%; height: 0;">
   <iframe 
@@ -15,106 +18,261 @@
   </iframe> 
 </div>
 
+## KEY IDEA HOW IT WORKS: 
 
-## How does it work?<br /><br />
-Before the video is recorded, a simulation is run with identical parameters. All circles are initially uncolored, creating a scene with uniform red balls. The following explanation breaks down the mathematics used for the physics simulation.<br /><br />
+Before each video is recorded, a complete physics simulation runs with predefined parameters. All particles begin as uniform red balls, which later map to colors from a target image. This document provides a comprehensive explanation of the mathematical foundations and implementation details powering these simulations.
 
----<br /><br />
+---
 
-### 1. Understanding basic Verlet Integration<br /><br />
-Verlet Integration updates the position of a particle using its current and previous positions, and the acceleration acting on it. This method does not require storing the velocity explicitly.<br /><br />
-
-#### Standard Verlet Formula<br /><br />
-The fundamental equation is given by:<br /><br />
-$x(t+\Delta t) = 2\,x(t) - x(t-\Delta t) + a(t)\,\Delta t^2$<br /><br />
-where:<br />
-- $x(t)$ is the current position<br />
-- $x(t-\Delta t)$ is the previous position<br />
-- $a(t)$ is the acceleration at time $t$<br />
-- $\Delta t$ is the time step<br /><br />
-
-#### Derivation Using Taylor Series<br /><br />
-The Taylor expansion of the position function about time $t$ is:<br /><br />
-$x(t+\Delta t) = x(t) + v(t)\,\Delta t + \frac{1}{2}\,a(t)\,\Delta t^2 + O(\Delta t^3)$<br /><br />
-Similarly, expanding backwards:<br /><br />
-$x(t-\Delta t) = x(t) - v(t)\,\Delta t + \frac{1}{2}\,a(t)\,\Delta t^2 - O(\Delta t^3)$<br /><br />
-Adding these two equations cancels the velocity terms:<br /><br />
-$x(t+\Delta t) + x(t-\Delta t) = 2\,x(t) + a(t)\,\Delta t^2 + O(\Delta t^3)$<br /><br />
-Neglecting the error term $O(\Delta t^3)$, we rearrange to obtain:<br /><br />
-$x(t+\Delta t) = 2\,x(t) - x(t-\Delta t) + a(t)\,\Delta t^2$<br /><br />
-
-#### Integration with Damping and Gravity<br /><br />
-For the simulation, the update equations are modified to include damping and gravitational acceleration:<br /><br />
-For the $x$-coordinate:<br /><br />
-$x_{new} = x + (x - x_{prev}) \cdot v_{damp}$<br /><br />
-For the $y$-coordinate:<br /><br />
-$y_{new} = y + (y - y_{prev}) \cdot v_{damp} + g_{eff}\,\Delta t^2$<br /><br />
-where:<br />
-- $(x - x_{prev})$ is the implicit velocity<br />
-- $v_{damp}$ is a damping coefficient (e.g., $0.95$ to reduce energy over time)<br />
-- $g_{eff}$ is the effective gravitational acceleration<br /><br />
-
-#### Time Step Subdivision<br /><br />
-For enhanced stability, especially during collisions, the overall time step is divided into substeps. If the base time step is:<br /><br />
-$\Delta t = \frac{1}{60}$ seconds<br /><br />
-and there are $8$ substeps, then each substep is:<br /><br />
-$\Delta t_{sub} = \frac{\Delta t}{8}$<br /><br />
-Acceleration is then applied as $g_{eff}\,\Delta t_{sub}^2$, to make sure theres good precision.<br /><br />
+<br />
 
 
----<br /><br />
-### Extra code details on how it works (simple) <br /><br />
 
-**Scene Setup**<br /><br />
-- The simulation window is set to $W = 1920$ and $H = 1080$, so the total area is $A_{\text{window}} = W \times H$.<br /><br />
-- A fill threshold (when it knows to stop pumping out balls) is defined as $A_{\text{threshold}} = 0.9 \times A_{\text{window}}$, which stops ball emission when the total ball area reaches this value.<br /><br />
+## 1. The Mathematical Base: Verlet Integration
 
-**Emitter Positions and Ball Launching**<br /><br />
-- There are $N_{\text{spouts}} = 10$ emitters, each positioned at<br /><br />
-$E_i = \left(\left(i + \frac{1}{2}\right) \cdot \frac{W}{10},\, 50\right)$, for $i = 0,1,\dots,9$.<br /><br />
-- Each ball is launched with an initial speed of $v_0 = 1000\ \text{pixels/s}$ and is affected by gravity $g = 900\ \text{pixels/s}^2$.<br /><br />
+Verlet integration is key for the actual physics engine powering this
 
-**Emission Angle Calculation**<br /><br />
-- The emission process groups balls into batches. For ball number $n$, the batch is calculated as $ \text{batch} = \left\lfloor \frac{n}{N_{\text{spouts}}} \right\rfloor$ and the emission time as $t_e = \frac{\text{batch}}{60}$.<br /><br />
-- The base angle is set to $45^\circ$ for emitters with index $i < \frac{N_{\text{spouts}}}{2}$ and $135^\circ$ otherwise.<br /><br />
-- A small variation is introduced: $ \theta_{\text{var}} = \left( (n \bmod N_{\text{spouts}}) - \frac{N_{\text{spouts}}}{2} \right) \times 0.5$.<br /><br />
-- An oscillatory offset is applied: $ \theta_{\text{osc}} = 40^\circ \cdot \sin\!\left(\frac{2\pi\, t_e}{5.0}\right)$, giving the total launch angle as $ \theta = \theta_{\text{base}} + \theta_{\text{var}} + \theta_{\text{osc}}$.<br /><br />
 
-**Ball Initialization and Physics**<br /><br />
-- Each ball gets a random radius $r \in [5,\,15]$ and a mass $m = 0.1$, with its area computed as $A_{\text{ball}} = \pi r^2$.<br /><br />
-- The initial velocity components are determined by $v_x = 1000 \cos\theta$ and $v_y = 1000 \sin\theta$.<br /><br />
-- Balls are emitted until the cumulative area $\sum_{\text{balls}} \pi r^2$ reaches or exceeds $A_{\text{threshold}}$.<br /><br />
-- The physics engine uses the kinematic equations:<br /><br />
-$\mathbf{p}(t+\Delta t) = \mathbf{p}(t) + \mathbf{v}(t)\,\Delta t + \frac{1}{2}\mathbf{g}\,(\Delta t)^2$<br /><br />
-and<br /><br />
-$\mathbf{v}(t+\Delta t) = \mathbf{v}(t) + \mathbf{g}\,\Delta t$, with $\Delta t = \frac{1}{60}$ seconds.<br /><br />
+<br />
 
-**Color Mapping from an Image**<br /><br />
-- After the simulation settles, each ball's position $(x, y)$ is converted to relative coordinates: $x_{\text{rel}} = \frac{x}{W}$ and $y_{\text{rel}} = \frac{y}{H}$.<br /><br />
-- These are mapped to the image dimensions by computing<br /><br />
-$X = \lfloor x_{\text{rel}} \times (w_{\text{img}} - 1) \rfloor,\quad Y = \lfloor y_{\text{rel}} \times (h_{\text{img}} - 1) \rfloor$,<br /><br />
-and a $3 \times 3$ pixel region is sampled to determine the ball's average color.<br /><br />
+### 1.1 Classical Verlet Integration Formulation
 
-**Spout Geometry and Rendering**<br /><br />
-- Each emitter's spout oscillates dynamically. At time $t$, its angle is given by<br /><br />
-$\theta(t) = \theta_{\text{base}} + 40^\circ \cdot \sin\!\left(\frac{2\pi t}{5.0}\right)$.<br /><br />
-- With a spout length $L = 30$ pixels, the tip is at<br /><br />
-$T = \Bigl(e_x + L \cos\theta(t),\ e_y + L \sin\theta(t)\Bigr)$, and the base is rendered by offsetting the emitter’s position by half the spout width along the perpendicular vector to $\theta(t)$.<br /><br />
+The standard Verlet integration equation updates a particle's position based on its current position, previous position, and acceleration:
 
-## Now for the second simulation
+$$x(t+\Delta t) = 2x(t) - x(t-\Delta t) + a(t)\Delta t^2$$
 
-The second simulation is extremely similar logic just with 
+<br />
 
----<br /><br />
-## Random optimizations for anyone who cares <br /><br />
+Where:
+- $x(t)$ represents the current position at time $t$
+- 
+<br />
 
-### NUMBA Acceleration<br /><br />
-NUMBA JIT compiles Python functions into supa dupa fast machine code yay, speeding up physics stuff like `update_positions` and `collision_detection`.<br /><br />
+- $x(t-\Delta t)$ represents the previous position at time $t-\Delta t$ 
+- 
+<br />
 
-### Spatial Partitioning<br /><br />
-Instead of O(n²) collision checks, the simulation divides space into a grid, only testing collisions within the same or neighboring cells. [Click here for a good explanation](https://gameprogrammingpatterns.com/spatial-partition.html)
-<br /><br />
+- $a(t)$ is the acceleration vector at time $t$
+- 
+<br />
 
-### Multithreaded Video Recording<br /><br />
-Rendering and video encoding run on a separate thread, with frames stored in a queue (`frameQueue`). 
-This prevents I/O bottlenecks<br /><br />
+- $\Delta t$ is the discrete time step
+
+
+<br />
+
+The true reason that this formula is the goat is that velocity is implicit in the term $(x(t) - x(t-\Delta t))$, meaning we don't need to explicitly store or update velocity vectors.
+
+<br />
+
+### 1.2 Derivation and understanding
+
+<br />
+
+To understand why Verlet integration works so well, we can derive it from Taylor series expansions of the position function.
+
+<br />
+
+For a position function $x(t)$ with continuous derivatives, the Taylor expansions around time $t$ are:
+
+Forward expansion:
+$$x(t+\Delta t) = x(t) + v(t)\Delta t + \frac{1}{2}a(t)\Delta t^2 + \frac{1}{6}\dddot{x}(t)\Delta t^3 + O(\Delta t^4)$$
+
+Backward expansion:
+$$x(t-\Delta t) = x(t) - v(t)\Delta t + \frac{1}{2}a(t)\Delta t^2 - \frac{1}{6}\dddot{x}(t)\Delta t^3 + O(\Delta t^4)$$
+
+Adding these two equations:
+$$x(t+\Delta t) + x(t-\Delta t) = 2x(t) + a(t)\Delta t^2 + O(\Delta t^4)$$
+
+
+<br />
+
+If you can see, the first order terms (velocity) cancel out, and the third-order terms also cancel, leaving us with an error of order $O(\Delta t^4)$, which is better than many standard integrators. Rearranging:
+
+$$x(t+\Delta t) = 2x(t) - x(t-\Delta t) + a(t)\Delta t^2 + O(\Delta t^4)$$
+
+Now just drop the error term gives us the standard Verlet formula.
+
+
+<br />
+
+### 1.3 How to make this stable at high velocities
+
+A lot of the time when you have lots of quickly moving balls, thinks break :() Here is a way to (sort of) get around that.
+
+$$\Delta t_{sub} = \frac{\Delta t}{N_{substeps}}$$
+
+The simulation uses $\Delta t = \frac{1}{60}$ seconds (matching typical display refresh rates) and $N_{substeps} = 8$, giving:
+
+$$\Delta t_{sub} = \frac{1}{480} \approx 0.00208 \text{ seconds}$$
+
+Each frame, we perform $N_{substeps}$ iterations of the physics update, which is basically just increasing the resolution during collision handling. This prevents tunneling (particles passing through barriers) and improves the accuracy of collision responses.
+
+<br />
+
+The total acceleration per substep becomes:
+
+$$a_{sub} = a \cdot \frac{\Delta t_{sub}^2}{\Delta t^2} = a \cdot \frac{1}{N_{substeps}^2}$$
+
+### 1.4 Extra Note
+This far better than explicit Euler integration which tends to artificially increase energy
+
+<br />
+
+---
+
+<br />
+
+## 2. Collision Detection and Response
+
+<br />
+
+### 2.1 Pairwise Collision Detection
+
+<br />
+
+For two particles with positions $\mathbf{p}_1$ and $\mathbf{p}_2$ and radii $r_1$ and $r_2$, the collision detection involves:
+
+1. Calculating the displacement vector between centers:
+   $$\mathbf{d} = \mathbf{p}_2 - \mathbf{p}_1$$
+
+2. Computing the distance between centers:
+   $$|\mathbf{d}| = \sqrt{\mathbf{d} \cdot \mathbf{d}} = \sqrt{d_x^2 + d_y^2}$$
+
+3. Determining overlap:
+   $$\delta = r_1 + r_2 - |\mathbf{d}|$$
+
+4. A collision exists if $\delta > 0$
+
+<br />
+
+This is the simplest way to do it, I could ask an 8 year old how they would take about solving the problem and they would probably just say the above thing but in less formal terms.
+
+<br />
+
+
+---
+
+## 3. Emitter System Dynamics
+
+I need this to look nice after all, and I can't just have it shooting balls super fast, so this is how I dealt with my spouts.
+
+<br />
+
+### 3.1 Emitter Positioning
+
+The simulation places $N_{spouts} = 10$ emitters evenly across the top of the screen:
+
+$$E_i = \left(\left(i + \frac{1}{2}\right) \cdot \frac{W}{N_{spouts}},\, 50\right), \text{ for } i = 0,1,\dots,9$$
+
+Yay now they're uniformly distributed
+
+### 3.2 Emission Pattern
+
+For ball number $n$, we calculate:
+
+<br />
+
+- Batch number: $\text{batch} = \lfloor n / N_{spouts} \rfloor$
+
+<br />
+
+- Emitter index: $i = n \bmod N_{spouts}$
+
+<br />
+
+- Emission time: $t_e = \text{batch} / 60$ seconds
+
+<br />
+
+This creates a cycling pattern where each emitter releases particles in the right sequence (same as round 1).
+
+---
+
+<br />
+
+## 4. Spatial Optimization with Grid-Based Partitioning
+
+Naive collision detection between $n$ particles requires $O(n^2)$ comparisons. To improve efficiency, we implement spatial partitioning.
+
+<br />
+
+### 4.1 Grid Making
+
+The space is divided into a grid of cells, each with dimensions slightly larger than the maximum particle diameter:
+
+$$\text{cell\_size} = 2 \cdot r_{max} + \epsilon$$
+
+Where $r_{max}$ is the maximum particle radius (15 pixels) and $\epsilon$ is a small buffer (typically 1-2 pixels).
+
+The number of cells in each dimension is:
+
+$$n_x = \lceil W / \text{cell\_size} \rceil$$
+$$n_y = \lceil H / \text{cell\_size} \rceil$$
+
+### 4.2 Assigned Seating
+
+Each particle is assigned to a cell based on its position:
+
+$$\text{cell\_x} = \lfloor p_x / \text{cell\_size} \rfloor$$
+$$\text{cell\_y} = \lfloor p_y / \text{cell\_size} \rfloor$$
+
+Handling boundary cases:
+$$\text{cell\_x} = \max(0, \min(\text{cell\_x}, n_x-1))$$
+$$\text{cell\_y} = \max(0, \min(\text{cell\_y}, n_y-1))$$
+
+### 4.3 Cell-Based Collision Detection
+
+Instead of checking all particles against each other, we only check particles within the same or adjacent cells:
+
+1. For each cell $(i,j)$:
+<br />
+
+   - For each particle $p$ in cell $(i,j)$:
+<br />
+
+     - Check for collisions with other particles in cell $(i,j)$
+<br />
+
+     - Check for collisions with particles in the 8 neighboring cells $(i±1,j±1)$
+<br />
+
+
+This reduces the average number of checks from $O(n^2)$ to approximately $O(n)$, a significant performance improvement for large numbers of particles.
+
+<br />
+
+### 4.4 Mathematical Complexity Analysis
+
+With uniform particle distribution, each cell contains approximately $n/(n_x \cdot n_y)$ particles. For each particle, we check approximately $9 \cdot n/(n_x \cdot n_y)$ other particles (current cell plus 8 neighbors).
+
+<br />
+
+Total checks: $n \cdot 9 \cdot n/(n_x \cdot n_y) = 9n^2/(n_x \cdot n_y)$
+
+<br />
+
+Since $n_x \cdot n_y$ scales with the simulation area, and the number of particles also scales with area, this approaches $O(n)$ complexity for large simulations.
+
+<br />
+
+---
+
+<br />
+
+## 5. Color Mapping(the easiest part)
+
+After the physics simulation reaches equilibrium/chill state, we map colors from a source image to the particles.
+
+<br />
+
+### 5.1 Position in space to the position on the image
+
+Each particle's position in the simulation space is converted to normalized coordinates:
+
+$$u = \frac{p_x}{W}, \quad v = \frac{p_y}{H}$$
+
+Where $(u,v)$ are the normalized coordinates in the range $[0,1]$.
+
+
+
