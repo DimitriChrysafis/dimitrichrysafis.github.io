@@ -18,13 +18,12 @@
   <script>
     const dataUrl = "https://raw.githubusercontent.com/dimitrichrysafis/dimitrichrysafis.github.io/refs/heads/main/media/post8/DRAGON.json";
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x222222); // Dark gray background to create contrast
+    scene.background = new THREE.Color(0x222222);
     const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 10000);
     const renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
 
-    // Increase ambient light intensity
     scene.add(new THREE.AmbientLight(0x909090, 1.5));
     scene.add(new THREE.HemisphereLight(0xffffff, 0x444444, 1.5));
 
@@ -79,7 +78,6 @@
     spotLight3.target.position.set(0, 0, 0);
     scene.add(spotLight3);
 
-    // Add floor-specific lighting
     const floorLight1 = new THREE.SpotLight(0xffffff, 2.0);
     floorLight1.position.set(0, 50, 0);
     floorLight1.target.position.set(0, -50, 0);
@@ -108,8 +106,7 @@
       const squareSize = size / squares;
       for (let i = 0; i < squares; i++) {
         for (let j = 0; j < squares; j++) {
-          // Using brighter colors for the checkerboard
-          context.fillStyle = (i + j) % 2 === 0 ? "#FF80B0" : "#FFFF80"; // Brighter pink and yellow
+          context.fillStyle = (i + j) % 2 === 0 ? "#FF80B0" : "#FFFF80";
           context.fillRect(i * squareSize, j * squareSize, squareSize, squareSize);
         }
       }
@@ -119,13 +116,12 @@
       return texture;
     }
 
-    // Using MeshStandardMaterial with emissive properties for the floor
     const floorMaterial = new THREE.MeshStandardMaterial({
       map: createCheckerboardTexture(),
       side: THREE.DoubleSide,
       transparent: true,
-      opacity: 0.7, // Increased opacity
-      emissive: 0x333333, // Adding emissive light
+      opacity: 0.7,
+      emissive: 0x333333,
       emissiveIntensity: 0.5,
       roughness: 0.3,
       metalness: 0.2
@@ -141,10 +137,21 @@
     let totalInstances = 0;
     let allSpheresData = [];
 
-    const guiSettings = { percentage: 100, disperseStrength: 10 };
+    const guiSettings = {
+      percentage: 100,
+      disperseStrength: 10,
+      autoAnimate: true,
+      cycleSpeed: 5
+    };
+
+    let percentageController;
 
     let disperseAnimationActive = false, disperseStartTime = 0, disperseDuration = 2000;
     let dropAnimationActive = false, dropStartTime = 0, dropDuration = 2000;
+    let oscillationStartTime = performance.now();
+    let holdActive = false;
+    const holdDuration = 150;
+    let holdStartTime = 0;
 
     function loadSpheres(data) {
       const rawBox = new THREE.Box3();
@@ -222,7 +229,6 @@
       const margin = 5;
       floor.position.y = scaledBox.min.y - margin;
 
-      // Position the floor lights
       floorLight1.position.set(center.x, scaledBox.min.y + 50, center.z);
       floorLight1.target.position.set(center.x, scaledBox.min.y - 10, center.z);
       floorLight2.position.set(center.x, scaledBox.min.y + 5, center.z);
@@ -235,6 +241,36 @@
       if (instancedMesh) {
         instancedMesh.count = N;
       }
+      if (percentageController) {
+        percentageController.updateDisplay();
+      }
+    }
+
+    function updatePercentageOscillation() {
+      const now = performance.now();
+      if (holdActive) {
+        if (now - holdStartTime < holdDuration) {
+          guiSettings.percentage = 3;
+          updateScene();
+          return;
+        } else {
+          holdActive = false;
+          oscillationStartTime += holdDuration;
+        }
+      }
+      const phase = ((now - oscillationStartTime) % (guiSettings.cycleSpeed * 1000)) / (guiSettings.cycleSpeed * 1000);
+      // Oscillate between 100 and 3:
+      // center = (100+3)/2 = 51.5, amplitude = (100-3)/2 = 48.5
+      const calculatedPercentage = 51.5 + 48.5 * Math.cos(2 * Math.PI * phase);
+      if (!holdActive && calculatedPercentage <= 3.1) {
+        holdActive = true;
+        holdStartTime = now;
+        guiSettings.percentage = 3;
+        updateScene();
+        return;
+      }
+      guiSettings.percentage = calculatedPercentage;
+      updateScene();
     }
 
     function disperse() {
@@ -283,6 +319,9 @@
     function animate() {
       requestAnimationFrame(animate);
       stats.begin();
+      if (guiSettings.autoAnimate) {
+        updatePercentageOscillation();
+      }
       const now = performance.now();
       if (dropAnimationActive) {
         let t = (now - dropStartTime) / dropDuration;
@@ -316,8 +355,12 @@
       .then(data => loadSpheres(data));
 
     const gui = new dat.GUI();
-    gui.add(guiSettings, 'percentage', 0, 100, 1).name('Largest %').onChange(updateScene);
+    percentageController = gui.add(guiSettings, 'percentage', 0, 100, 1)
+      .name('Largest %')
+      .onChange(updateScene);
     gui.add(guiSettings, 'disperseStrength', 0, 50, 1).name('Dispersion');
+    gui.add(guiSettings, 'autoAnimate').name('Auto Oscillate');
+    gui.add(guiSettings, 'cycleSpeed', 1, 20, 1).name('Cycle Speed (s)');
     gui.add({disperse: disperse}, 'disperse').name('Disperse');
     gui.add({drop: drop}, 'drop').name('Drop');
 

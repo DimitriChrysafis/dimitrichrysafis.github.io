@@ -4,7 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Sfere</title>
-  <style>body { margin: 0; }</style>
+  <style>
+    body { margin: 0; }
+  </style>
 </head>
 <body>
   <script src="https://unpkg.com/three@0.128.0/build/three.min.js"></script>
@@ -17,15 +19,18 @@
     const renderer = new THREE.WebGLRenderer();
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
+
     scene.add(new THREE.AmbientLight(0x606060));
     scene.add(new THREE.HemisphereLight(0xffffff, 0x444444, 1.2));
     const dirLight = new THREE.DirectionalLight(0xffffff, 1.5);
     dirLight.position.set(0, 100, 100);
     scene.add(dirLight);
+
     const controls = new THREE.OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
     controls.dampingFactor = 0.05;
     controls.enableZoom = true;
+
     function createCheckerboardTexture() {
       const size = 512, squares = 8;
       const canvas = document.createElement("canvas");
@@ -43,6 +48,7 @@
       texture.repeat.set(10, 10);
       return texture;
     }
+
     const floorMaterial = new THREE.MeshBasicMaterial({
       map: createCheckerboardTexture(),
       side: THREE.DoubleSide,
@@ -50,11 +56,21 @@
       opacity: 0.2
     });
     let floor = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), floorMaterial);
-    floor.rotation.x = -Math.PI/2;
+    floor.rotation.x = -Math.PI / 2;
     scene.add(floor);
+
     let allSpheres = [];
     let sphereMeshes = [];
-    const guiSettings = { percentage: 100, disperseStrength: 10 };
+    const guiSettings = {
+      percentage: 100,
+      disperseStrength: 10,
+      autoAnimate: true,
+      cycleSpeed: 5
+    };
+
+    let percentageController = null;
+    let oscillationStartTime = performance.now();
+
     function loadSpheres(data) {
       const rawBox = new THREE.Box3();
       data.forEach(sphereData => {
@@ -116,16 +132,31 @@
         const margin = 5;
         floor.position.y = scaledBox.min.y - margin;
       }
+      oscillationStartTime = performance.now();
       updateScene();
     }
+
     function updateScene() {
       const N = Math.ceil(allSpheres.length * (guiSettings.percentage / 100));
       sphereMeshes.forEach((sphere, index) => {
         sphere.visible = index < N;
       });
+      if (percentageController) {
+        percentageController.updateDisplay();
+      }
     }
+
+    function updatePercentageOscillation() {
+      if (!guiSettings.autoAnimate) return;
+      const now = performance.now();
+      const phase = ((now - oscillationStartTime) % (guiSettings.cycleSpeed * 1000)) / (guiSettings.cycleSpeed * 1000);
+      const calculatedPercentage = 52.5 + 47.5 * Math.cos(2 * Math.PI * phase);
+      guiSettings.percentage = calculatedPercentage;
+    }
+
     let disperseAnimationActive = false, disperseStartTime = 0, disperseDuration = 2000;
     let dropAnimationActive = false, dropStartTime = 0, dropDuration = 2000;
+
     function disperse() {
       const center = new THREE.Vector3();
       sphereMeshes.forEach(mesh => center.add(mesh.userData.originalPosition));
@@ -139,6 +170,7 @@
       disperseStartTime = performance.now();
       disperseAnimationActive = true;
     }
+
     function drop() {
       sphereMeshes.forEach(mesh => {
         mesh.userData.startPosition = mesh.position.clone();
@@ -148,8 +180,11 @@
       dropStartTime = performance.now();
       dropAnimationActive = true;
     }
+
     function animate() {
       requestAnimationFrame(animate);
+      updatePercentageOscillation();
+      updateScene();
       if (dropAnimationActive) {
         let t = (performance.now() - dropStartTime) / dropDuration;
         if (t >= 1) { t = 1; dropAnimationActive = false; }
@@ -167,15 +202,24 @@
       controls.update();
       renderer.render(scene, camera);
     }
+
     animate();
+
     fetch(dataUrl)
       .then(response => response.json())
       .then(data => loadSpheres(data));
+
     const gui = new dat.GUI();
-    gui.add(guiSettings, 'percentage', 0, 100, 1).name('Largest %').onChange(updateScene);
+    percentageController = gui.add(guiSettings, 'percentage', 0, 100, 1)
+      .name('Largest %')
+      .onChange(updateScene)
+      .listen();
     gui.add(guiSettings, 'disperseStrength', 0, 50, 1).name('Dispersion');
-    gui.add({disperse: disperse}, 'disperse').name('Disperse');
-    gui.add({drop: drop}, 'drop').name('Drop');
+    gui.add({ disperse: disperse }, 'disperse').name('Disperse');
+    gui.add({ drop: drop }, 'drop').name('Drop');
+    gui.add(guiSettings, 'autoAnimate').name('Auto Oscillate');
+    gui.add(guiSettings, 'cycleSpeed', 1, 20, 1).name('Cycle Speed (s)');
+
     window.addEventListener('resize', () => {
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
