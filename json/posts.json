@@ -1,13 +1,5 @@
 [
     {
-        "title": "Sphere Packing",
-        "filename": "post8.md",
-        "date": "2025-3-19",
-        "author": "Post 7",
-        "bio": "How to pack spheres into your 3d model",
-        "categories": ["Computer"]
-    },
-    {
         "title": "Small Physics Sim For Balls",
         "filename": "post7.md",
         "date": "2025-2-25",
