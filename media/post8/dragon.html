@@ -16,7 +16,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.7/dat.gui.min.js"></script>
   <script src="https://mrdoob.github.io/stats.js/build/stats.min.js"></script>
   <script>
-    const dataUrl = "https://raw.githubusercontent.com/DimitriChrysafis/dimitrichrysafis.github.io/refs/heads/main/media/post8/DRAGON.json";
+    const dataUrl = "https://raw.githubusercontent.com/dimitrichrysafis/dimitrichrysafis.github.io/refs/heads/main/media/post8/DRAGON.json";
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 10000);
     const renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -77,10 +77,11 @@
     spotLight3.target.position.set(0, 0, 0);
     scene.add(spotLight3);
 
-    scene.add(new THREE.DirectionalLightHelper(dirLight1, 5));
-    scene.add(new THREE.DirectionalLightHelper(dirLight2, 5));
-    scene.add(new THREE.DirectionalLightHelper(dirLight3, 5));
-    scene.add(new THREE.DirectionalLightHelper(dirLight4, 5));
+    // Commented out to hide the directional light helpers (lines)
+    // scene.add(new THREE.DirectionalLightHelper(dirLight1, 5));
+    // scene.add(new THREE.DirectionalLightHelper(dirLight2, 5));
+    // scene.add(new THREE.DirectionalLightHelper(dirLight3, 5));
+    // scene.add(new THREE.DirectionalLightHelper(dirLight4, 5));
 
     const controls = new THREE.OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
@@ -98,7 +99,7 @@
       const squareSize = size / squares;
       for (let i = 0; i < squares; i++) {
         for (let j = 0; j < squares; j++) {
-          context.fillStyle = (i + j) % 2 === 0 ? "#ffffff" : "#000000";
+          context.fillStyle = (i + j) % 2 === 0 ? "#FFC0CB" : "#FFFF00"; // Pink and yellow checkerboard
           context.fillRect(i * squareSize, j * squareSize, squareSize, squareSize);
         }
       }
