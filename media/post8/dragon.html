@@ -16,15 +16,17 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.7/dat.gui.min.js"></script>
   <script src="https://mrdoob.github.io/stats.js/build/stats.min.js"></script>
   <script>
-    const dataUrl = "https://raw.githubusercontent.com/e/e.github.io/refs/heads/main/media/post8/DRAGON.json";
+    const dataUrl = "https://raw.githubusercontent.com/dimitrichrysafis/dimitrichrysafis.github.io/refs/heads/main/media/post8/DRAGON.json";
     const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x222222); // Dark gray background to create contrast
     const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 10000);
     const renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
 
-    scene.add(new THREE.AmbientLight(0x606060));
-    scene.add(new THREE.HemisphereLight(0xffffff, 0x444444, 1.2));
+    // Increase ambient light intensity
+    scene.add(new THREE.AmbientLight(0x909090, 1.5));
+    scene.add(new THREE.HemisphereLight(0xffffff, 0x444444, 1.5));
 
     const dirLight1 = new THREE.DirectionalLight(0xffffff, 1.5);
     dirLight1.position.set(0, 100, 100);
@@ -77,6 +79,19 @@
     spotLight3.target.position.set(0, 0, 0);
     scene.add(spotLight3);
 
+    // Add floor-specific lighting
+    const floorLight1 = new THREE.SpotLight(0xffffff, 2.0);
+    floorLight1.position.set(0, 50, 0);
+    floorLight1.target.position.set(0, -50, 0);
+    floorLight1.angle = Math.PI / 3;
+    floorLight1.penumbra = 0.5;
+    scene.add(floorLight1);
+    scene.add(floorLight1.target);
+
+    const floorLight2 = new THREE.PointLight(0xffffff, 2.0, 300);
+    floorLight2.position.set(0, -10, 0);
+    scene.add(floorLight2);
+
     const controls = new THREE.OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
     controls.dampingFactor = 0.05;
@@ -93,7 +108,8 @@
       const squareSize = size / squares;
       for (let i = 0; i < squares; i++) {
         for (let j = 0; j < squares; j++) {
-          context.fillStyle = (i + j) % 2 === 0 ? "#FFC0CB" : "#FFFF00";
+          // Using brighter colors for the checkerboard
+          context.fillStyle = (i + j) % 2 === 0 ? "#FF80B0" : "#FFFF80"; // Brighter pink and yellow
           context.fillRect(i * squareSize, j * squareSize, squareSize, squareSize);
         }
       }
@@ -102,12 +118,22 @@
       texture.repeat.set(10, 10);
       return texture;
     }
-    const floorMaterial = new THREE.MeshPhongMaterial({
+
+    // Using MeshStandardMaterial with emissive properties for the floor
+    const floorMaterial = new THREE.MeshStandardMaterial({
       map: createCheckerboardTexture(),
-      side: THREE.DoubleSide
+      side: THREE.DoubleSide,
+      transparent: true,
+      opacity: 0.7, // Increased opacity
+      emissive: 0x333333, // Adding emissive light
+      emissiveIntensity: 0.5,
+      roughness: 0.3,
+      metalness: 0.2
     });
+
     let floor = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), floorMaterial);
     floor.rotation.x = -Math.PI/2;
+    floor.receiveShadow = true;
     scene.add(floor);
 
     let instancedMesh;
@@ -195,6 +221,12 @@
       floor.geometry = new THREE.PlaneGeometry(floorSize, floorSize);
       const margin = 5;
       floor.position.y = scaledBox.min.y - margin;
+
+      // Position the floor lights
+      floorLight1.position.set(center.x, scaledBox.min.y + 50, center.z);
+      floorLight1.target.position.set(center.x, scaledBox.min.y - 10, center.z);
+      floorLight2.position.set(center.x, scaledBox.min.y + 5, center.z);
+
       updateScene();
     }
 
