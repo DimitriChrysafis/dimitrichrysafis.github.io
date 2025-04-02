@@ -5,6 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="5b79210f-ace1-4c6d-8a9e-c09f32e7ec5c" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/folder/post7.md" beforeDir="false" afterPath="$PROJECT_DIR$/folder/post7.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/folder/post8.md" beforeDir="false" afterPath="$PROJECT_DIR$/folder/post8.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/json/mini.json" beforeDir="false" afterPath="$PROJECT_DIR$/json/mini.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/json/posts.json" beforeDir="false" afterPath="$PROJECT_DIR$/json/posts.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -147,6 +151,10 @@
       <workItem from="1742173192544" duration="93000" />
       <workItem from="1742406865825" duration="3216000" />
       <workItem from="1742424354448" duration="20000" />
+      <workItem from="1742424629489" duration="953000" />
+      <workItem from="1742932779980" duration="137000" />
+      <workItem from="1742934635114" duration="3092000" />
+      <workItem from="1743552696492" duration="35000" />
     </task>
     <servers />
   </component>

@@ -1,5 +1,10 @@
 [
     {
+        "title": "Mini Post 6-- Don't hardcode youur keyssss",
+        "date": "2025-3-3",
+        "content": "I've spent the past week scraping lovable.dev, a swedish 'one prompt to make an app' service. I scraped 15,000 projects and found 21 anthropic api keys and 141 openai api keys(90% of which function normally). 0.5GB of data in raw text. Yes they use hexadecimal links but all projects can be found in other ways. Reminder to never share your API keys on a public service."
+    },
+    {
         "title": "Mini Post 6-- Mini Post",
         "date": "2025-3-3",
         "content": "Sphere packing is hard."
