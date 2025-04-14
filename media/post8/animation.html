@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hypercool 3D Binary Search</title>
+  <style>
+    body { margin: 0; overflow: hidden; background-color: #000; }
+    canvas { display: block; }
+    #chatOverlay {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      padding: 10px 16px;
+      background: rgba(0,128,0,0.8);
+      color: #fff;
+      font-family: sans-serif;
+      font-size: 24px;
+      border-radius: 0;
+      z-index: 10;
+    }
+    #resetButton {
+      position: absolute;
+      top: 10px;
+      left: 350px;
+      padding: 10px 16px;
+      background: rgba(220,20,60,0.9);
+      color: #fff;
+      font-family: sans-serif;
+      font-size: 24px;
+      border: none;
+      cursor: pointer;
+      z-index: 11;
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <div id="chatOverlay">Distance info will appear here</div>
+  <button id="resetButton">CLICK HERE TO RESET ANIMATION</button>
+  <script type="importmap">
+    {"imports": {"three": "https://unpkg.com/three@0.161.0/build/three.module.js", "three/addons/": "https://unpkg.com/three@0.161.0/examples/jsm/", "gsap": "https://unpkg.com/gsap@3.12.5/index.js"}}
+  </script>
+  <script type="module">
+    import * as THREE from 'three';
+    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+    import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
+    import { gsap } from 'gsap';
+
+    let scene, camera, renderer, controls, rgbeLoader;
+    let anchorSphereMesh, obstacleSphereMesh, boundaryVisual, rayLine, finalSphereMesh, rayPulseMesh;
+    let candidateSpheresGroup, intervalTubeMesh;
+    let clock = new THREE.Clock();
+
+    const params = {
+      anchorRadius: 0.9,
+      anchorPos: new THREE.Vector3(0, 0, 0),
+      rayDirection: new THREE.Vector3(1, 0.1, -0.05).normalize(),
+      obstacleRadius: 0.8,
+      obstaclePos: new THREE.Vector3(5.5, -0.5, 0.3),
+      boundaryX: 7.5,
+      maxIterations: 12,
+      minRadiusThreshold: 0.03,
+      initialHighDistGuess: 10.0,
+      stepDelay: 600,
+      animDuration: 0.4,
+      finalDisplayDelay: 1000,
+      resetDelay: 1000,
+      hdriPath: 'https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/1k/aerodynamics_workshop_1k.hdr',
+      backgroundColor: 0x000000,
+      anchorColor: 0x00aaff,
+      obstacleColor: 0xffdd55,
+      boundaryColor: 0xff00ff,
+      rayColor: 0xaaaaaa,
+      intervalColor: 0xffffff,
+      intervalRadius: 0.04,
+      passColor: 0x00ffaa,
+      failBoundaryColor: 0xff55ff,
+      failOverlapColor: 0xffaa55,
+      failSmallColor: 0xaaaaaa,
+      finalColor: 0x00ff00,
+      rayPulseColor: 0xffffff,
+      pMatOptions: {
+        metalness: 0.3,
+        roughness: 0.15,
+        transmission: 0.8,
+        thickness: 1.0,
+        ior: 1.4,
+        reflectivity: 0.6,
+        iridescence: 0.2,
+        iridescenceIOR: 1.3,
+        iridescenceThicknessRange: [100, 400],
+        clearcoat: 0.3,
+        clearcoatRoughness: 0.1
+      },
+      finalPulseScale: 1.05
+    };
+
+    let currentIteration = 0;
+    let lowDist, highDist, finalValidDist;
+    let searchComplete = false;
+    let isResetting = false;
+    let activeTimeouts = [];
+
+    const anchorMat = new THREE.MeshPhysicalMaterial({ ...params.pMatOptions, color: params.anchorColor });
+    const obstacleMat = new THREE.MeshPhysicalMaterial({ ...params.pMatOptions, color: params.obstacleColor });
+    const finalMat = new THREE.MeshPhysicalMaterial({ ...params.pMatOptions, color: params.finalColor, opacity: 0.95, transparent: true });
+    const intervalMat = new THREE.MeshBasicMaterial({ color: params.intervalColor, transparent: true, opacity: 0.5 });
+    const rayMat = new THREE.LineBasicMaterial({ color: params.rayColor });
+    const rayPulseMat = new THREE.MeshBasicMaterial({ color: params.rayPulseColor, transparent: true, opacity: 0.8 });
+    const boundaryMat = new THREE.MeshBasicMaterial({ color: params.boundaryColor, wireframe: true, transparent: true, opacity: 0.4 });
+
+    function updateChat(message) {
+      const chat = document.getElementById('chatOverlay');
+      if (chat) chat.innerHTML = message;
+    }
+
+    function init() {
+      scene = new THREE.Scene();
+      camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 100);
+      camera.position.set(6, 6, 12);
+      renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.setPixelRatio(window.devicePixelRatio);
+      renderer.toneMapping = THREE.ACESFilmicToneMapping;
+      renderer.outputColorSpace = THREE.SRGBColorSpace;
+      document.body.appendChild(renderer.domElement);
+
+      scene.add(new THREE.AmbientLight(0xffffff, 0.4));
+      const keyLight = new THREE.DirectionalLight(0xffffff, 1.0);
+      keyLight.position.set(5, 10, 8);
+      scene.add(keyLight);
+
+      controls = new OrbitControls(camera, renderer.domElement);
+      controls.enableDamping = true;
+      controls.dampingFactor = 0.05;
+      controls.minDistance = 2;
+      controls.maxDistance = 50;
+      controls.target.set(params.boundaryX / 2, 0, 0);
+
+      rgbeLoader = new RGBELoader();
+      rgbeLoader.load(params.hdriPath, (texture) => {
+        texture.mapping = THREE.EquirectangularReflectionMapping;
+        scene.environment = texture;
+        scene.background = new THREE.Color(0x111115);
+        scene.backgroundBlurriness = 0.2;
+        console.log("HDRI Loaded");
+      }, undefined, (error) => {
+        console.error('Error loading HDRI:', error);
+        scene.background = new THREE.Color(0x111115);
+      });
+
+      candidateSpheresGroup = new THREE.Group();
+      scene.add(candidateSpheresGroup);
+      createStaticScene();
+      resetSearchState();
+
+      const resetButton = document.getElementById('resetButton');
+      resetButton.addEventListener('click', (e) => {
+        e.preventDefault();
+        location.reload();
+      });
+
+      window.addEventListener('resize', onWindowResize);
+      animate();
+      startAutonomousSearch();
+    }
+
+    function createStaticScene() {
+      const sphereGeo = new THREE.SphereGeometry(1, 64, 32);
+      anchorSphereMesh = new THREE.Mesh(sphereGeo, anchorMat);
+      anchorSphereMesh.scale.setScalar(params.anchorRadius);
+      anchorSphereMesh.position.copy(params.anchorPos);
+      scene.add(anchorSphereMesh);
+
+      obstacleSphereMesh = new THREE.Mesh(sphereGeo, obstacleMat);
+      obstacleSphereMesh.scale.setScalar(params.obstacleRadius);
+      obstacleSphereMesh.position.copy(params.obstaclePos);
+      scene.add(obstacleSphereMesh);
+
+      const planeSize = 25;
+      const boundaryGeo = new THREE.PlaneGeometry(planeSize, planeSize);
+      boundaryVisual = new THREE.Mesh(boundaryGeo, boundaryMat);
+      boundaryVisual.position.x = params.boundaryX;
+      boundaryVisual.rotation.y = Math.PI / 2;
+      scene.add(boundaryVisual);
+
+      const rayPoints = [params.anchorPos, params.anchorPos.clone().addScaledVector(params.rayDirection, params.initialHighDistGuess + 5)];
+      const rayGeo = new THREE.BufferGeometry().setFromPoints(rayPoints);
+      rayLine = new THREE.Line(rayGeo, rayMat);
+      scene.add(rayLine);
+
+      const pulseGeo = new THREE.SphereGeometry(0.06, 16, 8);
+      rayPulseMesh = new THREE.Mesh(pulseGeo, rayPulseMat);
+      rayPulseMesh.visible = false;
+      scene.add(rayPulseMesh);
+    }
+
+    function startAutonomousSearch() {
+      clearTimeouts();
+      isResetting = false;
+      animateRayPulse(lowDist, highDist);
+      scheduleTimeout(() => stepSearch(), params.stepDelay);
+    }
+
+    function stepSearch() {
+      if (searchComplete || isResetting) return;
+      currentIteration++;
+      updateCandidateFading();
+      const midDist = (lowDist + highDist) / 2.0;
+      const candRadius = midDist - params.anchorRadius;
+      const candPos = params.anchorPos.clone().addScaledVector(params.rayDirection, midDist);
+
+      updateChat(`Iteration ${currentIteration}<br>Candidate Distance: ${midDist.toFixed(3)}<br>Candidate Radius: ${candRadius.toFixed(3)}`);
+
+      let isValid = true;
+      let failColor = params.passColor;
+      let failedObject = null;
+      if (candPos.x + candRadius > params.boundaryX - 0.01) {
+        isValid = false;
+        failColor = params.failBoundaryColor;
+        failedObject = boundaryVisual;
+      }
+      const distToObstacle = candPos.distanceTo(params.obstaclePos);
+      if (isValid && distToObstacle < candRadius + params.obstacleRadius - 0.01) {
+        isValid = false;
+        failColor = params.failOverlapColor;
+        failedObject = obstacleSphereMesh;
+      }
+      if (isValid && candRadius < params.minRadiusThreshold) {
+        isValid = false;
+        failColor = params.failSmallColor;
+      }
+      if (candRadius > 0.005) {
+        const candGeo = new THREE.SphereGeometry(1, 32, 16);
+        const candMat = new THREE.MeshPhysicalMaterial({ ...params.pMatOptions, color: failColor, transparent: true, opacity: 0.6, depthWrite: false });
+        const candMesh = new THREE.Mesh(candGeo, candMat);
+        candMesh.position.copy(candPos);
+        candMesh.scale.setScalar(candRadius);
+        candMesh.userData.iteration = currentIteration;
+        candidateSpheresGroup.add(candMesh);
+      }
+      if (!isValid && failedObject) {
+        triggerFailureEffect(failedObject, failColor);
+      }
+      const oldLow = lowDist, oldHigh = highDist;
+      if (isValid) {
+        lowDist = midDist;
+        finalValidDist = midDist;
+      } else {
+        highDist = midDist;
+      }
+      animateIntervalVisualization(oldLow, oldHigh, lowDist, highDist);
+      if (highDist - lowDist < 1e-3 || currentIteration >= params.maxIterations) {
+        finalizeSearch();
+      } else {
+        animateRayPulse(lowDist, highDist);
+        scheduleTimeout(() => stepSearch(), params.stepDelay);
+      }
+    }
+
+    // Instantly remove older candidate spheres without fade animation
+    function updateCandidateFading() {
+      const removeThresholdIteration = currentIteration - 2;
+      const childrenToRemove = [];
+      candidateSpheresGroup.children.forEach(child => {
+        if (child.userData && child.userData.iteration <= removeThresholdIteration) {
+          childrenToRemove.push(child);
+        }
+      });
+      childrenToRemove.forEach(child => {
+        candidateSpheresGroup.remove(child);
+        child.geometry.dispose();
+        child.material.dispose();
+      });
+    }
+
+    function animateIntervalVisualization(oldLow, oldHigh, newLow, newHigh) {
+      const startPos = params.anchorPos.clone().addScaledVector(params.rayDirection, oldLow);
+      const startLength = Math.max(0.001, oldHigh - oldLow);
+      if (!intervalTubeMesh) {
+        const initialPath = new THREE.LineCurve3(startPos, startPos.clone().addScaledVector(params.rayDirection, startLength));
+        const tubeGeo = new THREE.TubeGeometry(initialPath, 1, params.intervalRadius, 8, false);
+        intervalTubeMesh = new THREE.Mesh(tubeGeo, intervalMat);
+        scene.add(intervalTubeMesh);
+      }
+      const tweenData = { low: oldLow, high: oldHigh };
+      gsap.to(tweenData, {
+        low: newLow,
+        high: newHigh,
+        duration: params.animDuration,
+        ease: "sine.inOut",
+        onUpdate: () => {
+          const currentLowPos = params.anchorPos.clone().addScaledVector(params.rayDirection, tweenData.low);
+          const currentHighPos = params.anchorPos.clone().addScaledVector(params.rayDirection, tweenData.high);
+          const currentPath = new THREE.LineCurve3(currentLowPos, currentHighPos);
+          const newGeo = new THREE.TubeGeometry(currentPath, 1, params.intervalRadius, 8, false);
+          intervalTubeMesh.geometry.dispose();
+          intervalTubeMesh.geometry = newGeo;
+        },
+        onComplete: () => {
+          if (intervalTubeMesh) {
+            const finalLowPos = params.anchorPos.clone().addScaledVector(params.rayDirection, newLow);
+            const finalHighPos = params.anchorPos.clone().addScaledVector(params.rayDirection, newHigh);
+            const finalPath = new THREE.LineCurve3(finalLowPos, finalHighPos);
+            const finalGeo = new THREE.TubeGeometry(finalPath, 1, params.intervalRadius, 8, false);
+            intervalTubeMesh.geometry.dispose();
+            intervalTubeMesh.geometry = finalGeo;
+          }
+        }
+      });
+    }
+
+    function animateRayPulse(currentLow, currentHigh) {
+      if (!rayPulseMesh) return;
+      const targetDist = (currentLow + currentHigh) / 2.0;
+      const startPos = params.anchorPos.clone().addScaledVector(params.rayDirection, currentLow);
+      const targetPos = params.anchorPos.clone().addScaledVector(params.rayDirection, targetDist);
+      rayPulseMesh.position.copy(startPos);
+      rayPulseMesh.visible = true;
+      rayPulseMesh.material.opacity = 0.8;
+      gsap.to(rayPulseMesh.position, {
+        x: targetPos.x,
+        y: targetPos.y,
+        z: targetPos.z,
+        duration: params.stepDelay * 0.0008,
+        ease: "sine.inOut",
+        onComplete: () => {
+          gsap.to(rayPulseMesh.material, { opacity: 0, duration: 0.1, onComplete: () => { rayPulseMesh.visible = false; } });
+        }
+      });
+    }
+
+    function triggerFailureEffect(object, color) {
+      if (!object || !object.material) return;
+      const originalEmissive = object.material.emissive ? object.material.emissive.getHex() : 0x000000;
+      gsap.to(object.material, {
+        emissive: new THREE.Color(color),
+        emissiveIntensity: 0.8,
+        duration: 0.1,
+        yoyo: true,
+        repeat: 1,
+        onComplete: () => {
+          object.material.emissive.setHex(originalEmissive);
+          object.material.emissiveIntensity = 0;
+        }
+      });
+    }
+
+    // In finalizeSearch, we display the final sphere and update the chat overlay.
+    // The red reset button is always visible and its click event (location.reload()) is attached.
+    function finalizeSearch() {
+      searchComplete = true;
+      clearTimeouts();
+      const finalRadius = finalValidDist - params.anchorRadius;
+      if (finalRadius >= params.minRadiusThreshold) {
+        const finalPos = params.anchorPos.clone().addScaledVector(params.rayDirection, finalValidDist);
+        const finalGeo = new THREE.SphereGeometry(1, 64, 32);
+        finalSphereMesh = new THREE.Mesh(finalGeo, finalMat);
+        finalSphereMesh.position.copy(finalPos);
+        finalSphereMesh.scale.setScalar(0.01);
+        scene.add(finalSphereMesh);
+        gsap.to(finalSphereMesh.scale, {
+          x: finalRadius,
+          y: finalRadius,
+          z: finalRadius,
+          duration: params.animDuration * 1.5,
+          ease: "elastic.out(1, 0.5)",
+          onComplete: () => {
+            gsap.to(finalSphereMesh.scale, {
+              x: finalRadius * params.finalPulseScale,
+              y: finalRadius * params.finalPulseScale,
+              z: finalRadius * params.finalPulseScale,
+              duration: 1.5,
+              ease: "sine.inOut",
+              yoyo: true,
+              repeat: -1
+            });
+          }
+        });
+      }
+      updateChat(`All 3 balls are tangent.<br>Click the red button to reset animation.`);
+    }
+
+    function resetSearchState() {
+      currentIteration = 0;
+      lowDist = params.anchorRadius;
+      highDist = params.initialHighDistGuess;
+      finalValidDist = params.anchorRadius;
+      searchComplete = false;
+    }
+
+    function scheduleTimeout(callback, delay) {
+      const timeoutId = setTimeout(callback, delay);
+      activeTimeouts.push(timeoutId);
+      return timeoutId;
+    }
+
+    function clearTimeout(id) {
+      clearTimeout(id);
+      activeTimeouts = activeTimeouts.filter(tId => tId !== id);
+    }
+
+    function clearTimeouts() {
+      activeTimeouts.forEach(clearTimeout);
+      activeTimeouts = [];
+    }
+
+    function onWindowResize() {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    }
+
+    function animate() {
+      requestAnimationFrame(animate);
+      controls.update();
+      renderer.render(scene, camera);
+    }
+
+    init();
+  </script>
+  <p style="position:absolute;bottom:10px;right:10px;color:#fff;font-family:sans-serif;font-size:12px;">Thanks</p>
+</body>
+</html>
