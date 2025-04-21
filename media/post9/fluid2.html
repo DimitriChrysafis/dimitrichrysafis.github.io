@@ -2,7 +2,7 @@
 <html>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<head>
-		<title>FLIP Fluid - Interactive Grid Rendering</title>
+		<title>FLIP</title>
 		<style>
 			body {
 				font-family: verdana;
@@ -482,13 +482,6 @@ class FlipFluid {
 		this.solveIncompressibility(numPressureIters, dt, overRelaxation, compensateDrift);
 		this.transferVelocities(false, flipRatio);
 		this.updateParticleColors();
-		if (scene.spoutActive) {
-			var numToAdd = Math.floor(scene.spoutRate * dt);
-			var velX = scene.spoutSpeed * Math.cos(scene.spoutAngle);
-			var velY = scene.spoutSpeed * Math.sin(scene.spoutAngle);
-			this.addParticles(numToAdd, scene.spoutX, scene.spoutY, velX, velY,
-							  scene.spoutColorR, scene.spoutColorG, scene.spoutColorB);
-		}
 	}
 }
 
@@ -502,15 +495,6 @@ var scene = {
 	separateParticles: true,
 	flipRatio: 0.97,
 	fluid: null,
-	spoutActive: false,
-	spoutX: simWidth / 2,
-	spoutY: simHeight * 0.8,
-	spoutAngle: -Math.PI / 2,
-	spoutSpeed: 3.0,
-	spoutRate: 500,
-	spoutColorR: 1.0,
-	spoutColorG: 0.2,
-	spoutColorB: 0.2,
 	isMouseDown: false,
 	mouseX: 0.0,
 	mouseY: 0.0,
@@ -820,7 +804,6 @@ function resizeCanvas() {
 	cScale = canvas.height / simHeight;
 	simWidth = canvas.width / cScale;
 	if (scene.fluid) {
-		scene.spoutX = simWidth / 2;
 		console.log(`Resized - New Sim Width: ${simWidth.toFixed(2)}`);
 	}
 	if (gl) {

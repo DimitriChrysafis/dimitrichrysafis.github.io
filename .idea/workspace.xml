@@ -5,12 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="5b79210f-ace1-4c6d-8a9e-c09f32e7ec5c" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/media/post9/fluid2.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/folder/post8.md" beforeDir="false" afterPath="$PROJECT_DIR$/folder/post8.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/media/post9/engine.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/media/post9/fluid.html" beforeDir="false" afterPath="$PROJECT_DIR$/media/post9/fluid.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/media/post9/setup.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/media/post9/fluid2.html" beforeDir="false" afterPath="$PROJECT_DIR$/media/post9/fluid2.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -161,7 +157,7 @@
       <workItem from="1744677956004" duration="2701000" />
       <workItem from="1744943139316" duration="3081000" />
       <workItem from="1745271086278" duration="1815000" />
-      <workItem from="1745272982081" duration="698000" />
+      <workItem from="1745272982081" duration="1263000" />
     </task>
     <servers />
   </component>
