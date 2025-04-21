@@ -1,54 +1,599 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PIC/FLIP Fluid Simulation - Spawning</title>
-    <style>
-        html, body {
-            margin: 0;
-            padding: 0;
-            overflow: hidden;
-            width: 100%;
-            height: 100%;
-            background-color: #000;
-        }
-        canvas {
-            display: block;
-            width: 100vw;
-            height: 100vh;
-            background-color: #000;
-            cursor: grab;
-        }
-        canvas:active {
-            cursor: grabbing;
-        }
-        #instructions {
-            display: none;
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            color: white;
-            font-family: sans-serif;
-            z-index: 10;
-        }
-    </style>
-</head>
+<html>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<head>
+		<title>FLIP Fluid</title>
+		<style>
+			body {
+				font-family: verdana;
+				font-size: 15px;
+				margin: 0;
+				padding: 0;
+			}
+			canvas {
+				display: block;
+			}
+		</style>
+	</head>
 <body>
-    <div id="instructions">Fluid</div>
-    <canvas id="fluidCanvas"></canvas>
+	<canvas id="myCanvas"></canvas>
+<script>
+var canvas = document.getElementById("myCanvas");
+var gl = canvas.getContext("webgl");
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+var simHeight = 3.0;
+var cScale = canvas.height / simHeight;
+var simWidth = canvas.width / cScale;
+var U_FIELD = 0;
+var V_FIELD = 1;
+var FLUID_CELL = 0;
+var AIR_CELL = 1;
+var SOLID_CELL = 2;
 
-    <script src="engine.js"></script>
-    <script src="setup.js"></script>
+function clamp(x, min, max) {
+	if (x < min)
+		return min;
+	else if (x > max)
+		return max;
+	else
+		return x;
+}
 
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const canvas = document.getElementById('fluidCanvas');
+class FlipFluid {
+	constructor(density, width, height, spacing, particleRadius, maxParticles) {
+		this.density = density;
+		this.fNumX = Math.floor(width / spacing) + 1;
+		this.fNumY = Math.floor(height / spacing) + 1;
+		this.h = Math.max(width / this.fNumX, height / this.fNumY);
+		this.fInvSpacing = 1.0 / this.h;
+		this.fNumCells = this.fNumX * this.fNumY;
+		this.u = new Float32Array(this.fNumCells);
+		this.v = new Float32Array(this.fNumCells);
+		this.du = new Float32Array(this.fNumCells);
+		this.dv = new Float32Array(this.fNumCells);
+		this.prevU = new Float32Array(this.fNumCells);
+		this.prevV = new Float32Array(this.fNumCells);
+		this.p = new Float32Array(this.fNumCells);
+		this.s = new Float32Array(this.fNumCells);
+		this.cellType = new Int32Array(this.fNumCells);
+		this.cellColor = new Float32Array(3 * this.fNumCells);
+		this.maxParticles = maxParticles;
+		this.particlePos = new Float32Array(2 * this.maxParticles);
+		this.particleColor = new Float32Array(3 * this.maxParticles);
+		for (var i = 0; i < this.maxParticles; i++)
+			this.particleColor[3 * i + 2] = 1.0;
+		this.particleVel = new Float32Array(2 * this.maxParticles);
+		this.particleDensity = new Float32Array(this.fNumCells);
+		this.particleRestDensity = 0.0;
+		this.particleRadius = particleRadius;
+		this.pInvSpacing = 1.0 / (2.2 * particleRadius);
+		this.pNumX = Math.floor(width * this.pInvSpacing) + 1;
+		this.pNumY = Math.floor(height * this.pInvSpacing) + 1;
+		this.pNumCells = this.pNumX * this.pNumY;
+		this.numCellParticles = new Int32Array(this.pNumCells);
+		this.firstCellParticle = new Int32Array(this.pNumCells + 1);
+		this.cellParticleIds = new Int32Array(maxParticles);
+		this.numParticles = 0;
+	}
 
-            const simulationConfig = getSimulationSetup();
-            const fluidSim = new FluidSimulation(canvas, simulationConfig);
-            fluidSim.start();
-        });
-    </script>
+	integrateParticles(dt, gravity) {
+		for (var i = 0; i < this.numParticles; i++) {
+			this.particleVel[2 * i + 1] += dt * gravity;
+			this.particlePos[2 * i] += this.particleVel[2 * i] * dt;
+			this.particlePos[2 * i + 1] += this.particleVel[2 * i + 1] * dt;
+		}
+	}
+
+	pushParticlesApart(numIters) {
+		var colorDiffusionCoeff = 0.001;
+		this.numCellParticles.fill(0);
+		for (var i = 0; i < this.numParticles; i++) {
+			var x = this.particlePos[2 * i];
+			var y = this.particlePos[2 * i + 1];
+			var xi = clamp(Math.floor(x * this.pInvSpacing), 0, this.pNumX - 1);
+			var yi = clamp(Math.floor(y * this.pInvSpacing), 0, this.pNumY - 1);
+			var cellNr = xi * this.pNumY + yi;
+			this.numCellParticles[cellNr]++;
+		}
+		var first = 0;
+		for (var i = 0; i < this.pNumCells; i++) {
+			first += this.numCellParticles[i];
+			this.firstCellParticle[i] = first;
+		}
+		this.firstCellParticle[this.pNumCells] = first;
+		for (var i = 0; i < this.numParticles; i++) {
+			var x = this.particlePos[2 * i];
+			var y = this.particlePos[2 * i + 1];
+			var xi = clamp(Math.floor(x * this.pInvSpacing), 0, this.pNumX - 1);
+			var yi = clamp(Math.floor(y * this.pInvSpacing), 0, this.pNumY - 1);
+			var cellNr = xi * this.pNumY + yi;
+			this.firstCellParticle[cellNr]--;
+			this.cellParticleIds[this.firstCellParticle[cellNr]] = i;
+		}
+		var minDist = 2.0 * this.particleRadius;
+		var minDist2 = minDist * minDist;
+		for (var iter = 0; iter < numIters; iter++) {
+			for (var i = 0; i < this.numParticles; i++) {
+				var px = this.particlePos[2 * i];
+				var py = this.particlePos[2 * i + 1];
+				var pxi = Math.floor(px * this.pInvSpacing);
+				var pyi = Math.floor(py * this.pInvSpacing);
+				var x0 = Math.max(pxi - 1, 0);
+				var y0 = Math.max(pyi - 1, 0);
+				var x1 = Math.min(pxi + 1, this.pNumX - 1);
+				var y1 = Math.min(pyi + 1, this.pNumY - 1);
+				for (var xi = x0; xi <= x1; xi++) {
+					for (var yi = y0; yi <= y1; yi++) {
+						var cellNr = xi * this.pNumY + yi;
+						var first = this.firstCellParticle[cellNr];
+						var last = this.firstCellParticle[cellNr + 1];
+						for (var j = first; j < last; j++) {
+							var id = this.cellParticleIds[j];
+							if (id == i)
+								continue;
+							var qx = this.particlePos[2 * id];
+							var qy = this.particlePos[2 * id + 1];
+							var dx = qx - px;
+							var dy = qy - py;
+							var d2 = dx * dx + dy * dy;
+							if (d2 > minDist2 || d2 == 0.0)
+								continue;
+							var d = Math.sqrt(d2);
+							var s = 0.5 * (minDist - d) / d;
+							dx *= s;
+							dy *= s;
+							this.particlePos[2 * i] -= dx;
+							this.particlePos[2 * i + 1] -= dy;
+							this.particlePos[2 * id] += dx;
+							this.particlePos[2 * id + 1] += dy;
+							for (var k = 0; k < 3; k++) {
+								var color0 = this.particleColor[3 * i + k];
+								var color1 = this.particleColor[3 * id + k];
+								var color = (color0 + color1) * 0.5;
+								this.particleColor[3 * i + k] = color0 + (color - color0) * colorDiffusionCoeff;
+								this.particleColor[3 * id + k] = color1 + (color - color1) * colorDiffusionCoeff;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	handleBoundaryCollisions() {
+		var h = 1.0 / this.fInvSpacing;
+		var r = this.particleRadius;
+		var minX = h + r;
+		var maxX = (this.fNumX - 1) * h - r;
+		var minY = h + r;
+		var maxY = (this.fNumY - 1) * h - r;
+		for (var i = 0; i < this.numParticles; i++) {
+			var x = this.particlePos[2 * i];
+			var y = this.particlePos[2 * i + 1];
+			if (x < minX) {
+				x = minX;
+				this.particleVel[2 * i] = 0.0;
+			}
+			if (x > maxX) {
+				x = maxX;
+				this.particleVel[2 * i] = 0.0;
+			}
+			if (y < minY) {
+				y = minY;
+				this.particleVel[2 * i + 1] = 0.0;
+			}
+			if (y > maxY) {
+				y = maxY;
+				this.particleVel[2 * i + 1] = 0.0;
+			}
+			this.particlePos[2 * i] = x;
+			this.particlePos[2 * i + 1] = y;
+		}
+	}
+
+	updateParticleDensity() {
+		var n = this.fNumY;
+		var h = this.h;
+		var h1 = this.fInvSpacing;
+		var h2 = 0.5 * h;
+		var d = this.particleDensity;
+		d.fill(0.0);
+		for (var i = 0; i < this.numParticles; i++) {
+			var x = this.particlePos[2 * i];
+			var y = this.particlePos[2 * i + 1];
+			x = clamp(x, h, (this.fNumX - 1) * h);
+			y = clamp(y, h, (this.fNumY - 1) * h);
+			var x0 = Math.floor((x - h2) * h1);
+			var tx = ((x - h2) - x0 * h) * h1;
+			var x1 = Math.min(x0 + 1, this.fNumX - 2);
+			var y0 = Math.floor((y - h2) * h1);
+			var ty = ((y - h2) - y0 * h) * h1;
+			var y1 = Math.min(y0 + 1, this.fNumY - 2);
+			var sx = 1.0 - tx;
+			var sy = 1.0 - ty;
+			if (x0 < this.fNumX && y0 < this.fNumY) d[x0 * n + y0] += sx * sy;
+			if (x1 < this.fNumX && y0 < this.fNumY) d[x1 * n + y0] += tx * sy;
+			if (x1 < this.fNumX && y1 < this.fNumY) d[x1 * n + y1] += tx * ty;
+			if (x0 < this.fNumX && y1 < this.fNumY) d[x0 * n + y1] += sx * ty;
+		}
+		if (this.particleRestDensity == 0.0) {
+			var sum = 0.0;
+			var numFluidCells = 0;
+			for (var i = 0; i < this.fNumCells; i++) {
+				if (this.cellType[i] == FLUID_CELL) {
+					sum += d[i];
+					numFluidCells++;
+				}
+			}
+			if (numFluidCells > 0)
+				this.particleRestDensity = sum / numFluidCells;
+		}
+	}
+
+	transferVelocities(toGrid) {
+		var n = this.fNumY;
+		var h = this.h;
+		var h1 = this.fInvSpacing;
+		var h2 = 0.5 * h;
+		if (toGrid) {
+			this.prevU.set(this.u);
+			this.prevV.set(this.v);
+			this.du.fill(0.0);
+			this.dv.fill(0.0);
+			this.u.fill(0.0);
+			this.v.fill(0.0);
+			for (var i = 0; i < this.fNumCells; i++)
+				this.cellType[i] = this.s[i] == 0.0 ? SOLID_CELL : AIR_CELL;
+			for (var i = 0; i < this.numParticles; i++) {
+				var x = this.particlePos[2 * i];
+				var y = this.particlePos[2 * i + 1];
+				var xi = clamp(Math.floor(x * h1), 0, this.fNumX - 1);
+				var yi = clamp(Math.floor(y * h1), 0, this.fNumY - 1);
+				var cellNr = xi * n + yi;
+				if (this.cellType[cellNr] == AIR_CELL)
+					this.cellType[cellNr] = FLUID_CELL;
+			}
+		}
+		for (var component = 0; component < 2; component++) {
+			var dx = component == 0 ? 0.0 : h2;
+			var dy = component == 0 ? h2 : 0.0;
+			var f = component == 0 ? this.u : this.v;
+			var prevF = component == 0 ? this.prevU : this.prevV;
+			var d = component == 0 ? this.du : this.dv;
+			for (var i = 0; i < this.numParticles; i++) {
+				var x = this.particlePos[2 * i];
+				var y = this.particlePos[2 * i + 1];
+				x = clamp(x, h, (this.fNumX - 1) * h);
+				y = clamp(y, h, (this.fNumY - 1) * h);
+				var x0 = Math.min(Math.floor((x - dx) * h1), this.fNumX - 2);
+				var tx = ((x - dx) - x0 * h) * h1;
+				var x1 = Math.min(x0 + 1, this.fNumX - 2);
+				var y0 = Math.min(Math.floor((y - dy) * h1), this.fNumY - 2);
+				var ty = ((y - dy) - y0 * h) * h1;
+				var y1 = Math.min(y0 + 1, this.fNumY - 2);
+				var sx = 1.0 - tx;
+				var sy = 1.0 - ty;
+				var d0 = sx * sy;
+				var d1 = tx * sy;
+				var d2 = tx * ty;
+				var d3 = sx * ty;
+				var nr0 = x0 * n + y0;
+				var nr1 = x1 * n + y0;
+				var nr2 = x1 * n + y1;
+				var nr3 = x0 * n + y1;
+				if (toGrid) {
+					var pv = this.particleVel[2 * i + component];
+					f[nr0] += pv * d0;  d[nr0] += d0;
+					f[nr1] += pv * d1;  d[nr1] += d1;
+					f[nr2] += pv * d2;  d[nr2] += d2;
+					f[nr3] += pv * d3;  d[nr3] += d3;
+				} else {
+					var offset = component == 0 ? n : 1;
+					var valid0 = this.cellType[nr0] != AIR_CELL || this.cellType[nr0 - offset] != AIR_CELL ? 1.0 : 0.0;
+					var valid1 = this.cellType[nr1] != AIR_CELL || this.cellType[nr1 - offset] != AIR_CELL ? 1.0 : 0.0;
+					var valid2 = this.cellType[nr2] != AIR_CELL || this.cellType[nr2 - offset] != AIR_CELL ? 1.0 : 0.0;
+					var valid3 = this.cellType[nr3] != AIR_CELL || this.cellType[nr3 - offset] != AIR_CELL ? 1.0 : 0.0;
+					var v = this.particleVel[2 * i + component];
+					var d = valid0 * d0 + valid1 * d1 + valid2 * d2 + valid3 * d3;
+					if (d > 0.0) {
+						var corr = (valid0 * d0 * (f[nr0] - prevF[nr0]) + valid1 * d1 * (f[nr1] - prevF[nr1]) +
+							valid2 * d2 * (f[nr2] - prevF[nr2]) + valid3 * d3 * (f[nr3] - prevF[nr3])) / d;
+						var flipV = v + corr;
+						this.particleVel[2 * i + component] = flipV;
+					}
+				}
+			}
+			if (toGrid) {
+				for (var i = 0; i < f.length; i++) {
+					if (d[i] > 0.0)
+						f[i] /= d[i];
+				}
+				for (var i = 0; i < this.fNumX; i++) {
+					for (var j = 0; j < this.fNumY; j++) {
+						var solid = this.cellType[i * n + j] == SOLID_CELL;
+						if (solid || (i > 0 && this.cellType[(i - 1) * n + j] == SOLID_CELL))
+							this.u[i * n + j] = this.prevU[i * n + j];
+						if (solid || (j > 0 && this.cellType[i * n + j - 1] == SOLID_CELL))
+							this.v[i * n + j] = this.prevV[i * n + j];
+					}
+				}
+			}
+		}
+	}
+
+	solveIncompressibility(numIters, dt, overRelaxation, compensateDrift = true) {
+		this.p.fill(0.0);
+		this.prevU.set(this.u);
+		this.prevV.set(this.v);
+		var n = this.fNumY;
+		var cp = this.density * this.h / dt;
+		for (var iter = 0; iter < numIters; iter++) {
+			for (var i = 1; i < this.fNumX - 1; i++) {
+				for (var j = 1; j < this.fNumY - 1; j++) {
+					if (this.cellType[i * n + j] != FLUID_CELL)
+						continue;
+					var center = i * n + j;
+					var left = (i - 1) * n + j;
+					var right = (i + 1) * n + j;
+					var bottom = i * n + j - 1;
+					var top = i * n + j + 1;
+					var s = this.s[center];
+					var sx0 = this.s[left];
+					var sx1 = this.s[right];
+					var sy0 = this.s[bottom];
+					var sy1 = this.s[top];
+					var s = sx0 + sx1 + sy0 + sy1;
+					if (s == 0.0)
+						continue;
+					var div = this.u[right] - this.u[center] +
+						this.v[top] - this.v[center];
+					if (this.particleRestDensity > 0.0 && compensateDrift) {
+						var k = 1.0;
+						var compression = this.particleDensity[i * n + j] - this.particleRestDensity;
+						if (compression > 0.0)
+							div = div - k * compression;
+					}
+					var p = -div / s;
+					p *= overRelaxation;
+					this.p[center] += cp * p;
+					this.u[center] -= sx0 * p;
+					this.u[right] += sx1 * p;
+					this.v[center] -= sy0 * p;
+					this.v[top] += sy1 * p;
+				}
+			}
+		}
+	}
+
+	updateParticleColors() {
+		var max_speed = 4.0;
+		for (var i = 0; i < this.numParticles; i++) {
+			var vx = this.particleVel[2 * i];
+			var vy = this.particleVel[2 * i + 1];
+			var speed = Math.sqrt(vx * vx + vy * vy);
+			var speed_factor = Math.min(speed / max_speed, 1.0);
+			this.particleColor[3 * i] = 1.0 - speed_factor;
+			this.particleColor[3 * i + 1] = 1.0 - speed_factor;
+			this.particleColor[3 * i + 2] = 1.0;
+		}
+	}
+
+	addParticles(num, posX, posY, velX, velY) {
+		var added = 0;
+		while (added < num && this.numParticles < this.maxParticles) {
+			var i = this.numParticles;
+			var offsetX = (Math.random() - 0.5) * 2 * this.particleRadius;
+			var offsetY = (Math.random() - 0.5) * 2 * this.particleRadius;
+			this.particlePos[2 * i] = posX + offsetX;
+			this.particlePos[2 * i + 1] = posY + offsetY;
+			this.particleVel[2 * i] = velX;
+			this.particleVel[2 * i + 1] = velY;
+			this.particleColor[3 * i] = 1.0;
+			this.particleColor[3 * i + 1] = 1.0;
+			this.particleColor[3 * i + 2] = 1.0;
+			this.numParticles++;
+			added++;
+		}
+	}
+
+	simulate(dt, gravity, numPressureIters, numParticleIters, overRelaxation, compensateDrift, separateParticles) {
+		if (scene.spoutActive) {
+			var numToAdd = Math.floor(scene.spoutRate * dt);
+			var velX = scene.spoutSpeed * Math.cos(scene.spoutAngle);
+			var velY = scene.spoutSpeed * Math.sin(scene.spoutAngle);
+			this.addParticles(numToAdd, scene.spoutX, scene.spoutY, velX, velY);
+		}
+		var numSubSteps = 1;
+		var sdt = dt / numSubSteps;
+		for (var step = 0; step < numSubSteps; step++) {
+			this.integrateParticles(sdt, gravity);
+			if (separateParticles)
+				this.pushParticlesApart(numParticleIters);
+			this.handleBoundaryCollisions();
+			this.transferVelocities(true);
+			this.updateParticleDensity();
+			this.solveIncompressibility(numPressureIters, sdt, overRelaxation, compensateDrift);
+			this.transferVelocities(false);
+		}
+		this.updateParticleColors();
+	}
+}
+
+var scene = {
+	gravity: -9.81,
+	dt: 1.0 / 60.0,
+	numPressureIters: 203,
+	numParticleIters: 2,
+	overRelaxation: 1.9,
+	compensateDrift: true,
+	separateParticles: true,
+	fluid: null,
+	spoutActive: true,
+	spoutX: simWidth / 2,
+	spoutY: simHeight,
+	spoutAngle: -Math.PI / 2,
+	spoutSpeed: 1.0,
+	spoutRate: 200
+};
+
+function setupScene() {
+	var res = 70;
+	var tankHeight = 1.0 * simHeight;
+	var tankWidth = 1.0 * simWidth;
+	var h = tankHeight / res;
+	var density = 1000.0;
+	var r = 0.3 * h;
+	var maxParticles = 40040;
+	var f = scene.fluid = new FlipFluid(density, tankWidth, tankHeight, h, r, maxParticles);
+	var numCircles = 3;
+	var circleRadius = 0.11 * tankWidth;
+	var dx = 2 * r;
+	var dy = Math.sqrt(3) * r;
+	var N = Math.ceil(circleRadius / dx) + 1;
+	var M = Math.ceil(circleRadius / dy) + 1;
+	var p = 0;
+	for (var k = 0; k < numCircles; k++) {
+		var cx = (k + 1) * tankWidth / (numCircles + 1);
+		var cy = tankHeight - h - circleRadius;
+		for (var j = -M; j <= M; j++) {
+			for (var i = -N; i <= N; i++) {
+				var x = cx + dx * i + (j % 2 == 0 ? 0 : dx / 2);
+				var y = cy + dy * j;
+				if ((x - cx) * (x - cx) + (y - cy) * (y - cy) < circleRadius * circleRadius) {
+					f.particlePos[p++] = x;
+					f.particlePos[p++] = y;
+				}
+			}
+		}
+	}
+	f.numParticles = p / 2;
+	var n = f.fNumY;
+	for (var i = 0; i < f.fNumX; i++) {
+		for (var j = 0; j < f.fNumY; j++) {
+			var s = 1.0;
+			if (i == 0 || i == f.fNumX - 1 || j == 0)
+				s = 0.0;
+			f.s[i * n + j] = s;
+		}
+	}
+}
+
+const pointVertexShader = `
+	attribute vec2 attrPosition;
+	attribute vec3 attrColor;
+	uniform vec2 domainSize;
+	uniform float pointSize;
+	uniform float drawDisk;
+	varying vec3 fragColor;
+	varying float fragDrawDisk;
+	void main() {
+		vec4 screenTransform = vec4(2.0 / domainSize.x, 2.0 / domainSize.y, -1.0, -1.0);
+		gl_Position = vec4(attrPosition * screenTransform.xy + screenTransform.zw, 0.0, 1.0);
+		gl_PointSize = pointSize;
+		fragColor = attrColor;
+		fragDrawDisk = drawDisk;
+	}
+`;
+
+const pointFragmentShader = `
+	precision mediump float;
+	varying vec3 fragColor;
+	varying float fragDrawDisk;
+	void main() {
+		if (fragDrawDisk == 1.0) {
+			float rx = 0.5 - gl_PointCoord.x;
+			float ry = 0.5 - gl_PointCoord.y;
+			float r2 = rx * rx + ry * ry;
+			if (r2 > 0.25)
+				discard;
+			if (r2 > 0.22)
+				gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
+			else
+				gl_FragColor = vec4(fragColor, 1.0);
+		} else {
+			gl_FragColor = vec4(fragColor, 1.0);
+		}
+	}
+`;
+
+function createShader(gl, vsSource, fsSource) {
+	const vsShader = gl.createShader(gl.VERTEX_SHADER);
+	gl.shaderSource(vsShader, vsSource);
+	gl.compileShader(vsShader);
+	if (!gl.getShaderParameter(vsShader, gl.COMPILE_STATUS))
+		console.log("vertex shader compile error: " + gl.getShaderInfoLog(vsShader));
+	const fsShader = gl.createShader(gl.FRAGMENT_SHADER);
+	gl.shaderSource(fsShader, fsSource);
+	gl.compileShader(fsShader);
+	if (!gl.getShaderParameter(fsShader, gl.COMPILE_STATUS))
+		console.log("fragment shader compile error: " + gl.getShaderInfoLog(fsShader));
+	var shader = gl.createProgram();
+	gl.attachShader(shader, vsShader);
+	gl.attachShader(shader, fsShader);
+	gl.linkProgram(shader);
+	return shader;
+}
+
+var pointShader = null;
+var pointVertexBuffer = null;
+var pointColorBuffer = null;
+
+function draw() {
+	gl.clearColor(0.0, 0.0, 0.0, 1.0);
+	gl.clear(gl.COLOR_BUFFER_BIT);
+	gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+	if (pointShader == null)
+		pointShader = createShader(gl, pointVertexShader, pointFragmentShader);
+	var pointSize = 2.0 * scene.fluid.particleRadius / simWidth * canvas.width;
+	gl.useProgram(pointShader);
+	gl.uniform2f(gl.getUniformLocation(pointShader, 'domainSize'), simWidth, simHeight);
+	gl.uniform1f(gl.getUniformLocation(pointShader, 'pointSize'), pointSize);
+	gl.uniform1f(gl.getUniformLocation(pointShader, 'drawDisk'), 1.0);
+	if (pointVertexBuffer == null)
+		pointVertexBuffer = gl.createBuffer();
+	if (pointColorBuffer == null)
+		pointColorBuffer = gl.createBuffer();
+	gl.bindBuffer(gl.ARRAY_BUFFER, pointVertexBuffer);
+	gl.bufferData(gl.ARRAY_BUFFER, scene.fluid.particlePos, gl.DYNAMIC_DRAW);
+	var posLoc = gl.getAttribLocation(pointShader, 'attrPosition');
+	gl.enableVertexAttribArray(posLoc);
+	gl.vertexAttribPointer(posLoc, 2, gl.FLOAT, false, 0, 0);
+	gl.bindBuffer(gl.ARRAY_BUFFER, pointColorBuffer);
+	gl.bufferData(gl.ARRAY_BUFFER, scene.fluid.particleColor, gl.DYNAMIC_DRAW);
+	var colorLoc = gl.getAttribLocation(pointShader, 'attrColor');
+	gl.enableVertexAttribArray(colorLoc);
+	gl.vertexAttribPointer(colorLoc, 3, gl.FLOAT, false, 0, 0);
+	gl.drawArrays(gl.POINTS, 0, scene.fluid.numParticles);
+	gl.disableVertexAttribArray(posLoc);
+	gl.disableVertexAttribArray(colorLoc);
+	gl.bindBuffer(gl.ARRAY_BUFFER, null);
+}
+
+function simulate() {
+	scene.fluid.simulate(
+		scene.dt, scene.gravity, scene.numPressureIters, scene.numParticleIters,
+		scene.overRelaxation, scene.compensateDrift, scene.separateParticles
+	);
+}
+
+function update() {
+	simulate();
+	draw();
+	requestAnimationFrame(update);
+}
+
+setupScene();
+update();
+
+function resizeCanvas() {
+	canvas.width = window.innerWidth;
+	canvas.height = window.innerHeight;
+	gl.viewport(0, 0, canvas.width, canvas.height);
+}
+
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
+</script>
 </body>
 </html>
