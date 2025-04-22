@@ -269,9 +269,7 @@ class FlipFluid {
 			}
 			if (numFluidCells > 0) {
 				this.particleRestDensity = sum / numFluidCells;
-				console.log("Calculated particleRestDensity:", this.particleRestDensity);
 			} else {
-				console.warn("Could not calculate particleRestDensity: No fluid cells found initially.");
 				this.particleRestDensity = 1.0;
 			}
 		}
@@ -536,7 +534,6 @@ function setupScene() {
 		if (p >= 2 * f.maxParticles) break;
 	}
 	f.numParticles = p / 2;
-	console.log(`Initialized with ${f.numParticles} particles.`);
 
 	var n = f.fNumY;
 	for (var i = 0; i < f.fNumX; i++) {
@@ -575,7 +572,6 @@ function createShader(gl, vsSource, fsSource) {
 	gl.shaderSource(vsShader, vsSource);
 	gl.compileShader(vsShader);
 	if (!gl.getShaderParameter(vsShader, gl.COMPILE_STATUS)) {
-		console.error("Vertex shader compile error: " + gl.getShaderInfoLog(vsShader));
 		gl.deleteShader(vsShader);
 		return null;
 	}
@@ -584,7 +580,6 @@ function createShader(gl, vsSource, fsSource) {
 	gl.shaderSource(fsShader, fsSource);
 	gl.compileShader(fsShader);
 	if (!gl.getShaderParameter(fsShader, gl.COMPILE_STATUS)) {
-		console.error("Fragment shader compile error: " + gl.getShaderInfoLog(fsShader));
 		gl.deleteShader(fsShader);
 		gl.deleteShader(vsShader);
 		return null;
@@ -596,13 +591,11 @@ function createShader(gl, vsSource, fsSource) {
 	gl.linkProgram(shader);
 
 	if (!gl.getProgramParameter(shader, gl.LINK_STATUS)) {
-		console.error("Shader program linking error: " + gl.getProgramInfoLog(shader));
 		gl.deleteProgram(shader);
 		gl.deleteShader(fsShader);
 		gl.deleteShader(vsShader);
 		return null;
 	}
-
 	gl.detachShader(shader, vsShader);
 	gl.detachShader(shader, fsShader);
 	gl.deleteShader(vsShader);
@@ -616,11 +609,6 @@ var gridPositionBuffer = null;
 var gridColorBuffer = null;
 
 function draw() {
-	if (!gl) {
-		console.error("WebGL context lost or not available");
-		return;
-	}
-
 	gl.clearColor(0.1, 0.1, 0.1, 1.0);
 	gl.clear(gl.COLOR_BUFFER_BIT);
 	gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
@@ -645,7 +633,6 @@ function draw() {
 	var gridColors = new Float32Array(numVertices * 4);
 	var idx = 0;
 	var colorIdx = 0;
-
 	for (var i = 0; i < f.fNumX; i++) {
 		for (var j = 0; j < f.fNumY; j++) {
 			var x0 = i * h;
@@ -803,17 +790,9 @@ function resizeCanvas() {
 	canvas.height = window.innerHeight;
 	cScale = canvas.height / simHeight;
 	simWidth = canvas.width / cScale;
-	if (scene.fluid) {
-		console.log(`Resized - New Sim Width: ${simWidth.toFixed(2)}`);
-	}
-	if (gl) {
-		gl.viewport(0, 0, canvas.width, canvas.height);
-	}
+
 }
-
 window.addEventListener('resize', resizeCanvas);
-
-console.log(`Simulation Domain: ${simWidth.toFixed(2)} x ${simHeight.toFixed(2)}`);
 setupScene();
 requestAnimationFrame(update);
 </script>
