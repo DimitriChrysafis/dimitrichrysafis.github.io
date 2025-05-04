@@ -9,7 +9,7 @@
 				font-size: 15px;
 				margin: 0;
 				padding: 0;
-				overflow: hidden; /* Prevent scrollbars */
+				overflow: hidden;
 			}
 			canvas {
 				display: block;
@@ -29,7 +29,6 @@ var simWidth = canvas.width / cScale;
 
 // Simulation Constants
 var U_FIELD = 0;
-var V_FIELD = 1;
 var FLUID_CELL = 0;
 var AIR_CELL = 1;
 var SOLID_CELL = 2;
@@ -439,29 +438,6 @@ class FlipFluid {
 		}
 	}
 
-	addParticles(num, posX, posY, velX, velY, colorR = 0.6, colorG = 0.8, colorB = 1.0) {
-		var added = 0;
-		const jitter = this.particleRadius * 1.5;
-		while (added < num && this.numParticles < this.maxParticles) {
-			var i = this.numParticles;
-			var offsetX = (Math.random() - 0.5) * jitter;
-			var offsetY = (Math.random() - 0.5) * jitter;
-			var pX = clamp(posX + offsetX, this.h, this.width - this.h);
-			var pY = clamp(posY + offsetY, this.h, this.height - this.h);
-			this.particlePos[2 * i] = pX;
-			this.particlePos[2 * i + 1] = pY;
-			this.particleVel[2 * i] = velX;
-			this.particleVel[2 * i + 1] = velY;
-			this.particleColor[3 * i + 0] = colorR;
-			this.particleColor[3 * i + 1] = colorG;
-			this.particleColor[3 * i + 2] = colorB;
-			this.numParticles++;
-			added++;
-		}
-		if (added > 0 && this.particleRestDensity == 0.0) {
-			this.updateParticleDensity();
-		}
-	}
 
 	simulate(dt, gravity, numPressureIters, numParticleIters, overRelaxation, compensateDrift, separateParticles, flipRatio,
 			 isMouseDown, mouseX, mouseY, mouseVelX, mouseVelY, mouseRadius, mouseStrength) {
