@@ -6,9 +6,6 @@
   <component name="ChangeListManager">
     <list default="true" id="5b79210f-ace1-4c6d-8a9e-c09f32e7ec5c" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/folder/post8.md" beforeDir="false" afterPath="$PROJECT_DIR$/folder/post8.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/media/post8/animation.html" beforeDir="false" afterPath="$PROJECT_DIR$/media/post8/animation.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/media/post9/fluid2.html" beforeDir="false" afterPath="$PROJECT_DIR$/media/post9/fluid2.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -62,11 +59,11 @@
 }</component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/media/post9" />
       <recent name="$PROJECT_DIR$/post9" />
       <recent name="$PROJECT_DIR$/media/post8" />
       <recent name="$PROJECT_DIR$/media/post7" />
       <recent name="$PROJECT_DIR$/media/post6" />
-      <recent name="$PROJECT_DIR$/folder" />
     </key>
   </component>
   <component name="SharedIndexes">
@@ -164,7 +161,9 @@
       <workItem from="1745294825670" duration="552000" />
       <workItem from="1745341372870" duration="1700000" />
       <workItem from="1745367370608" duration="8880000" />
-      <workItem from="1746382403185" duration="1407000" />
+      <workItem from="1746382403185" duration="1453000" />
+      <workItem from="1746506676249" duration="645000" />
+      <workItem from="1746680264635" duration="1915000" />
     </task>
     <servers />
   </component>
