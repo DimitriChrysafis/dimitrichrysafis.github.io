@@ -5,7 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="5b79210f-ace1-4c6d-8a9e-c09f32e7ec5c" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/folder/post9.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/json/posts.json" beforeDir="false" afterPath="$PROJECT_DIR$/json/posts.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/media/post9/fluid.html" beforeDir="false" afterPath="$PROJECT_DIR$/media/post9/fluid.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -164,6 +167,12 @@
       <workItem from="1746382403185" duration="1453000" />
       <workItem from="1746506676249" duration="645000" />
       <workItem from="1746680264635" duration="1915000" />
+      <workItem from="1747024031158" duration="619000" />
+      <workItem from="1747244733400" duration="268000" />
+      <workItem from="1748705068366" duration="72000" />
+      <workItem from="1748708946176" duration="1215000" />
+      <workItem from="1748720849167" duration="2389000" />
+      <workItem from="1749106358892" duration="265000" />
     </task>
     <servers />
   </component>

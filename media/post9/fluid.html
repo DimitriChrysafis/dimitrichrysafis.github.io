@@ -1,599 +1,444 @@
 <!DOCTYPE html>
-<html>
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<head>
-		<title>FLIP Fluid</title>
-		<style>
-			body {
-				font-family: verdana;
-				font-size: 15px;
-				margin: 0;
-				padding: 0;
-			}
-			canvas {
-				display: block;
-			}
-		</style>
-	</head>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>PBF2D with Gravity Toggle</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background-color: #2E8B57;
+      font-family: Arial, sans-serif;
+    }
+    canvas {
+      display: block;
+    }
+    #overlayCanvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      pointer-events: none;
+      z-index: 5;
+    }
+    #gravToggle {
+      display: none;
+    }
+    #gravLabel {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      z-index: 10;
+      width: 80px;
+      height: 30px;
+      line-height: 30px;
+      text-align: center;
+      color: #fff;
+      font-weight: bold;
+      border-radius: 4px;
+      cursor: pointer;
+      background-color: red;
+    }
+    #gravToggle:checked + #gravLabel {
+      background-color: green;
+    }
+    #gravLabel span {
+      user-select: none;
+    }
+  </style>
+</head>
 <body>
-	<canvas id="myCanvas"></canvas>
-<script>
-var canvas = document.getElementById("myCanvas");
-var gl = canvas.getContext("webgl");
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
-var simHeight = 3.0;
-var cScale = canvas.height / simHeight;
-var simWidth = canvas.width / cScale;
-var U_FIELD = 0;
-var V_FIELD = 1;
-var FLUID_CELL = 0;
-var AIR_CELL = 1;
-var SOLID_CELL = 2;
+  <input type="checkbox" id="gravToggle" checked>
+  <label id="gravLabel" for="gravToggle"><span>CLICK-ME-TO-TOGGLE-GRAVITY</span></label>
+  <canvas id="canvas"></canvas>
+  <canvas id="overlayCanvas"></canvas>
+  <script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const overlayCanvas = document.getElementById('overlayCanvas');
+    const octx = overlayCanvas.getContext('2d');
+    let worldWidth = 80.0;
+    let worldHeight = 40.0;
+    let cellSize = 2.51;
+    let cellRecpr = 1.0 / cellSize;
+    function roundUp(f, s) {
+      return (Math.floor((f * cellRecpr) / s) + 1) * s;
+    }
+    let gridSize = {
+      x: roundUp(worldWidth, 1),
+      y: roundUp(worldHeight, 1)
+    };
+    let gridCellCount = gridSize.x * gridSize.y;
+    let grid2Particles = new Array(gridCellCount).fill().map(() => []);
+    let maxNeighbors = 100;
+    let timeDelta = 0.05;
+    let gravityConstant = -9.8;
+    let gravityEnabled = document.getElementById('gravToggle').checked;
+    let particleRadiusPixels = 4.0;
+    let particleRadiusWorld = particleRadiusPixels / 10.0;
+    let h = 1.1;
+    let rho0 = 1.0;
+    let lambdaEpsilon = 100.0;
+    let pbfNumIters = 5;
+    let corrDeltaQCoeff = 0.3;
+    let corrK = 0.001;
+    let neighborRadius = h * 1.05;
+    const poly6Factor = (315.0 / 64.0) / Math.PI;
+    const spikyGradFactor = -45.0 / Math.PI;
+    let positions = [];
+    let oldPositions = [];
+    let velocities = [];
+    let lambdas = [];
+    let positionDeltas = [];
+    let neighbors = [];
+    const initialCols = 100;
+    const initialCount = initialCols * 20;
+    function initParticles() {
+      const delta = h * 0.3;
+      const cols = initialCols;
+      const offsX = (worldWidth - delta * cols) * 0.5;
+      const offsY = worldHeight * 0.02;
+      for (let i = 0; i < initialCount; i++) {
+        const col = i % cols;
+        const row = Math.floor(i / cols);
+        const px = col * delta + offsX;
+        const py = row * delta + offsY;
+        positions.push({ x: px, y: py });
+        oldPositions.push({ x: px, y: py });
+        velocities.push({
+          x: (Math.random() - 0.5) * 4.0,
+          y: (Math.random() - 0.5) * 4.0
+        });
+        lambdas.push(0.0);
+        positionDeltas.push({ x: 0.0, y: 0.0 });
+        neighbors.push([]);
+      }
+    }
+    function confinePositionToBoundary(pos) {
+      const bmin = particleRadiusWorld;
+      const bmaxX = worldWidth - particleRadiusWorld;
+      const bmaxY = worldHeight - particleRadiusWorld;
+      if (pos.x <= bmin) pos.x = bmin + Math.random() * 1e-5;
+      else if (pos.x >= bmaxX) pos.x = bmaxX - Math.random() * 1e-5;
+      if (pos.y <= bmin) pos.y = bmin + Math.random() * 1e-5;
+      else if (pos.y >= bmaxY) pos.y = bmaxY - Math.random() * 1e-5;
+      return pos;
+    }
+    function poly6Value(rLen) {
+      if (rLen <= 0 || rLen >= h) return 0.0;
+      const x = (h * h - rLen * rLen) / (h * h * h);
+      return poly6Factor * x * x * x;
+    }
+    function spikyGradient(rVec) {
+      const rx = rVec.x, ry = rVec.y;
+      const rLen = Math.hypot(rx, ry);
+      if (rLen <= 0 || rLen >= h) return { x: 0, y: 0 };
+      const x = (h - rLen) / (h * h * h);
+      const gFactor = spikyGradFactor * x * x;
+      return {
+        x: (rx * gFactor) / rLen,
+        y: (ry * gFactor) / rLen
+      };
+    }
+    function computeSCorr(rVec) {
+      const rLen = Math.hypot(rVec.x, rVec.y);
+      const num = poly6Value(rLen);
+      const den = poly6Value(corrDeltaQCoeff * h);
+      if (den === 0) return 0.0;
+      let x = num / den;
+      x = x * x;
+      x = x * x;
+      return -corrK * x;
+    }
+    function getCell(pos) {
+      return {
+        i: Math.floor(pos.x * cellRecpr),
+        j: Math.floor(pos.y * cellRecpr)
+      };
+    }
+    function isInGrid(i, j) {
+      return i >= 0 && i < gridSize.x && j >= 0 && j < gridSize.y;
+    }
+    function cellToIndex(i, j) {
+      return i + j * gridSize.x;
+    }
+    function buildGrid() {
+      for (let c = 0; c < gridCellCount; c++) {
+        grid2Particles[c].length = 0;
+      }
+      for (let p = 0; p < positions.length; p++) {
+        const pos = positions[p];
+        const cell = getCell(pos);
+        if (isInGrid(cell.i, cell.j)) {
+          const idx = cellToIndex(cell.i, cell.j);
+          grid2Particles[idx].push(p);
+        }
+      }
+    }
+    function findNeighbors() {
+      for (let i = 0; i < positions.length; i++) {
+        neighbors[i].length = 0;
+        const posI = positions[i];
+        const cell = getCell(posI);
+        for (let di = -1; di <= 1; di++) {
+          for (let dj = -1; dj <= 1; dj++) {
+            const ni = cell.i + di;
+            const nj = cell.j + dj;
+            if (!isInGrid(ni, nj)) continue;
+            const cellIdx = cellToIndex(ni, nj);
+            const plist = grid2Particles[cellIdx];
+            for (let k = 0; k < plist.length; k++) {
+              const j = plist[k];
+              if (j === i) continue;
+              if (neighbors[i].length >= maxNeighbors) break;
+              const dx = posI.x - positions[j].x;
+              const dy = posI.y - positions[j].y;
+              if (dx * dx + dy * dy < neighborRadius * neighborRadius) {
+                neighbors[i].push(j);
+              }
+            }
+          }
+        }
+      }
+    }
+    function prologue() {
+      for (let i = 0; i < positions.length; i++) {
+        oldPositions[i].x = positions[i].x;
+        oldPositions[i].y = positions[i].y;
+        if (gravityEnabled) {
+          velocities[i].y += gravityConstant * timeDelta;
+        }
+        positions[i].x += velocities[i].x * timeDelta;
+        positions[i].y += velocities[i].y * timeDelta;
+        const confined = confinePositionToBoundary(positions[i]);
+        positions[i].x = confined.x;
+        positions[i].y = confined.y;
+      }
+      buildGrid();
+      findNeighbors();
+    }
+    function substep() {
+      for (let i = 0; i < positions.length; i++) {
+        const posI = positions[i];
+        let gradIx = 0.0, gradIy = 0.0;
+        let sumGradSqr = 0.0;
+        let densityConstraint = -3.0;
+        const nbrs = neighbors[i];
+        for (let idx = 0; idx < nbrs.length; idx++) {
+          const j = nbrs[idx];
+          const posJ = positions[j];
+          const rx = posI.x - posJ.x;
+          const ry = posI.y - posJ.y;
+          const gradJ = spikyGradient({ x: rx, y: ry });
+          gradIx += gradJ.x;
+          gradIy += gradJ.y;
+          sumGradSqr += gradJ.x * gradJ.x + gradJ.y * gradJ.y;
+          densityConstraint += poly6Value(Math.hypot(rx, ry));
+        }
+        densityConstraint = (1.0 * densityConstraint / rho0) - 1.0;
+        sumGradSqr += gradIx * gradIx + gradIy * gradIy;
+        lambdas[i] = -densityConstraint / (sumGradSqr + lambdaEpsilon);
+      }
+      for (let i = 0; i < positions.length; i++) {
+        const posI = positions[i];
+        const λi = lambdas[i];
+        let dpx = 0.0, dpy = 0.0;
+        const nbrs = neighbors[i];
+        for (let idx = 0; idx < nbrs.length; idx++) {
+          const j = nbrs[idx];
+          const λj = lambdas[j];
+          const posJ = positions[j];
+          const rx = posI.x - posJ.x;
+          const ry = posI.y - posJ.y;
+          const scorr = computeSCorr({ x: rx, y: ry });
+          const gradW = spikyGradient({ x: rx, y: ry });
+          const scalar = λi + λj + scorr;
+          dpx += scalar * gradW.x;
+          dpy += scalar * gradW.y;
+        }
+        positionDeltas[i].x = dpx / rho0;
+        positionDeltas[i].y = dpy / rho0;
+      }
+      for (let i = 0; i < positions.length; i++) {
+        positions[i].x += positionDeltas[i].x;
+        positions[i].y += positionDeltas[i].y;
+      }
+    }
+    function epilogue() {
+      for (let i = 0; i < positions.length; i++) {
+        const confined = confinePositionToBoundary(positions[i]);
+        positions[i].x = confined.x;
+        positions[i].y = confined.y;
+        velocities[i].x = (positions[i].x - oldPositions[i].x) / timeDelta;
+        velocities[i].y = (positions[i].y - oldPositions[i].y) / timeDelta;
+      }
+      cleanParticles();
+    }
+    function runPBF() {
+      prologue();
+      for (let it = 0; it < pbfNumIters; it++) {
+        substep();
+      }
+      epilogue();
+    }
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      overlayCanvas.width = window.innerWidth;
+      overlayCanvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+    function screenToWorld(mouseX, mouseY) {
+      const worldX = (mouseX / canvas.width) * worldWidth;
+      const worldY = ((canvas.height - mouseY) / canvas.height) * worldHeight;
+      return { x: worldX, y: worldY };
+    }
+    let dragging = false;
+    let dragStart = { x: 0, y: 0 };
+    let dragEnd = { x: 0, y: 0 };
+    canvas.addEventListener('mousedown', (e) => {
+      dragging = true;
+      dragStart.x = e.clientX;
+      dragStart.y = e.clientY;
+      dragEnd.x = e.clientX;
+      dragEnd.y = e.clientY;
+    });
+    canvas.addEventListener('mousemove', (e) => {
+      if (!dragging) return;
+      dragEnd.x = e.clientX;
+      dragEnd.y = e.clientY;
+      drawOverlayRectangle();
+    });
+    canvas.addEventListener('mouseup', (e) => {
+      if (!dragging) return;
+      dragging = false;
+      dragEnd.x = e.clientX;
+      dragEnd.y = e.clientY;
+      clearOverlay();
+      spawnParticlesInRect();
+    });
+    canvas.addEventListener('mouseleave', () => {
+      if (dragging) {
+        dragging = false;
+        clearOverlay();
+        spawnParticlesInRect();
+      }
+    });
+    function drawOverlayRectangle() {
+      octx.clearRect(0, 0, overlayCanvas.width, overlayCanvas.height);
+      const x = Math.min(dragStart.x, dragEnd.x);
+      const y = Math.min(dragStart.y, dragEnd.y);
+      const w = Math.abs(dragEnd.x - dragStart.x);
+      const hgt = Math.abs(dragEnd.y - dragStart.y);
+      octx.fillStyle = 'rgba(255, 255, 255, 0.2)';
+      octx.fillRect(x, y, w, hgt);
+      octx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
+      octx.lineWidth = 2;
+      octx.strokeRect(x, y, w, hgt);
+    }
+    function clearOverlay() {
+      octx.clearRect(0, 0, overlayCanvas.width, overlayCanvas.height);
+    }
+    function spawnParticlesInRect() {
+      const worldA = screenToWorld(dragStart.x, dragStart.y);
+      const worldB = screenToWorld(dragEnd.x, dragEnd.y);
+      const minX = Math.min(worldA.x, worldB.x);
+      const maxX = Math.max(worldA.x, worldB.x);
+      const minY = Math.min(worldA.y, worldB.y);
+      const maxY = Math.max(worldA.y, worldB.y);
+      const delta = h * 0.8;
+      const startX = minX + delta * 0.5;
+      const startY = minY + delta * 0.5;
+      for (let wx = startX; wx <= maxX; wx += delta) {
+        for (let wy = startY; wy <= maxY; wy += delta) {
+          if (wx >= minX - 1e-6 && wx <= maxX + 1e-6 && wy >= minY - 1e-6 && wy <= maxY + 1e-6) {
+            positions.push({ x: wx, y: wy });
+            oldPositions.push({ x: wx, y: wy });
+            velocities.push({ x: 0.0, y: 0.0 });
+            lambdas.push(0.0);
+            positionDeltas.push({ x: 0.0, y: 0.0 });
+            neighbors.push([]);
+          }
+        }
+      }
+    }
+    function cleanParticles() {
+      if (positions.length <= 3000) return;
+      const keepAboveBottom = [];
+      for (let i = 0; i < positions.length; i++) {
+        if (positions[i].y > particleRadiusWorld + 1e-6) {
+          keepAboveBottom.push(i);
+        }
+      }
+      if (keepAboveBottom.length > 3000) {
+        keepAboveBottom.sort((a, b) => positions[b].y - positions[a].y);
+        keepAboveBottom.length = 3000;
+      }
+      const newPositions = [];
+      const newOldPositions = [];
+      const newVelocities = [];
+      const newLambdas = [];
+      const newPositionDeltas = [];
+      const newNeighbors = [];
+      for (let idx of keepAboveBottom) {
+        newPositions.push(positions[idx]);
+        newOldPositions.push(oldPositions[idx]);
+        newVelocities.push(velocities[idx]);
+        newLambdas.push(lambdas[idx]);
+        newPositionDeltas.push(positionDeltas[idx]);
+        newNeighbors.push([]);
+      }
+      positions = newPositions;
+      oldPositions = newOldPositions;
+      velocities = newVelocities;
+      lambdas = newLambdas;
+      positionDeltas = newPositionDeltas;
+      neighbors = newNeighbors;
+    }
+    function render() {
+      ctx.fillStyle = '#2E8B57';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+	   ctx.save();
+  ctx.font = 'bold 60px Arial';
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'top';
+  ctx.fillText('Click and drag to spawn balls', canvas.width / 2, canvas.height * 0.1);
+  ctx.restore();
 
-function clamp(x, min, max) {
-	if (x < min)
-		return min;
-	else if (x > max)
-		return max;
-	else
-		return x;
-}
-
-class FlipFluid {
-	constructor(density, width, height, spacing, particleRadius, maxParticles) {
-		this.density = density;
-		this.fNumX = Math.floor(width / spacing) + 1;
-		this.fNumY = Math.floor(height / spacing) + 1;
-		this.h = Math.max(width / this.fNumX, height / this.fNumY);
-		this.fInvSpacing = 1.0 / this.h;
-		this.fNumCells = this.fNumX * this.fNumY;
-		this.u = new Float32Array(this.fNumCells);
-		this.v = new Float32Array(this.fNumCells);
-		this.du = new Float32Array(this.fNumCells);
-		this.dv = new Float32Array(this.fNumCells);
-		this.prevU = new Float32Array(this.fNumCells);
-		this.prevV = new Float32Array(this.fNumCells);
-		this.p = new Float32Array(this.fNumCells);
-		this.s = new Float32Array(this.fNumCells);
-		this.cellType = new Int32Array(this.fNumCells);
-		this.cellColor = new Float32Array(3 * this.fNumCells);
-		this.maxParticles = maxParticles;
-		this.particlePos = new Float32Array(2 * this.maxParticles);
-		this.particleColor = new Float32Array(3 * this.maxParticles);
-		for (var i = 0; i < this.maxParticles; i++)
-			this.particleColor[3 * i + 2] = 1.0;
-		this.particleVel = new Float32Array(2 * this.maxParticles);
-		this.particleDensity = new Float32Array(this.fNumCells);
-		this.particleRestDensity = 0.0;
-		this.particleRadius = particleRadius;
-		this.pInvSpacing = 1.0 / (2.2 * particleRadius);
-		this.pNumX = Math.floor(width * this.pInvSpacing) + 1;
-		this.pNumY = Math.floor(height * this.pInvSpacing) + 1;
-		this.pNumCells = this.pNumX * this.pNumY;
-		this.numCellParticles = new Int32Array(this.pNumCells);
-		this.firstCellParticle = new Int32Array(this.pNumCells + 1);
-		this.cellParticleIds = new Int32Array(maxParticles);
-		this.numParticles = 0;
-	}
-
-	integrateParticles(dt, gravity) {
-		for (var i = 0; i < this.numParticles; i++) {
-			this.particleVel[2 * i + 1] += dt * gravity;
-			this.particlePos[2 * i] += this.particleVel[2 * i] * dt;
-			this.particlePos[2 * i + 1] += this.particleVel[2 * i + 1] * dt;
-		}
-	}
-
-	pushParticlesApart(numIters) {
-		var colorDiffusionCoeff = 0.001;
-		this.numCellParticles.fill(0);
-		for (var i = 0; i < this.numParticles; i++) {
-			var x = this.particlePos[2 * i];
-			var y = this.particlePos[2 * i + 1];
-			var xi = clamp(Math.floor(x * this.pInvSpacing), 0, this.pNumX - 1);
-			var yi = clamp(Math.floor(y * this.pInvSpacing), 0, this.pNumY - 1);
-			var cellNr = xi * this.pNumY + yi;
-			this.numCellParticles[cellNr]++;
-		}
-		var first = 0;
-		for (var i = 0; i < this.pNumCells; i++) {
-			first += this.numCellParticles[i];
-			this.firstCellParticle[i] = first;
-		}
-		this.firstCellParticle[this.pNumCells] = first;
-		for (var i = 0; i < this.numParticles; i++) {
-			var x = this.particlePos[2 * i];
-			var y = this.particlePos[2 * i + 1];
-			var xi = clamp(Math.floor(x * this.pInvSpacing), 0, this.pNumX - 1);
-			var yi = clamp(Math.floor(y * this.pInvSpacing), 0, this.pNumY - 1);
-			var cellNr = xi * this.pNumY + yi;
-			this.firstCellParticle[cellNr]--;
-			this.cellParticleIds[this.firstCellParticle[cellNr]] = i;
-		}
-		var minDist = 2.0 * this.particleRadius;
-		var minDist2 = minDist * minDist;
-		for (var iter = 0; iter < numIters; iter++) {
-			for (var i = 0; i < this.numParticles; i++) {
-				var px = this.particlePos[2 * i];
-				var py = this.particlePos[2 * i + 1];
-				var pxi = Math.floor(px * this.pInvSpacing);
-				var pyi = Math.floor(py * this.pInvSpacing);
-				var x0 = Math.max(pxi - 1, 0);
-				var y0 = Math.max(pyi - 1, 0);
-				var x1 = Math.min(pxi + 1, this.pNumX - 1);
-				var y1 = Math.min(pyi + 1, this.pNumY - 1);
-				for (var xi = x0; xi <= x1; xi++) {
-					for (var yi = y0; yi <= y1; yi++) {
-						var cellNr = xi * this.pNumY + yi;
-						var first = this.firstCellParticle[cellNr];
-						var last = this.firstCellParticle[cellNr + 1];
-						for (var j = first; j < last; j++) {
-							var id = this.cellParticleIds[j];
-							if (id == i)
-								continue;
-							var qx = this.particlePos[2 * id];
-							var qy = this.particlePos[2 * id + 1];
-							var dx = qx - px;
-							var dy = qy - py;
-							var d2 = dx * dx + dy * dy;
-							if (d2 > minDist2 || d2 == 0.0)
-								continue;
-							var d = Math.sqrt(d2);
-							var s = 0.5 * (minDist - d) / d;
-							dx *= s;
-							dy *= s;
-							this.particlePos[2 * i] -= dx;
-							this.particlePos[2 * i + 1] -= dy;
-							this.particlePos[2 * id] += dx;
-							this.particlePos[2 * id + 1] += dy;
-							for (var k = 0; k < 3; k++) {
-								var color0 = this.particleColor[3 * i + k];
-								var color1 = this.particleColor[3 * id + k];
-								var color = (color0 + color1) * 0.5;
-								this.particleColor[3 * i + k] = color0 + (color - color0) * colorDiffusionCoeff;
-								this.particleColor[3 * id + k] = color1 + (color - color1) * colorDiffusionCoeff;
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-
-	handleBoundaryCollisions() {
-		var h = 1.0 / this.fInvSpacing;
-		var r = this.particleRadius;
-		var minX = h + r;
-		var maxX = (this.fNumX - 1) * h - r;
-		var minY = h + r;
-		var maxY = (this.fNumY - 1) * h - r;
-		for (var i = 0; i < this.numParticles; i++) {
-			var x = this.particlePos[2 * i];
-			var y = this.particlePos[2 * i + 1];
-			if (x < minX) {
-				x = minX;
-				this.particleVel[2 * i] = 0.0;
-			}
-			if (x > maxX) {
-				x = maxX;
-				this.particleVel[2 * i] = 0.0;
-			}
-			if (y < minY) {
-				y = minY;
-				this.particleVel[2 * i + 1] = 0.0;
-			}
-			if (y > maxY) {
-				y = maxY;
-				this.particleVel[2 * i + 1] = 0.0;
-			}
-			this.particlePos[2 * i] = x;
-			this.particlePos[2 * i + 1] = y;
-		}
-	}
-
-	updateParticleDensity() {
-		var n = this.fNumY;
-		var h = this.h;
-		var h1 = this.fInvSpacing;
-		var h2 = 0.5 * h;
-		var d = this.particleDensity;
-		d.fill(0.0);
-		for (var i = 0; i < this.numParticles; i++) {
-			var x = this.particlePos[2 * i];
-			var y = this.particlePos[2 * i + 1];
-			x = clamp(x, h, (this.fNumX - 1) * h);
-			y = clamp(y, h, (this.fNumY - 1) * h);
-			var x0 = Math.floor((x - h2) * h1);
-			var tx = ((x - h2) - x0 * h) * h1;
-			var x1 = Math.min(x0 + 1, this.fNumX - 2);
-			var y0 = Math.floor((y - h2) * h1);
-			var ty = ((y - h2) - y0 * h) * h1;
-			var y1 = Math.min(y0 + 1, this.fNumY - 2);
-			var sx = 1.0 - tx;
-			var sy = 1.0 - ty;
-			if (x0 < this.fNumX && y0 < this.fNumY) d[x0 * n + y0] += sx * sy;
-			if (x1 < this.fNumX && y0 < this.fNumY) d[x1 * n + y0] += tx * sy;
-			if (x1 < this.fNumX && y1 < this.fNumY) d[x1 * n + y1] += tx * ty;
-			if (x0 < this.fNumX && y1 < this.fNumY) d[x0 * n + y1] += sx * ty;
-		}
-		if (this.particleRestDensity == 0.0) {
-			var sum = 0.0;
-			var numFluidCells = 0;
-			for (var i = 0; i < this.fNumCells; i++) {
-				if (this.cellType[i] == FLUID_CELL) {
-					sum += d[i];
-					numFluidCells++;
-				}
-			}
-			if (numFluidCells > 0)
-				this.particleRestDensity = sum / numFluidCells;
-		}
-	}
-
-	transferVelocities(toGrid) {
-		var n = this.fNumY;
-		var h = this.h;
-		var h1 = this.fInvSpacing;
-		var h2 = 0.5 * h;
-		if (toGrid) {
-			this.prevU.set(this.u);
-			this.prevV.set(this.v);
-			this.du.fill(0.0);
-			this.dv.fill(0.0);
-			this.u.fill(0.0);
-			this.v.fill(0.0);
-			for (var i = 0; i < this.fNumCells; i++)
-				this.cellType[i] = this.s[i] == 0.0 ? SOLID_CELL : AIR_CELL;
-			for (var i = 0; i < this.numParticles; i++) {
-				var x = this.particlePos[2 * i];
-				var y = this.particlePos[2 * i + 1];
-				var xi = clamp(Math.floor(x * h1), 0, this.fNumX - 1);
-				var yi = clamp(Math.floor(y * h1), 0, this.fNumY - 1);
-				var cellNr = xi * n + yi;
-				if (this.cellType[cellNr] == AIR_CELL)
-					this.cellType[cellNr] = FLUID_CELL;
-			}
-		}
-		for (var component = 0; component < 2; component++) {
-			var dx = component == 0 ? 0.0 : h2;
-			var dy = component == 0 ? h2 : 0.0;
-			var f = component == 0 ? this.u : this.v;
-			var prevF = component == 0 ? this.prevU : this.prevV;
-			var d = component == 0 ? this.du : this.dv;
-			for (var i = 0; i < this.numParticles; i++) {
-				var x = this.particlePos[2 * i];
-				var y = this.particlePos[2 * i + 1];
-				x = clamp(x, h, (this.fNumX - 1) * h);
-				y = clamp(y, h, (this.fNumY - 1) * h);
-				var x0 = Math.min(Math.floor((x - dx) * h1), this.fNumX - 2);
-				var tx = ((x - dx) - x0 * h) * h1;
-				var x1 = Math.min(x0 + 1, this.fNumX - 2);
-				var y0 = Math.min(Math.floor((y - dy) * h1), this.fNumY - 2);
-				var ty = ((y - dy) - y0 * h) * h1;
-				var y1 = Math.min(y0 + 1, this.fNumY - 2);
-				var sx = 1.0 - tx;
-				var sy = 1.0 - ty;
-				var d0 = sx * sy;
-				var d1 = tx * sy;
-				var d2 = tx * ty;
-				var d3 = sx * ty;
-				var nr0 = x0 * n + y0;
-				var nr1 = x1 * n + y0;
-				var nr2 = x1 * n + y1;
-				var nr3 = x0 * n + y1;
-				if (toGrid) {
-					var pv = this.particleVel[2 * i + component];
-					f[nr0] += pv * d0;  d[nr0] += d0;
-					f[nr1] += pv * d1;  d[nr1] += d1;
-					f[nr2] += pv * d2;  d[nr2] += d2;
-					f[nr3] += pv * d3;  d[nr3] += d3;
-				} else {
-					var offset = component == 0 ? n : 1;
-					var valid0 = this.cellType[nr0] != AIR_CELL || this.cellType[nr0 - offset] != AIR_CELL ? 1.0 : 0.0;
-					var valid1 = this.cellType[nr1] != AIR_CELL || this.cellType[nr1 - offset] != AIR_CELL ? 1.0 : 0.0;
-					var valid2 = this.cellType[nr2] != AIR_CELL || this.cellType[nr2 - offset] != AIR_CELL ? 1.0 : 0.0;
-					var valid3 = this.cellType[nr3] != AIR_CELL || this.cellType[nr3 - offset] != AIR_CELL ? 1.0 : 0.0;
-					var v = this.particleVel[2 * i + component];
-					var d = valid0 * d0 + valid1 * d1 + valid2 * d2 + valid3 * d3;
-					if (d > 0.0) {
-						var corr = (valid0 * d0 * (f[nr0] - prevF[nr0]) + valid1 * d1 * (f[nr1] - prevF[nr1]) +
-							valid2 * d2 * (f[nr2] - prevF[nr2]) + valid3 * d3 * (f[nr3] - prevF[nr3])) / d;
-						var flipV = v + corr;
-						this.particleVel[2 * i + component] = flipV;
-					}
-				}
-			}
-			if (toGrid) {
-				for (var i = 0; i < f.length; i++) {
-					if (d[i] > 0.0)
-						f[i] /= d[i];
-				}
-				for (var i = 0; i < this.fNumX; i++) {
-					for (var j = 0; j < this.fNumY; j++) {
-						var solid = this.cellType[i * n + j] == SOLID_CELL;
-						if (solid || (i > 0 && this.cellType[(i - 1) * n + j] == SOLID_CELL))
-							this.u[i * n + j] = this.prevU[i * n + j];
-						if (solid || (j > 0 && this.cellType[i * n + j - 1] == SOLID_CELL))
-							this.v[i * n + j] = this.prevV[i * n + j];
-					}
-				}
-			}
-		}
-	}
-
-	solveIncompressibility(numIters, dt, overRelaxation, compensateDrift = true) {
-		this.p.fill(0.0);
-		this.prevU.set(this.u);
-		this.prevV.set(this.v);
-		var n = this.fNumY;
-		var cp = this.density * this.h / dt;
-		for (var iter = 0; iter < numIters; iter++) {
-			for (var i = 1; i < this.fNumX - 1; i++) {
-				for (var j = 1; j < this.fNumY - 1; j++) {
-					if (this.cellType[i * n + j] != FLUID_CELL)
-						continue;
-					var center = i * n + j;
-					var left = (i - 1) * n + j;
-					var right = (i + 1) * n + j;
-					var bottom = i * n + j - 1;
-					var top = i * n + j + 1;
-					var s = this.s[center];
-					var sx0 = this.s[left];
-					var sx1 = this.s[right];
-					var sy0 = this.s[bottom];
-					var sy1 = this.s[top];
-					var s = sx0 + sx1 + sy0 + sy1;
-					if (s == 0.0)
-						continue;
-					var div = this.u[right] - this.u[center] +
-						this.v[top] - this.v[center];
-					if (this.particleRestDensity > 0.0 && compensateDrift) {
-						var k = 1.0;
-						var compression = this.particleDensity[i * n + j] - this.particleRestDensity;
-						if (compression > 0.0)
-							div = div - k * compression;
-					}
-					var p = -div / s;
-					p *= overRelaxation;
-					this.p[center] += cp * p;
-					this.u[center] -= sx0 * p;
-					this.u[right] += sx1 * p;
-					this.v[center] -= sy0 * p;
-					this.v[top] += sy1 * p;
-				}
-			}
-		}
-	}
-
-	updateParticleColors() {
-		var max_speed = 4.0;
-		for (var i = 0; i < this.numParticles; i++) {
-			var vx = this.particleVel[2 * i];
-			var vy = this.particleVel[2 * i + 1];
-			var speed = Math.sqrt(vx * vx + vy * vy);
-			var speed_factor = Math.min(speed / max_speed, 1.0);
-			this.particleColor[3 * i] = 1.0 - speed_factor;
-			this.particleColor[3 * i + 1] = 1.0 - speed_factor;
-			this.particleColor[3 * i + 2] = 1.0;
-		}
-	}
-
-	addParticles(num, posX, posY, velX, velY) {
-		var added = 0;
-		while (added < num && this.numParticles < this.maxParticles) {
-			var i = this.numParticles;
-			var offsetX = (Math.random() - 0.5) * 2 * this.particleRadius;
-			var offsetY = (Math.random() - 0.5) * 2 * this.particleRadius;
-			this.particlePos[2 * i] = posX + offsetX;
-			this.particlePos[2 * i + 1] = posY + offsetY;
-			this.particleVel[2 * i] = velX;
-			this.particleVel[2 * i + 1] = velY;
-			this.particleColor[3 * i] = 1.0;
-			this.particleColor[3 * i + 1] = 1.0;
-			this.particleColor[3 * i + 2] = 1.0;
-			this.numParticles++;
-			added++;
-		}
-	}
-
-	simulate(dt, gravity, numPressureIters, numParticleIters, overRelaxation, compensateDrift, separateParticles) {
-		if (scene.spoutActive) {
-			var numToAdd = Math.floor(scene.spoutRate * dt);
-			var velX = scene.spoutSpeed * Math.cos(scene.spoutAngle);
-			var velY = scene.spoutSpeed * Math.sin(scene.spoutAngle);
-			this.addParticles(numToAdd, scene.spoutX, scene.spoutY, velX, velY);
-		}
-		var numSubSteps = 1;
-		var sdt = dt / numSubSteps;
-		for (var step = 0; step < numSubSteps; step++) {
-			this.integrateParticles(sdt, gravity);
-			if (separateParticles)
-				this.pushParticlesApart(numParticleIters);
-			this.handleBoundaryCollisions();
-			this.transferVelocities(true);
-			this.updateParticleDensity();
-			this.solveIncompressibility(numPressureIters, sdt, overRelaxation, compensateDrift);
-			this.transferVelocities(false);
-		}
-		this.updateParticleColors();
-	}
-}
-
-var scene = {
-	gravity: -9.81,
-	dt: 1.0 / 60.0,
-	numPressureIters: 203,
-	numParticleIters: 2,
-	overRelaxation: 1.9,
-	compensateDrift: true,
-	separateParticles: true,
-	fluid: null,
-	spoutActive: true,
-	spoutX: simWidth / 2,
-	spoutY: simHeight,
-	spoutAngle: -Math.PI / 2,
-	spoutSpeed: 1.0,
-	spoutRate: 200
-};
-
-function setupScene() {
-	var res = 70;
-	var tankHeight = 1.0 * simHeight;
-	var tankWidth = 1.0 * simWidth;
-	var h = tankHeight / res;
-	var density = 1000.0;
-	var r = 0.3 * h;
-	var maxParticles = 40040;
-	var f = scene.fluid = new FlipFluid(density, tankWidth, tankHeight, h, r, maxParticles);
-	var numCircles = 3;
-	var circleRadius = 0.11 * tankWidth;
-	var dx = 2 * r;
-	var dy = Math.sqrt(3) * r;
-	var N = Math.ceil(circleRadius / dx) + 1;
-	var M = Math.ceil(circleRadius / dy) + 1;
-	var p = 0;
-	for (var k = 0; k < numCircles; k++) {
-		var cx = (k + 1) * tankWidth / (numCircles + 1);
-		var cy = tankHeight - h - circleRadius;
-		for (var j = -M; j <= M; j++) {
-			for (var i = -N; i <= N; i++) {
-				var x = cx + dx * i + (j % 2 == 0 ? 0 : dx / 2);
-				var y = cy + dy * j;
-				if ((x - cx) * (x - cx) + (y - cy) * (y - cy) < circleRadius * circleRadius) {
-					f.particlePos[p++] = x;
-					f.particlePos[p++] = y;
-				}
-			}
-		}
-	}
-	f.numParticles = p / 2;
-	var n = f.fNumY;
-	for (var i = 0; i < f.fNumX; i++) {
-		for (var j = 0; j < f.fNumY; j++) {
-			var s = 1.0;
-			if (i == 0 || i == f.fNumX - 1 || j == 0)
-				s = 0.0;
-			f.s[i * n + j] = s;
-		}
-	}
-}
-
-const pointVertexShader = `
-	attribute vec2 attrPosition;
-	attribute vec3 attrColor;
-	uniform vec2 domainSize;
-	uniform float pointSize;
-	uniform float drawDisk;
-	varying vec3 fragColor;
-	varying float fragDrawDisk;
-	void main() {
-		vec4 screenTransform = vec4(2.0 / domainSize.x, 2.0 / domainSize.y, -1.0, -1.0);
-		gl_Position = vec4(attrPosition * screenTransform.xy + screenTransform.zw, 0.0, 1.0);
-		gl_PointSize = pointSize;
-		fragColor = attrColor;
-		fragDrawDisk = drawDisk;
-	}
-`;
-
-const pointFragmentShader = `
-	precision mediump float;
-	varying vec3 fragColor;
-	varying float fragDrawDisk;
-	void main() {
-		if (fragDrawDisk == 1.0) {
-			float rx = 0.5 - gl_PointCoord.x;
-			float ry = 0.5 - gl_PointCoord.y;
-			float r2 = rx * rx + ry * ry;
-			if (r2 > 0.25)
-				discard;
-			if (r2 > 0.22)
-				gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
-			else
-				gl_FragColor = vec4(fragColor, 1.0);
-		} else {
-			gl_FragColor = vec4(fragColor, 1.0);
-		}
-	}
-`;
-
-function createShader(gl, vsSource, fsSource) {
-	const vsShader = gl.createShader(gl.VERTEX_SHADER);
-	gl.shaderSource(vsShader, vsSource);
-	gl.compileShader(vsShader);
-	if (!gl.getShaderParameter(vsShader, gl.COMPILE_STATUS))
-		console.log("vertex shader compile error: " + gl.getShaderInfoLog(vsShader));
-	const fsShader = gl.createShader(gl.FRAGMENT_SHADER);
-	gl.shaderSource(fsShader, fsSource);
-	gl.compileShader(fsShader);
-	if (!gl.getShaderParameter(fsShader, gl.COMPILE_STATUS))
-		console.log("fragment shader compile error: " + gl.getShaderInfoLog(fsShader));
-	var shader = gl.createProgram();
-	gl.attachShader(shader, vsShader);
-	gl.attachShader(shader, fsShader);
-	gl.linkProgram(shader);
-	return shader;
-}
-
-var pointShader = null;
-var pointVertexBuffer = null;
-var pointColorBuffer = null;
-
-function draw() {
-	gl.clearColor(0.0, 0.0, 0.0, 1.0);
-	gl.clear(gl.COLOR_BUFFER_BIT);
-	gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
-	if (pointShader == null)
-		pointShader = createShader(gl, pointVertexShader, pointFragmentShader);
-	var pointSize = 2.0 * scene.fluid.particleRadius / simWidth * canvas.width;
-	gl.useProgram(pointShader);
-	gl.uniform2f(gl.getUniformLocation(pointShader, 'domainSize'), simWidth, simHeight);
-	gl.uniform1f(gl.getUniformLocation(pointShader, 'pointSize'), pointSize);
-	gl.uniform1f(gl.getUniformLocation(pointShader, 'drawDisk'), 1.0);
-	if (pointVertexBuffer == null)
-		pointVertexBuffer = gl.createBuffer();
-	if (pointColorBuffer == null)
-		pointColorBuffer = gl.createBuffer();
-	gl.bindBuffer(gl.ARRAY_BUFFER, pointVertexBuffer);
-	gl.bufferData(gl.ARRAY_BUFFER, scene.fluid.particlePos, gl.DYNAMIC_DRAW);
-	var posLoc = gl.getAttribLocation(pointShader, 'attrPosition');
-	gl.enableVertexAttribArray(posLoc);
-	gl.vertexAttribPointer(posLoc, 2, gl.FLOAT, false, 0, 0);
-	gl.bindBuffer(gl.ARRAY_BUFFER, pointColorBuffer);
-	gl.bufferData(gl.ARRAY_BUFFER, scene.fluid.particleColor, gl.DYNAMIC_DRAW);
-	var colorLoc = gl.getAttribLocation(pointShader, 'attrColor');
-	gl.enableVertexAttribArray(colorLoc);
-	gl.vertexAttribPointer(colorLoc, 3, gl.FLOAT, false, 0, 0);
-	gl.drawArrays(gl.POINTS, 0, scene.fluid.numParticles);
-	gl.disableVertexAttribArray(posLoc);
-	gl.disableVertexAttribArray(colorLoc);
-	gl.bindBuffer(gl.ARRAY_BUFFER, null);
-}
-
-function simulate() {
-	scene.fluid.simulate(
-		scene.dt, scene.gravity, scene.numPressureIters, scene.numParticleIters,
-		scene.overRelaxation, scene.compensateDrift, scene.separateParticles
-	);
-}
-
-function update() {
-	simulate();
-	draw();
-	requestAnimationFrame(update);
-}
-
-setupScene();
-update();
-
-function resizeCanvas() {
-	canvas.width = window.innerWidth;
-	canvas.height = window.innerHeight;
-	gl.viewport(0, 0, canvas.width, canvas.height);
-}
-
-resizeCanvas();
-window.addEventListener('resize', resizeCanvas);
-</script>
+      const scaleX = canvas.width / worldWidth;
+      const scaleY = canvas.height / worldHeight;
+      for (let i = 0; i < positions.length; i++) {
+        const vx = velocities[i].x;
+        const vy = velocities[i].y;
+        const speed = Math.hypot(vx, vy);
+        const normalized = Math.min(speed / 5.0, 1.0);
+        const red = Math.floor(normalized * 255);
+        const blue = Math.floor((1 - normalized) * 255);
+        ctx.fillStyle = `rgb(${red}, 0, ${blue})`;
+        const sx = positions[i].x * scaleX;
+        const sy = canvas.height - positions[i].y * scaleY;
+        ctx.beginPath();
+        ctx.arc(sx, sy, particleRadiusPixels, 0, 2 * Math.PI);
+        ctx.fill();
+      }
+    }
+    function animate() {
+      runPBF();
+      render();
+      requestAnimationFrame(animate);
+    }
+    initParticles();
+    requestAnimationFrame(animate);
+    document.getElementById('gravToggle').addEventListener('change', (e) => {
+      gravityEnabled = e.target.checked;
+    });
+  </script>
 </body>
 </html>
