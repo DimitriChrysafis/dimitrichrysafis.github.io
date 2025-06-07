@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>PBF2D with Gravity Toggle</title>
+  <title>PBF2D with Gravity Toggle and Piston</title>
   <style>
     * {
       margin: 0;
@@ -98,10 +98,20 @@
     let neighbors = [];
     const initialCols = 100;
     const initialCount = initialCols * 20;
+
+    const piston = {
+        x: particleRadiusWorld,
+        minX: particleRadiusWorld,
+        maxX: worldWidth / 3.0,
+        speed: 5.0,
+        direction: 1
+    };
+
     function initParticles() {
       const delta = h * 0.3;
       const cols = initialCols;
-      const offsX = (worldWidth - delta * cols) * 0.5;
+
+      const offsX = (worldWidth - delta * cols) * 0.6;
       const offsY = worldHeight * 0.02;
       for (let i = 0; i < initialCount; i++) {
         const col = i % cols;
@@ -119,16 +129,28 @@
         neighbors.push([]);
       }
     }
+
+
     function confinePositionToBoundary(pos) {
-      const bmin = particleRadiusWorld;
+      const bminX = piston.x + particleRadiusWorld;
+      const bminY = particleRadiusWorld;
       const bmaxX = worldWidth - particleRadiusWorld;
       const bmaxY = worldHeight - particleRadiusWorld;
-      if (pos.x <= bmin) pos.x = bmin + Math.random() * 1e-5;
-      else if (pos.x >= bmaxX) pos.x = bmaxX - Math.random() * 1e-5;
-      if (pos.y <= bmin) pos.y = bmin + Math.random() * 1e-5;
-      else if (pos.y >= bmaxY) pos.y = bmaxY - Math.random() * 1e-5;
+
+      if (pos.x <= bminX) {
+        pos.x = bminX + Math.random() * 1e-5;
+      } else if (pos.x >= bmaxX) {
+        pos.x = bmaxX - Math.random() * 1e-5;
+      }
+
+      if (pos.y <= bminY) {
+        pos.y = bminY + Math.random() * 1e-5;
+      } else if (pos.y >= bmaxY) {
+        pos.y = bmaxY - Math.random() * 1e-5;
+      }
       return pos;
     }
+
     function poly6Value(rLen) {
       if (rLen <= 0 || rLen >= h) return 0.0;
       const x = (h * h - rLen * rLen) / (h * h * h);
@@ -215,6 +237,7 @@
         }
         positions[i].x += velocities[i].x * timeDelta;
         positions[i].y += velocities[i].y * timeDelta;
+
         const confined = confinePositionToBoundary(positions[i]);
         positions[i].x = confined.x;
         positions[i].y = confined.y;
@@ -401,19 +424,26 @@
       positionDeltas = newPositionDeltas;
       neighbors = newNeighbors;
     }
+
     function render() {
       ctx.fillStyle = '#2E8B57';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
-	   ctx.save();
-  ctx.font = 'bold 60px Arial';
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'top';
-  ctx.fillText('Click and drag to spawn balls', canvas.width / 2, canvas.height * 0.1);
-  ctx.restore();
 
       const scaleX = canvas.width / worldWidth;
       const scaleY = canvas.height / worldHeight;
+
+      ctx.fillStyle = '#696969';
+      const pistonScreenX = piston.x * scaleX;
+      ctx.fillRect(0, 0, pistonScreenX, canvas.height);
+
+	  ctx.save();
+      ctx.font = 'bold 60px Arial';
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'top';
+      ctx.fillText('Click and drag to spawn balls', canvas.width / 2, canvas.height * 0.1);
+      ctx.restore();
+
       for (let i = 0; i < positions.length; i++) {
         const vx = velocities[i].x;
         const vy = velocities[i].y;
@@ -429,11 +459,23 @@
         ctx.fill();
       }
     }
+
     function animate() {
+      piston.x += piston.speed * timeDelta * piston.direction;
+      if (piston.x >= piston.maxX) {
+          piston.direction = -1;
+          piston.x = piston.maxX;
+      }
+      if (piston.x <= piston.minX) {
+          piston.direction = 1;
+          piston.x = piston.minX;
+      }
+
       runPBF();
       render();
       requestAnimationFrame(animate);
     }
+
     initParticles();
     requestAnimationFrame(animate);
     document.getElementById('gravToggle').addEventListener('change', (e) => {
