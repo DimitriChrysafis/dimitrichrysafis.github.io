@@ -8,6 +8,8 @@ async function loadTemplates() {
 }
 
 async function displayPosts() {
+  const header = document.querySelector('.header');
+  if (header) header.style.display = 'block';
   const mainContent = document.getElementById('main-content');
   const postGridTemplate = document.getElementById('post-grid-template').content.cloneNode(true);
   const postGrid = postGridTemplate.querySelector('.posts-grid');
@@ -33,6 +35,8 @@ async function displayPosts() {
 }
 
 async function loadPost(filename) {
+  const header = document.querySelector('.header');
+  if (header) header.style.display = 'block';
   const response = await fetch(`folder/${filename}`);
   const markdown = await response.text();
   const post = posts.find(p => p.filename === filename);
@@ -73,13 +77,15 @@ function navigateToHome() {
 }
 
 function displayResume() {
+    const header = document.querySelector('.header');
+    if (header) header.style.display = 'none';
     const mainContent = document.getElementById('main-content');
     mainContent.innerHTML = '';
     const pdfEmbed = document.createElement('embed');
     pdfEmbed.src = 'media/garbage/Dimitri_Chrysafis____RESUME.pdf';
     pdfEmbed.type = 'application/pdf';
     pdfEmbed.style.width = '100%';
-    pdfEmbed.style.height = 'calc(100vh - 100px)';
+    pdfEmbed.style.height = '100vh';
     mainContent.appendChild(pdfEmbed);
 }
 
