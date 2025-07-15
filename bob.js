@@ -72,12 +72,25 @@ function navigateToHome() {
   window.location.href = 'https://dimitrichrysafis.github.io/';
 }
 
+function displayResume() {
+    const mainContent = document.getElementById('main-content');
+    mainContent.innerHTML = '';
+    const pdfEmbed = document.createElement('embed');
+    pdfEmbed.src = 'media/garbage/Dimitri_Chrysafis____RESUME.pdf';
+    pdfEmbed.type = 'application/pdf';
+    pdfEmbed.style.width = '100%';
+    pdfEmbed.style.height = 'calc(100vh - 100px)';
+    mainContent.appendChild(pdfEmbed);
+}
+
 
 function handleRoute() {
   const hash = window.location.hash.slice(1);
   if (hash.startsWith('post/')) {
     const filename = hash.slice(5);
     routes.post(filename);
+  } else if (hash === 'postresume') {
+    routes.resume();
   } else {
     routes.home();
   }
@@ -88,7 +101,8 @@ const routes = {
         await displayPosts();
         await displayMiniPosts();  // should fix bug
     },
-    post: loadPost
+    post: loadPost,
+    resume: displayResume
 };
 
 
