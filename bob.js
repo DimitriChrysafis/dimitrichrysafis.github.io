@@ -79,17 +79,7 @@ function navigateToHome() {
 }
 
 function displayResume() {
-    document.body.classList.add('resume-active');
-    const header = document.querySelector('.header');
-    if (header) header.style.display = 'none';
-    const mainContent = document.getElementById('main-content');
-    mainContent.innerHTML = '';
-    const pdfEmbed = document.createElement('embed');
-    pdfEmbed.src = 'media/garbage/Dimitri_Chrysafis____RESUME.pdf';
-    pdfEmbed.type = 'application/pdf';
-    pdfEmbed.style.width = '100%';
-    pdfEmbed.style.height = '100%';
-    mainContent.appendChild(pdfEmbed);
+    window.location.href = 'resume.html';
 }
 
 
