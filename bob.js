@@ -8,14 +8,9 @@ async function loadTemplates() {
 }
 
 async function displayPosts() {
+  document.body.classList.remove('resume-active');
   const header = document.querySelector('.header');
   if (header) header.style.display = 'flex';
-  const content = document.querySelector('.content');
-  if (content) {
-      content.style.padding = '40px 20px';
-      content.style.margin = '0 auto';
-      content.style.maxWidth = '1200px';
-  }
   const mainContent = document.getElementById('main-content');
   const postGridTemplate = document.getElementById('post-grid-template').content.cloneNode(true);
   const postGrid = postGridTemplate.querySelector('.posts-grid');
@@ -41,14 +36,9 @@ async function displayPosts() {
 }
 
 async function loadPost(filename) {
+  document.body.classList.remove('resume-active');
   const header = document.querySelector('.header');
   if (header) header.style.display = 'flex';
-    const content = document.querySelector('.content');
-  if (content) {
-      content.style.padding = '40px 20px';
-      content.style.margin = '0 auto';
-      content.style.maxWidth = '1200px';
-  }
   const response = await fetch(`folder/${filename}`);
   const markdown = await response.text();
   const post = posts.find(p => p.filename === filename);
@@ -60,9 +50,9 @@ async function loadPost(filename) {
   postPageTemplate.querySelector('.post-meta').innerHTML =
     `${new Date(post.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })} • ${post.author}`;
 
-  const md_content = marked.parse(markdown);
+  const content = marked.parse(markdown);
   const markdownContent = postPageTemplate.querySelector('.markdown-content');
-  markdownContent.innerHTML = md_content;
+  markdownContent.innerHTML = content;
 
   mainContent.innerHTML = '';
   mainContent.appendChild(postPageTemplate);
@@ -89,21 +79,16 @@ function navigateToHome() {
 }
 
 function displayResume() {
+    document.body.classList.add('resume-active');
     const header = document.querySelector('.header');
     if (header) header.style.display = 'none';
-    const content = document.querySelector('.content');
-    if (content) {
-        content.style.padding = '0';
-        content.style.margin = '0';
-        content.style.maxWidth = '100%';
-    }
     const mainContent = document.getElementById('main-content');
     mainContent.innerHTML = '';
     const pdfEmbed = document.createElement('embed');
     pdfEmbed.src = 'media/garbage/Dimitri_Chrysafis____RESUME.pdf';
     pdfEmbed.type = 'application/pdf';
-    pdfEmbed.style.width = '100vw';
-    pdfEmbed.style.height = '100vh';
+    pdfEmbed.style.width = '100%';
+    pdfEmbed.style.height = '100%';
     mainContent.appendChild(pdfEmbed);
 }
 
