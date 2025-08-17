@@ -98,7 +98,7 @@ function handleRoute() {
 const routes = {
     home: async () => {
         await displayPosts();
-        await displayMiniPosts();  // should fix bug
+        // await displayMiniPosts();  // DISABLED: Mini posts removed from display
     },
     post: loadPost,
     resume: displayResume
@@ -117,7 +117,7 @@ async function loadColors() {
 }
 
 loadTemplates().then(async () => {
-    await Promise.all([loadColors(), loadPosts(), loadMiniPosts()]);
+    await Promise.all([loadColors(), loadPosts()/* , loadMiniPosts() */]); // Mini posts loading disabled
     handleRoute();
 });
 
@@ -148,6 +148,8 @@ async function loadMiniPosts() {
   miniPosts = await response.json();
 }
 
+// DISABLED: Mini posts display function - content preserved in json/mini.json
+/*
 async function displayMiniPosts() {
   const mainContent = document.getElementById('main-content');
   const miniPostsContainer = document.createElement('div');
@@ -168,10 +170,11 @@ async function displayMiniPosts() {
 
   mainContent.appendChild(miniPostsContainer);
 }
+*/
 
 // do NOT touch
 loadTemplates().then(async () => {
-  await Promise.all([loadColors(), loadPosts(), loadMiniPosts()]);
+  await Promise.all([loadColors(), loadPosts()/* , loadMiniPosts() */]); // Mini posts loading disabled
 });
 
 
