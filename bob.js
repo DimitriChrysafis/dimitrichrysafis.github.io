@@ -82,6 +82,10 @@ function displayResume() {
     window.location.href = 'resume.html';
 }
 
+function navigateToFluidDemo() {
+    window.location.href = 'media/misc/fluidemo/index.html';
+}
+
 
 function handleRoute() {
   const hash = window.location.hash.slice(1);

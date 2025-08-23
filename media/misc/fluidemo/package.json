@@ -1,0 +1,12 @@
+{
+  "name": "webgpu-ocean-js",
+  "version": "1.0.0",
+  "description": "WebGPU Ocean Fluid Simulation - Pure JavaScript Version",
+  "type": "module",
+  "scripts": {
+    "serve": "python3 -m http.server 8080 || python -m http.server 8080 || npx serve ."
+  },
+  "dependencies": {
+    "stats.js": "^0.17.0"
+  }
+}
