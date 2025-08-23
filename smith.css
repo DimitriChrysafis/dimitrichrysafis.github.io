@@ -71,35 +71,6 @@ body {
     padding: 40px 20px;
 }
 
-.demo-links {
-    display: flex;
-    justify-content: center;
-    margin-bottom: 40px;
-}
-
-.demo-link {
-    background: var(--card);
-    color: var(--text);
-    border: 2px solid var(--accent);
-    padding: 16px 32px;
-    font-size: 16px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    border-radius: 4px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    text-decoration: none;
-    display: inline-block;
-}
-
-.demo-link:hover {
-    background: var(--accent);
-    color: white;
-    transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
-    text-decoration: none;
-}
-
 .posts-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
