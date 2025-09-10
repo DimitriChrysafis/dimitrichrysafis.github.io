@@ -153,7 +153,7 @@ This is the simplest way to do it, I could ask an 8 year old how they would take
 
 ---
 
-## 3. Emitter System Dynamics
+## 3. How the emitters work
 
 I need this to look nice after all, and I can't just have it shooting balls super fast, so this is how I dealt with my spouts.
 
@@ -191,7 +191,7 @@ This creates a cycling pattern where each emitter releases particles in the righ
 
 <br />
 
-## 4. Spatial Optimization with Grid-Based Partitioning
+## 4. Spatial Optimization :)
 
 Naive collision detection between $n$ particles requires $O(n^2)$ comparisons. To improve efficiency, we implement spatial partitioning.
 
