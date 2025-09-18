@@ -1,13 +1,5 @@
 [
     {
-        "title": "Fluid Part 1",
-        "filename": "post9.md",
-        "date": "2025-5-31",
-        "author": "Post 9",
-        "bio": "One way to make something to imitate a fluid",
-        "categories": ["Generative Media"]
-    },
-    {
         "title": "Sphere Packing",
         "filename": "post8.md",
         "date": "2025-3-19",
