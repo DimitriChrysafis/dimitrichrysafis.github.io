@@ -14,9 +14,9 @@ from pathlib import Path
 import json
 import hashlib
 
-PORT = 8081
+PORT = 8083
 LATEX_FILE = "main.tex"
-PDF_FILE = "main.pdf"
+PDF_FILE = "MLResume.pdf"
 
 class LiveReloadHandler(http.server.SimpleHTTPRequestHandler):
     def do_GET(self):
@@ -231,7 +231,7 @@ def create_html():
         
         async function checkForUpdates() {
             try {
-                const response = await fetch('http://localhost:8081/status');
+                const response = await fetch('http://localhost:8083/status');
                 const data = await response.json();
                 
                 if (lastMtime && data.mtime !== lastMtime) {
@@ -293,6 +293,7 @@ def main():
     with socketserver.TCPServer(("", PORT), LiveReloadHandler) as httpd:
         print(f"\n🚀 LaTeX Live Preview Server running!")
         print(f"📍 Open: http://localhost:{PORT}/live_preview.html")
+        print(f"🤖 ML Resume Server - Port {PORT}")
         print(f"📝 Watching: {LATEX_FILE}")
         print(f"⚡ The preview will update automatically when you save changes")
         print(f"\nPress Ctrl+C to stop the server\n")
