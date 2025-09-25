@@ -5,7 +5,19 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="5b79210f-ace1-4c6d-8a9e-c09f32e7ec5c" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/json/posts.json" beforeDir="false" afterPath="$PROJECT_DIR$/json/posts.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/media/garbage/resumework/MLResume/MLResume.pdf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/media/garbage/resumework/MLResume/live_preview.html" beforeDir="false" afterPath="$PROJECT_DIR$/media/garbage/resumework/MLResume/live_preview.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/media/garbage/resumework/MLResume/live_server.py" beforeDir="false" afterPath="$PROJECT_DIR$/media/garbage/resumework/MLResume/live_server.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/media/garbage/resumework/MLResume/main.log" beforeDir="false" afterPath="$PROJECT_DIR$/media/garbage/resumework/MLResume/main.log" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/media/garbage/resumework/MLResume/main.pdf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/media/garbage/resumework/MLResume/main.tex" beforeDir="false" afterPath="$PROJECT_DIR$/media/garbage/resumework/MLResume/main.tex" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/media/garbage/resumework/NormalResume/NormalResume.pdf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/media/garbage/resumework/NormalResume/live_preview.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/media/garbage/resumework/NormalResume/live_server.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/media/garbage/resumework/NormalResume/main.aux" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/media/garbage/resumework/NormalResume/main.log" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/media/garbage/resumework/NormalResume/main.out" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/media/garbage/resumework/NormalResume/main.tex" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

@@ -116,7 +116,7 @@
         
         async function checkForUpdates() {
             try {
-                const response = await fetch('http://localhost:8083/status');
+                const response = await fetch('http://localhost:8081/status');
                 const data = await response.json();
                 
                 if (lastMtime && data.mtime !== lastMtime) {

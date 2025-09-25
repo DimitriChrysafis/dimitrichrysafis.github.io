@@ -14,9 +14,9 @@ from pathlib import Path
 import json
 import hashlib
 
-PORT = 8082
+PORT = 8084
 LATEX_FILE = "main.tex"
-PDF_FILE = "NormalResume.pdf"
+PDF_FILE = "MiscResume.pdf"
 
 class LiveReloadHandler(http.server.SimpleHTTPRequestHandler):
     def do_GET(self):
@@ -88,7 +88,7 @@ class LaTeXWatcher:
                     
             except Exception as e:
                 print(f"Error watching file: {e}")
-            time.sleep(0.2)  # Check every 200ms for faster detection
+            time.sleep(0.1)  # Check every 100ms for faster detection (enhanced mode)
             
     def compile_latex(self):
         """Compile the LaTeX file"""
@@ -231,7 +231,7 @@ def create_html():
         
         async function checkForUpdates() {
             try {
-                const response = await fetch('http://localhost:8081/status');
+                const response = await fetch('http://localhost:8084/status');
                 const data = await response.json();
                 
                 if (lastMtime && data.mtime !== lastMtime) {
@@ -293,9 +293,10 @@ def main():
     with socketserver.TCPServer(("", PORT), LiveReloadHandler) as httpd:
         print(f"\n🚀 LaTeX Live Preview Server running!")
         print(f"📍 Open: http://localhost:{PORT}/live_preview.html")
-        print(f"� Normal Resume Server - Port {PORT}")
-        print(f"�📝 Watching: {LATEX_FILE}")
+        print(f"📋 Misc Resume Server - Port {PORT}")
+        print(f"📝 Watching: {LATEX_FILE}")
         print(f"⚡ The preview will update automatically when you save changes")
+        print(f"💡 This server includes enhanced debugging features")
         print(f"\nPress Ctrl+C to stop the server\n")
         
         try:
