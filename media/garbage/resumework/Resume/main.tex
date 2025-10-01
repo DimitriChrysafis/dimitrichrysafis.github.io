@@ -111,7 +111,7 @@ dimitri.chrysafis@gmail.com \textbullet \ 650-305-9037\\
 \faGithub \ \href{https://github.com/DimitriChrysafis}{DimitriChrysafis} \textbullet \ \href{https://dimitrichrysafis.github.io/}{dimitrichrysafis.github.io}
 \end{center}
 
-\vspace{4pt}
+\vspace{1pt}
 
 \section*{\textcolor{modernblue}{\Large Education}}
 \textbf{University of Wisconsin–Madison} \hfill Graduating May 2027\\
@@ -122,8 +122,7 @@ Bachelor of Science in Computer Science \hfill \textcolor{accentgreen}{\textbf{G
 \section*{\textcolor{modernblue}{\Large Open Source Contributions}}
 \textbf{\href{https://simplex.chat/}{\underline{Simplex Chat}}} \hfill \textcolor{modernblue}{\textbf{12 Approved Pull Requests}}
 \begin{itemize}[leftmargin=*, topsep=0pt, itemsep=0pt, parsep=0pt]
-\item Optimized X3DH key exchange protocol implementation, reducing handshake latency by \textbf{35\%} through parallel ECDH computations and precomputed ephemeral key pools
-\item Fixed memory leaks in Core Data sync operations for macOS Ventura, reducing app memory footprint by \textbf{10\%} and improving message sync reliability across devices
+\item Engineered high-performance multi-device message synchronization system with intelligent network connection manager that dynamically optimizes active server connections, reducing message delivery time by \textbf{8×} (from 800ms to under 100ms) while using \textbf{20× less bandwidth} through efficient differential sync that eliminates duplicate messages and ensures seamless conversation continuity across phones and tablets
 \end{itemize}
 \vspace{1pt}
 \noindent\textbf{\href{https://www.taichi-lang.org/}{\underline{Taichi}}} \hfill \textcolor{modernblue}{\textbf{8 Approved Pull Requests}}
@@ -135,10 +134,16 @@ Bachelor of Science in Computer Science \hfill \textcolor{accentgreen}{\textbf{G
 \noindent\rule{\textwidth}{0.5pt}
 
 \section*{\textcolor{modernblue}{\Large Projects}}
-\textbf{Custom LLM Fine-Tuning for Automated Code Review} \href{https://github.com/DimitriChrysafis}{\underline{[GitHub]}}
+\textbf{Gesture-Controlled Robotic Arm Using Fine-Tuned Vision Models}
 \begin{itemize}[leftmargin=*, topsep=1pt, itemsep=1pt, parsep=0pt]
-\item Fine-tuned CodeLlama-7B on 25K code review comments from open-source projects, achieving \textbf{84\% precision} in identifying bugs and code quality issues, outperforming GPT-3.5 baseline by 18\% on custom evaluation dataset
-\item Implemented efficient training pipeline using 4-bit quantization and LoRA (rank=16), reducing memory usage from 28GB to 8GB while maintaining model quality, deployed on M4 Max MacBook Pro achieving \textbf{sub-400ms} inference for 500-token reviews
+\item Fine-tuned ResNet-50 and EfficientNet on \textbf{40,000+ hand and arm gesture videos} collected from multiple camera angles and lighting conditions to recognize 25 distinct gestures (pointing, grasping motions, directional commands), achieving \textbf{91\% accuracy} in translating human movements into real-time control signals for a 6-DOF mechanical robot arm with \textbf{30 FPS inference} and sub-200ms latency on edge hardware
+\end{itemize}
+
+\vspace{3pt}
+\noindent\textbf{Interactive 3D Fluid Simulator Using Material Point Method} \href{https://dimitrichrysafis.github.io/media/misc/fluidemo/index.html}{\underline{[Demo]}} \href{https://github.com/DimitriChrysafis/3d-Volumetric-Fluid-Simulator-From-Scratch}{\underline{[GitHub]}}
+\begin{itemize}[leftmargin=*, topsep=1pt, itemsep=1pt, parsep=0pt]
+\item Built browser-based physics engine implementing Material Point Method (MLS-MPM) with WebGPU compute shaders, simulating \textbf{400,000+ particles} in real-time with interactive camera controls and dynamic boundary animations
+\item Optimized particle-to-grid transfers through GPU parallelization and fixed-point arithmetic, achieving smooth performance for dam break scenarios and real-time particle injection
 \end{itemize}
 
 \vspace{3pt}
@@ -149,17 +154,9 @@ Bachelor of Science in Computer Science \hfill \textcolor{accentgreen}{\textbf{G
 \end{itemize}
 
 \vspace{3pt}
-\noindent\textbf{3D Real-Time Fluid Dynamics Simulator} \href{https://dimitrichrysafis.github.io/media/misc/fluidemo/index.html}{\underline{[Demo]}} \href{https://github.com/DimitriChrysafis/3d-Volumetric-Fluid-Simulator-From-Scratch}{\underline{[GitHub]}}
+\noindent\textbf{Tennis Match Prediction System}
 \begin{itemize}[leftmargin=*, topsep=1pt, itemsep=1pt, parsep=0pt]
-\item Developed complete fluid dynamics engine implementing \textbf{incompressible Navier-Stokes equations} with semi-Lagrangian advection, supporting 2 million voxels (128\textsuperscript{3} grid) at 30+ FPS
-\item Accelerated solver through Jacobi iteration, marching cubes, and vorticity confinement, reducing computation time by \textbf{40\%}
-\end{itemize}
-
-\vspace{3pt}
-\noindent\textbf{Advanced Sphere Packing Optimization Engine} \href{https://dimitrichrysafis.github.io/#post/post8.md}{\underline{[Blog]}} \href{https://github.com/DimitriChrysafis/SpherePacker?tab=readme-ov-file}{\underline{[GitHub]}}
-\begin{itemize}[leftmargin=*, topsep=1pt, itemsep=1pt, parsep=0pt]
-\item Tackled NP-hard 3D sphere packing problem achieving \textbf{74\% packing density} for complex geometries with 10,000+ spheres using simulated annealing with adaptive cooling schedules and Metropolis-Hastings acceptance criteria
-\item Improved performance by \textbf{50\%} through CPU/GPU unified memory architecture, ray-sphere intersection algorithms, and spatial hashing reducing complexity from O(n²) to O(n)
+\item Built ensemble classifier using CatBoost on \textbf{92,000 ATP matches (1982-2024)} scraped from historical archives, engineering features including player ELO ratings, surface-specific performance metrics, head-to-head statistics, recent form indicators, and fatigue scores from tournament schedules to achieve \textbf{83.7\% prediction accuracy}, outperforming baseline models by \textbf{12\%}
 \end{itemize}
 
 \noindent\rule{\textwidth}{0.5pt}
