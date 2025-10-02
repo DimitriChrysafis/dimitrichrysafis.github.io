@@ -72,13 +72,23 @@ async function loadPost(filename) {
   const header = document.querySelector('.header');
   if (header) header.style.display = 'flex';
   let markdown = '';
+  // 1) Try local file when served over http(s)
   try {
     const response = await fetch(`folder/${filename}`);
     if (!response.ok) throw new Error('post fetch failed');
     markdown = await response.text();
-  } catch (e) {
-    const inline = document.getElementById(`post-${filename}`);
-    if (inline) markdown = inline.textContent || '';
+  } catch (e1) {
+    // 2) Try GitHub raw as a network fallback (works on file:// too)
+    try {
+      const ghUrl = `https://raw.githubusercontent.com/DimitriChrysafis/dimitrichrysafis.github.io/main/folder/${filename}`;
+      const ghResp = await fetch(ghUrl, { cache: 'no-store' });
+      if (!ghResp.ok) throw new Error('raw github fetch failed');
+      markdown = await ghResp.text();
+    } catch (e2) {
+      // 3) Try inline fallback embedded in index.html
+      const inline = document.getElementById(`post-${filename}`);
+      if (inline) markdown = inline.textContent || '';
+    }
   }
   const post = posts.find(p => p.filename === filename);
 
@@ -92,6 +102,34 @@ async function loadPost(filename) {
   const content = (window.marked && typeof marked.parse === 'function') ? marked.parse(markdown) : markdown;
   const markdownContent = postPageTemplate.querySelector('.markdown-content');
   markdownContent.innerHTML = content;
+
+  // Normalize media paths so file:// and http(s) both work.
+  // Convert any '../media/...' to 'media/...'
+  const fixUrl = (url) => {
+    if (!url || typeof url !== 'string') return url;
+    if (url.startsWith('../media/')) return url.replace(/^\.\.\//, '');
+    return url;
+  };
+
+  // Fix src, href, poster attributes inside the rendered content
+  const elems = markdownContent.querySelectorAll('[src], [href], video[poster], img');
+  elems.forEach(el => {
+    if (el.hasAttribute('src')) {
+      const v = el.getAttribute('src');
+      const nv = fixUrl(v);
+      if (nv !== v) el.setAttribute('src', nv);
+    }
+    if (el.hasAttribute('href')) {
+      const v = el.getAttribute('href');
+      const nv = fixUrl(v);
+      if (nv !== v) el.setAttribute('href', nv);
+    }
+    if (el.tagName.toLowerCase() === 'video' && el.hasAttribute('poster')) {
+      const v = el.getAttribute('poster');
+      const nv = fixUrl(v);
+      if (nv !== v) el.setAttribute('poster', nv);
+    }
+  });
 
   mainContent.innerHTML = '';
   mainContent.appendChild(postPageTemplate);
