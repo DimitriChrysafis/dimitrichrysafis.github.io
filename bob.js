@@ -2,41 +2,9 @@ let posts = [];
 let colors = {};
 // we
 async function loadTemplates() {
-  // Prevent duplicate injection if called twice
-  if (document.getElementById('post-grid-template')) return;
-  try {
-    const response = await fetch('templates.html');
-    if (!response.ok) throw new Error('templates fetch failed');
-    const html = await response.text();
-    document.body.insertAdjacentHTML('beforeend', html);
-  } catch (e) {
-    // Fallback for file:// loading (no fetch)
-    const fallback = `
-<template id="post-grid-template">
-  <div class="posts-grid"></div>
-</template>
-
-<template id="post-card-template">
-  <article class="post-card" onclick="navigateToPost('{{filename}}')">
-    <h2 class="post-title">{{title}}</h2>
-    <div class="post-meta">{{date}} • {{author}}</div>
-    <div class="post-bio">{{bio}}</div>
-    <div class="categories">{{categories}}</div>
-  </article>
-</template>
-
-<template id="post-page-template">
-  <article class="post-page">
-    <button onclick="navigateToHome()" class="back-button">← BACK</button>
-    <header class="post-header">
-      <h1>{{postTitle}}</h1>
-      <div class="post-meta">{{postDate}} • {{postAuthor}}</div>
-    </header>
-    <div class="markdown-content">{{postContent}}</div>
-  </article>
-</template>`;
-    document.body.insertAdjacentHTML('beforeend', fallback);
-  }
+  const response = await fetch('templates.html');
+  const html = await response.text();
+  document.body.insertAdjacentHTML('beforeend', html);
 }
 
 async function displayPosts() {
@@ -71,18 +39,8 @@ async function loadPost(filename) {
   document.body.classList.remove('resume-active');
   const header = document.querySelector('.header');
   if (header) header.style.display = 'flex';
-  let markdown = '';
-  try {
-    const response = await fetch(`folder/${filename}`);
-    if (!response.ok) throw new Error('post fetch failed');
-    markdown = await response.text();
-  } catch (e) {
-    // Fallback for file:// — look for inline script with id `post-<filename>`
-    const inline = document.getElementById(`post-${filename}`);
-    if (inline) {
-      markdown = inline.textContent || '';
-    }
-  }
+  const response = await fetch(`folder/${filename}`);
+  const markdown = await response.text();
   const post = posts.find(p => p.filename === filename);
 
   const mainContent = document.getElementById('main-content');
@@ -117,8 +75,7 @@ function navigateToPost(filename) {
 }
 
 function navigateToHome() {
-  // Keep navigation local-friendly: just clear the hash
-  window.location.hash = '';
+  window.location.href = 'https://dimitrichrysafis.github.io/';
 }
 
 function displayResume() {
@@ -150,32 +107,13 @@ const routes = {
 
 
 async function loadPosts() {
-  try {
-    const response = await fetch('json/posts.json');
-    if (!response.ok) throw new Error('posts fetch failed');
-    posts = await response.json();
-  } catch (e) {
-    // Fallback for file:// loading (pull from inline script if present)
-    const inline = document.getElementById('posts-json');
-    if (inline) {
-      try { posts = JSON.parse(inline.textContent); } catch {}
-    }
-    posts = posts || [];
-  }
+  const response = await fetch('json/posts.json');
+  posts = await response.json();
 }
 
 async function loadColors() {
-  try {
-    const response = await fetch('json/colors.json');
-    if (!response.ok) throw new Error('colors fetch failed');
-    colors = await response.json();
-  } catch (e) {
-    const inline = document.getElementById('colors-json');
-    if (inline) {
-      try { colors = JSON.parse(inline.textContent); } catch {}
-    }
-    colors = colors || {};
-  }
+  const response = await fetch('json/colors.json');
+  colors = await response.json();
 }
 
 loadTemplates().then(async () => {

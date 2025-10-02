@@ -8,7 +8,6 @@
     "Art": "pink",
     "Education": "yellow",
     "Computer": "purple",
-  "Graph Theory": "teal",
-  "Physics": "orange",
-  "WebGPU": "steelblue"
+    "Graph Theory": "teal",
+    "Physics": "orange"
 }
