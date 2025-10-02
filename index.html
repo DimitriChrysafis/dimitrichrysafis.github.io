@@ -10,6 +10,90 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.2.12/marked.min.js"></script>
 
     <link rel="stylesheet" href="smith.css">
+    <!-- Local-file fallbacks in case fetch() is blocked (file://) -->
+    <script id="posts-json" type="application/json">
+[
+    {
+        "title": "Sphere Packing",
+        "filename": "post8.md",
+        "date": "2025-3-19",
+        "author": "Post 7",
+        "bio": "How to pack spheres into your 3d model",
+        "categories": ["Computer"]
+    },
+    {
+        "title": "Small Physics Sim For Balls",
+        "filename": "post7.md",
+        "date": "2025-2-25",
+        "author": "Post 7",
+        "bio": "Playing around with a balls in verlet integration",
+        "categories": ["Computer Graphics", "Physics"]
+    },
+    {
+        "title": "Cool Complex Shapes",
+        "filename": "post6.md",
+        "date": "2025-1-19",
+        "author": "Post 6",
+        "bio": "Mandelebulb, Julia set, Kleinian limit set-Maskit, Newton's Fractal",
+        "categories": ["Mathematics"]
+    },
+    {
+        "title": "Graphing Some English Words",
+        "filename": "post5.md",
+        "date": "2025-1-6",
+        "author": "Post 5",
+        "bio": "Making cool graphs with some words",
+        "categories": ["Graph Theory"]
+    },
+    {
+        "title": "Solving a Polynomial",
+        "filename": "post4.md",
+        "date": "2025-1-3",
+        "author": "Post 4",
+        "bio": "How to find roots of a polynomial",
+        "categories": ["Mathematics"]
+    },
+    {
+        "title": "Blending Spheres",
+        "filename": "post3.md",
+        "date": "2024-12-26",
+        "author": "Post 3",
+        "bio": "How to blend spheres together",
+        "categories": ["Mathematics", "Computer"]
+    },
+    {
+        "title": "LaTeX Now Works",
+        "filename": "post2.md",
+        "date": "2024-12-20",
+        "author": "Post 2",
+        "bio": "A fun little dive into Fourier series, its coefficients, and applications in animation.",
+        "categories": ["Mathematics"]
+    },
+    {
+        "title": "0.0.0 Post!!",
+        "filename": "post1.md",
+        "date": "2024-12-19",
+        "author": "Post 1",
+        "bio": "git commit 'intial commit' --> git push -u origin main\n",
+        "categories": ["Fun"]
+    }
+]
+    </script>
+    <script id="colors-json" type="application/json">
+{
+    "Mathematics": "darkblue",
+    "Fun": "red",
+    "Blog": "green",
+    "First": "orange",
+    "Science": "purple",
+    "Technology": "teal",
+    "Art": "pink",
+    "Education": "yellow",
+    "Computer": "purple",
+    "Graph Theory": "teal",
+    "Physics": "orange"
+}
+    </script>
 </head>
 <body>
     <div id="scene-container"></div>

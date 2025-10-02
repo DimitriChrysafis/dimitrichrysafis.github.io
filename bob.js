@@ -2,9 +2,41 @@ let posts = [];
 let colors = {};
 // we
 async function loadTemplates() {
-  const response = await fetch('templates.html');
-  const html = await response.text();
-  document.body.insertAdjacentHTML('beforeend', html);
+  // Prevent duplicate injection if already present
+  if (document.getElementById('post-grid-template')) return;
+  try {
+    const response = await fetch('templates.html');
+    if (!response.ok) throw new Error('templates fetch failed');
+    const html = await response.text();
+    document.body.insertAdjacentHTML('beforeend', html);
+  } catch (e) {
+    // Fallback inline templates for file:// or fetch failures
+    const fallback = `
+<template id="post-grid-template">
+  <div class="posts-grid"></div>
+</template>
+
+<template id="post-card-template">
+  <article class="post-card" onclick="navigateToPost('{{filename}}')">
+    <h2 class="post-title">{{title}}</h2>
+    <div class="post-meta">{{date}} • {{author}}</div>
+    <div class="post-bio">{{bio}}</div>
+    <div class="categories">{{categories}}</div>
+  </article>
+</template>
+
+<template id="post-page-template">
+  <article class="post-page">
+    <button onclick="navigateToHome()" class="back-button">← BACK</button>
+    <header class="post-header">
+      <h1>{{postTitle}}</h1>
+      <div class="post-meta">{{postDate}} • {{postAuthor}}</div>
+    </header>
+    <div class="markdown-content">{{postContent}}</div>
+  </article>
+</template>`;
+    document.body.insertAdjacentHTML('beforeend', fallback);
+  }
 }
 
 async function displayPosts() {
@@ -39,8 +71,15 @@ async function loadPost(filename) {
   document.body.classList.remove('resume-active');
   const header = document.querySelector('.header');
   if (header) header.style.display = 'flex';
-  const response = await fetch(`folder/${filename}`);
-  const markdown = await response.text();
+  let markdown = '';
+  try {
+    const response = await fetch(`folder/${filename}`);
+    if (!response.ok) throw new Error('post fetch failed');
+    markdown = await response.text();
+  } catch (e) {
+    const inline = document.getElementById(`post-${filename}`);
+    if (inline) markdown = inline.textContent || '';
+  }
   const post = posts.find(p => p.filename === filename);
 
   const mainContent = document.getElementById('main-content');
@@ -50,7 +89,7 @@ async function loadPost(filename) {
   postPageTemplate.querySelector('.post-meta').innerHTML =
     `${new Date(post.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })} • ${post.author}`;
 
-  const content = marked.parse(markdown);
+  const content = (window.marked && typeof marked.parse === 'function') ? marked.parse(markdown) : markdown;
   const markdownContent = postPageTemplate.querySelector('.markdown-content');
   markdownContent.innerHTML = content;
 
@@ -75,7 +114,12 @@ function navigateToPost(filename) {
 }
 
 function navigateToHome() {
-  window.location.href = 'https://dimitrichrysafis.github.io/';
+  // Keep local navigation working as well
+  if (window.location.hash) {
+    window.location.hash = '';
+  } else {
+    window.location.href = './';
+  }
 }
 
 function displayResume() {
@@ -107,18 +151,36 @@ const routes = {
 
 
 async function loadPosts() {
-  const response = await fetch('json/posts.json');
-  posts = await response.json();
+  try {
+    const response = await fetch('json/posts.json');
+    if (!response.ok) throw new Error('posts fetch failed');
+    posts = await response.json();
+  } catch (e) {
+    const inline = document.getElementById('posts-json');
+    if (inline) {
+      try { posts = JSON.parse(inline.textContent); } catch {}
+    }
+    posts = posts || [];
+  }
 }
 
 async function loadColors() {
-  const response = await fetch('json/colors.json');
-  colors = await response.json();
+  try {
+    const response = await fetch('json/colors.json');
+    if (!response.ok) throw new Error('colors fetch failed');
+    colors = await response.json();
+  } catch (e) {
+    const inline = document.getElementById('colors-json');
+    if (inline) {
+      try { colors = JSON.parse(inline.textContent); } catch {}
+    }
+    colors = colors || {};
+  }
 }
 
 loadTemplates().then(async () => {
-    await Promise.all([loadColors(), loadPosts()/* , loadMiniPosts() */]); // Mini posts loading disabled
-    handleRoute();
+  await Promise.all([loadColors(), loadPosts()]);
+  handleRoute();
 });
 
 /*
@@ -172,9 +234,11 @@ async function displayMiniPosts() {
 }
 */
 
-// do NOT touch
-loadTemplates().then(async () => {
-  await Promise.all([loadColors(), loadPosts()/* , loadMiniPosts() */]); // Mini posts loading disabled
+// ensure posts/colors are available even if route changes later
+window.addEventListener('load', async () => {
+  if (!posts.length || !Object.keys(colors).length) {
+    try { await Promise.all([loadColors(), loadPosts()]); } catch {}
+  }
 });
 
 
