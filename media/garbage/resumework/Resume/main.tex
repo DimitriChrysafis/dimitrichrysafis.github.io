@@ -14,7 +14,7 @@
 \usepackage{xcolor}
 \usepackage{hyperref}
 \usepackage[svgnames,x11names,table]{xcolor}
-\renewcommand{\baselinestretch}{1.0}
+\renewcommand{\baselinestretch}{0.96}
 
 % Prevent text overflow
 \sloppy
@@ -119,13 +119,13 @@ Bachelor of Science in Computer Science \hfill \textcolor{accentgreen}{\textbf{G
 
 \noindent\rule{\textwidth}{0.5pt}
 
-\section*{\textcolor{modernblue}{\Large Open Source Contributions}}
-\textbf{\href{https://simplex.chat/}{\underline{Simplex Chat}}} \hfill \textcolor{modernblue}{\textbf{12 Approved Pull Requests}}
+\section*{\textcolor{modernblue}{\Large Software Experience}}
+\textbf{\href{https://simplex.chat/}{\underline{Simplex Chat}}}% \hfill \textcolor{modernblue}{\textbf{12 Approved Pull Requests}}
 \begin{itemize}[leftmargin=*, topsep=0pt, itemsep=0pt, parsep=0pt]
-\item Engineered high-performance multi-device message synchronization system with intelligent network connection manager that dynamically optimizes active server connections, reducing message delivery time by \textbf{8×} (from 800ms to under 100ms) while using \textbf{20× less bandwidth} through efficient differential sync that eliminates duplicate messages and ensures seamless conversation continuity across phones and tablets
+\item Engineered high-performance multi-device message synchronization system with intelligent network connection manager that dynamically optimizes active server connections, keeping message delivery under \textbf{150ms} while substantially reducing bandwidth usage through efficient differential sync that eliminates duplicate messages and ensures seamless conversation continuity across phones and tablets
 \end{itemize}
 \vspace{1pt}
-\noindent\textbf{\href{https://www.taichi-lang.org/}{\underline{Taichi}}} \hfill \textcolor{modernblue}{\textbf{8 Approved Pull Requests}}
+\noindent\textbf{\href{https://www.taichi-lang.org/}{\underline{Taichi}}}% \hfill \textcolor{modernblue}{\textbf{8 Approved Pull Requests}}
 \begin{itemize}[leftmargin=*, topsep=0pt, itemsep=0pt, parsep=0pt]
 \item Redesigned Apple Metal backend implementing buffer–image copy routines at GPU command list level
 \item Enabled direct GPU memory transfers between buffers and textures on macOS, removing CPU-side staging overhead
@@ -134,9 +134,10 @@ Bachelor of Science in Computer Science \hfill \textcolor{accentgreen}{\textbf{G
 \noindent\rule{\textwidth}{0.5pt}
 
 \section*{\textcolor{modernblue}{\Large Projects}}
-\textbf{Gesture-Controlled Robotic Arm Using Fine-Tuned Vision Models}
+\textbf{Gesture-Controlled 3D Hand in Blender}
 \begin{itemize}[leftmargin=*, topsep=1pt, itemsep=1pt, parsep=0pt]
-\item Fine-tuned ResNet-50 and EfficientNet on \textbf{40,000+ hand and arm gesture videos} collected from multiple camera angles and lighting conditions to recognize 25 distinct gestures (pointing, grasping motions, directional commands), achieving \textbf{91\% accuracy} in translating human movements into real-time control signals for a 6-DOF mechanical robot arm with \textbf{30 FPS inference} and sub-200ms latency on edge hardware
+\item Built an end-to-end gesture pipeline, collecting and labeling \textbf{40,000+ multi-angle hand and arm videos} and fine-tuning ResNet-50 / EfficientNet to recognize 25 gestures with \textbf{91\% accuracy}
+\item Integrated the trained models with a rigged 3D hand in Blender via Python scripting, driving finger and wrist articulation in real time at \textbf{30 FPS} with sub-200ms latency
 \end{itemize}
 
 \vspace{3pt}
@@ -149,20 +150,22 @@ Bachelor of Science in Computer Science \hfill \textcolor{accentgreen}{\textbf{G
 \vspace{3pt}
 \noindent\textbf{High-Performance Web-Based Fractal Renderer} \href{https://dimitrichrysafis.github.io/#post/post6.md}{\underline{[Blog]}}
 \begin{itemize}[leftmargin=*, topsep=1pt, itemsep=1pt, parsep=0pt]
-\item Engineered real-time fractal visualization system supporting 10\textsuperscript{15}× magnification for Mandelbrot, Newton's, and Kleinian limit sets using GPU-accelerated WebGL fragment shaders with double-precision emulation
-\item Achieved \textbf{60× performance improvement} through adaptive sampling, tile-based rendering, and optimized complex arithmetic reducing computational overhead by 85\%
+\item Engineered real-time fractal visualization for Mandelbrot, Newton's, and Kleinian limit sets using GPU-accelerated WebGL fragment shaders optimized for deep zoom
+\item Achieved up to \textbf{60×} speedup through adaptive sampling, tile-based rendering, and optimized complex arithmetic
 \end{itemize}
 
 \vspace{3pt}
 \noindent\textbf{Tennis Match Prediction System}
 \begin{itemize}[leftmargin=*, topsep=1pt, itemsep=1pt, parsep=0pt]
-\item Built ensemble classifier using CatBoost on \textbf{92,000 ATP matches (1982-2024)} scraped from historical archives, engineering features including player ELO ratings, surface-specific performance metrics, head-to-head statistics, recent form indicators, and fatigue scores from tournament schedules to achieve \textbf{83.7\% prediction accuracy}, outperforming baseline models by \textbf{12\%}
+\item Built ensemble classifier using CatBoost on \textbf{92,000 ATP matches (1982-2024)} obtained from publicly available historical datasets, engineering features including player ELO ratings, surface-specific performance metrics, head-to-head statistics, recent form indicators, and fatigue scores from tournament schedules to achieve \textbf{83.7\% prediction accuracy}, outperforming baseline models by \textbf{12\%}
 \end{itemize}
 
 \noindent\rule{\textwidth}{0.5pt}
 
 \section*{\textcolor{modernblue}{\Large Skills and Interests}}
-\textbf{Languages}: C++, Python, Swift, Rust, Go, Java, JavaScript/TypeScript, SQL, LaTeX, CUDA, OpenCL, Bash, Git\\
-\textbf{Tools}: PyTorch, TensorFlow, JAX, NumPy, scikit-learn, Metal, Docker, Kubernetes, Hugging Face, OpenCV\\
+\textbf{Languages}: C++, Python, Rust, Go, Swift, JavaScript/TypeScript, SQL\\
+\textbf{ML / Data}: PyTorch, TensorFlow, NumPy, scikit-learn, Hugging Face, OpenCV\\
+\textbf{Systems}: CUDA, Metal, Docker, Kubernetes, OpenCL\\
+\textbf{Tools}: Bash, Git, LaTeX\\
 \textbf{Interests}: Competitive marathon runner and triathlete; Calisthenics, Squash
 \end{document}
