@@ -5,14 +5,14 @@
 ### **What is a Fourier Series?** 
 
 You know what the Fourier Series is. I take a function and break it into sines and cosines.
-Unless it's even or odd, in which case odd functions only give sin terms and even functions only give sin terms.
+Unless it's even or odd, in which case odd functions only give sine terms and even functions only give cosine terms.
 General case is both though.
 
 <br />
 
 ### Mathematical Definition:
 
-For a periodic function \( f(x) \) with a period \( T \), the Fourier series is written as:
+For a periodic function $f(x)$ with a period $T$, the Fourier series is written as:
 
 $$
 f(x) = \frac{a_0}{2} + \sum_{n=1}^{\infty} \left( a_n \cos(n \omega_0 x) + b_n \sin(n \omega_0 x) \right)
@@ -21,16 +21,16 @@ $$
 Where:
 
 - $a_0$  is the **DC component** AVERAGE VALUE OVER A PERIOD
-- \( a_n \) and \( b_n \) are the **Fourier coefficients**, determining how much sin there is and how much cos there is
-- $$\( \omega_0 = \frac{2\pi}{T} \)$$ is the **fundamental angular frequency** (the smallest frequency of the function).
+- $a_n$ and $b_n$ are the **Fourier coefficients**, determining how much sin there is and how much cos there is
+- $\omega_0 = \frac{2\pi}{T}$ is the **fundamental angular frequency** (the smallest frequency of the function).
 
 <br />
 
 ### Fourier Coefficients:
 
-The **Fourier coefficients** (\( a_n \) and \( b_n \)) tell us how much each sine and cosine wave contributes to approximating my function.
+The **Fourier coefficients** ($a_n$ and $b_n$) tell us how much each sine and cosine wave contributes to approximating my function.
 
-1. **\( a_0 \)** — The average value of the function over one period:
+1. **$a_0$** — The average value of the function over one period:
 
    $$
    a_0 = \frac{2}{T} \int_0^T f(x) \, dx
@@ -39,7 +39,7 @@ The **Fourier coefficients** (\( a_n \) and \( b_n \)) tell us how much each sin
    This represents the **DC component** or the average
 <br />
 
-2. **\( a_n \)** — The coefficients for the cosine terms:
+2. **$a_n$** — The coefficients for the cosine terms:
 
    $$
    a_n = \frac{2}{T} \int_0^T f(x) \cos(n \omega_0 x) \, dx
@@ -48,7 +48,7 @@ The **Fourier coefficients** (\( a_n \) and \( b_n \)) tell us how much each sin
    Models the even symmetry 
 <br />
 
-3. **\( b_n \)** — The coefficients for the sine terms:
+3. **$b_n$** — The coefficients for the sine terms:
 
    $$
    b_n = \frac{2}{T} \int_0^T f(x) \sin(n \omega_0 x) \, dx
@@ -104,7 +104,7 @@ $$
 f(x) \approx \frac{a_0}{2} + \sum_{n=1}^{N} \left( a_n \cos(n \omega_0 x) + b_n \sin(n \omega_0 x) \right)
 $$
 
-Each term $$\( f_n(x) = a_n \cos(n \omega_0 x) + b_n \sin(n \omega_0 x) \)$$ adds more detail to the approximation.
+Each term $f_n(x) = a_n \cos(n \omega_0 x) + b_n \sin(n \omega_0 x)$ adds more detail to the approximation.
 
 <br />
 
@@ -125,13 +125,13 @@ Smooth interpolation is achieved using an **easing function** to control how the
 
 
 ### 1. Normalized Time
-Let \( t \) be the normalized time:
+Let $t$ be the normalized time:
 
 $$
-t = \frac{\text{current frame}}{\text{total frames} - 1},
+t = \frac{\text{current frame}}{\text{total frames} - 1}
 $$
 
-where \( t \in [0, 1] \). This makes sure the interpolation progresses uniformly from the start (\( t = 0 \)) to the end (\( t = 1 \)).
+where $t \in [0, 1]$. This makes sure the interpolation progresses uniformly from the start ($t = 0$) to the end ($t = 1$).
 
 
 <br />
@@ -143,37 +143,37 @@ where \( t \in [0, 1] \). This makes sure the interpolation progresses uniformly
 <br />
 
 
-The easing function controls the progression of \( K(t) \), the number of coefficients used at any given frame. A **cubic easing function** is used for smooth acceleration and deceleration:
+The easing function controls the progression of $K(t)$, the number of coefficients used at any given frame. A **cubic easing function** is used for smooth acceleration and deceleration:
 
 <br />
 
 
-#### a. Acceleration Phase (\( t \in [0, 0.5] \))
+#### a. Acceleration Phase ($t \in [0, 0.5]$)
 During the first half of the animation, the function starts slow and accelerates:
 
 $$
 \text{interpolation}(t) = 4t^3.
 $$
 
-- At \( t = 0 \): \( t = 0 \).
-- At \( t = 0.5 \): \( t = 0.5 \).
+- At $t = 0$: $\text{interpolation}(t) = 0$.
+- At $t = 0.5$: $\text{interpolation}(t) = 0.5$.
 
 This ensures a gentle start with increasing speed.
 
 <br />
 
 
-#### b. Deceleration Phase (\( t \in [0.5, 1] \))
+#### b. Deceleration Phase ($t \in [0.5, 1]$)
 During the second half, the function decelerates as it approaches the end:
 
 $$
 \text{interpolation}(t) = 1 - \frac{(-2t + 2)^3}{2}.
 $$
 
-- At \( t = 0.5 \): \( \{interpolation}(t) = 0.5 \).
-- At \( t = 1 \): \( \{interpolation}(t) = 1 \).
+- At $t = 0.5$: $\text{interpolation}(t) = 0.5$.
+- At $t = 1$: $\text{interpolation}(t) = 1$.
 
-this creates a smooth slowing down towards the final frames
+This creates a smooth slowing down towards the final frames.
 
 
 <br />
@@ -181,13 +181,13 @@ this creates a smooth slowing down towards the final frames
 
 
 ### 3. Interpolated Number of Coefficients
-using the easing function then the number of coefficients \( K(t) \) at time \( t \) is given by:
+using the easing function then the number of coefficients $K(t)$ at time $t$ is given by:
 
 $$
-K(t) = {maxCoeffs} \cdot \text{interpolation}(t),
+K(t) = \text{maxCoeffs} \cdot \text{interpolation}(t)
 $$
 
-where \( {maxCoeffs} \) is the total number of Fourier coefficients available
+where $\text{maxCoeffs}$ is the total number of Fourier coefficients available.
 
 
 <br />
