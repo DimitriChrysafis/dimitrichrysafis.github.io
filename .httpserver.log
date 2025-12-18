@@ -79,3 +79,10 @@ Traceback (most recent call last):
 BrokenPipeError: [Errno 32] Broken pipe
 ----------------------------------------
 127.0.0.1 - - [18/Dec/2025 15:58:54] "GET / HTTP/1.1" 304 -
+127.0.0.1 - - [18/Dec/2025 15:59:38] "GET / HTTP/1.1" 304 -
+127.0.0.1 - - [18/Dec/2025 16:00:15] "GET / HTTP/1.1" 304 -
+127.0.0.1 - - [18/Dec/2025 16:00:19] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [18/Dec/2025 16:00:19] code 404, message File not found
+127.0.0.1 - - [18/Dec/2025 16:00:19] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [18/Dec/2025 16:00:19] "GET /json/posts.json HTTP/1.1" 304 -
+127.0.0.1 - - [18/Dec/2025 16:00:19] "GET /folder/post8.md HTTP/1.1" 200 -
