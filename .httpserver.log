@@ -1,0 +1,35 @@
+127.0.0.1 - - [18/Dec/2025 15:30:05] "HEAD / HTTP/1.1" 200 -
+127.0.0.1 - - [18/Dec/2025 15:30:10] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [18/Dec/2025 15:30:10] "GET /smith.css HTTP/1.1" 200 -
+127.0.0.1 - - [18/Dec/2025 15:30:10] "GET /bob.js HTTP/1.1" 200 -
+127.0.0.1 - - [18/Dec/2025 15:30:10] "GET /templates.html HTTP/1.1" 200 -
+127.0.0.1 - - [18/Dec/2025 15:30:10] "GET /json/emojis.json HTTP/1.1" 200 -
+127.0.0.1 - - [18/Dec/2025 15:30:11] "GET /json/colors.json HTTP/1.1" 200 -
+127.0.0.1 - - [18/Dec/2025 15:30:11] "GET /json/posts.json HTTP/1.1" 200 -
+127.0.0.1 - - [18/Dec/2025 15:30:11] code 404, message File not found
+127.0.0.1 - - [18/Dec/2025 15:30:11] "GET /folder/post8.md HTTP/1.1" 404 -
+127.0.0.1 - - [18/Dec/2025 15:30:11] "GET /media/post8/bunny.html HTTP/1.1" 200 -
+127.0.0.1 - - [18/Dec/2025 15:30:11] "GET /media/post8/ogre.html HTTP/1.1" 200 -
+127.0.0.1 - - [18/Dec/2025 15:30:11] "GET /media/post8/dragon.html HTTP/1.1" 200 -
+127.0.0.1 - - [18/Dec/2025 15:30:59] code 404, message File not found
+127.0.0.1 - - [18/Dec/2025 15:30:59] "GET /folder/post3.md HTTP/1.1" 404 -
+127.0.0.1 - - [18/Dec/2025 15:30:59] "GET /media/post3/miniblub.mp4 HTTP/1.1" 200 -
+127.0.0.1 - - [18/Dec/2025 15:30:59] "GET /media/post3/blubblubblub.mp4 HTTP/1.1" 200 -
+127.0.0.1 - - [18/Dec/2025 15:31:10] "GET /folder/post2.md HTTP/1.1" 200 -
+127.0.0.1 - - [18/Dec/2025 15:31:10] "GET /media/post2/github.gif HTTP/1.1" 200 -
+127.0.0.1 - - [18/Dec/2025 15:31:10] "GET /media/post2/mario.gif HTTP/1.1" 200 -
+127.0.0.1 - - [18/Dec/2025 15:31:10] "GET /media/post2/dragon.gif HTTP/1.1" 200 -
+127.0.0.1 - - [18/Dec/2025 15:31:10] "GET /media/post2/flower.gif HTTP/1.1" 200 -
+127.0.0.1 - - [18/Dec/2025 15:31:10] "GET /media/post2/squarewave.mp4 HTTP/1.1" 200 -
+127.0.0.1 - - [18/Dec/2025 15:31:10] "GET /media/post2/helloworld.mp4 HTTP/1.1" 200 -
+127.0.0.1 - - [18/Dec/2025 15:31:10] "GET /media/post2/sawtooth.mp4 HTTP/1.1" 200 -
+127.0.0.1 - - [18/Dec/2025 15:31:52] code 404, message File not found
+127.0.0.1 - - [18/Dec/2025 15:31:52] "GET /folder/post8.md HTTP/1.1" 404 -
+127.0.0.1 - - [18/Dec/2025 15:32:12] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [18/Dec/2025 15:32:14] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [18/Dec/2025 15:32:14] code 404, message File not found
+127.0.0.1 - - [18/Dec/2025 15:32:14] "GET /folder/post8.md HTTP/1.1" 404 -
+127.0.0.1 - - [18/Dec/2025 15:32:18] "GET / HTTP/1.1" 304 -
+127.0.0.1 - - [18/Dec/2025 15:32:18] code 404, message File not found
+127.0.0.1 - - [18/Dec/2025 15:32:18] "GET /folder/post8.md HTTP/1.1" 404 -
+127.0.0.1 - - [18/Dec/2025 15:32:23] "GET / HTTP/1.1" 200 -
