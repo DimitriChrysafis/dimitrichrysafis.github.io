@@ -1,4 +1,4 @@
-# Physics-Based Particle Simulations
+# Physics-Based Particle Simulations: A Deep Dive
 ### SRC: [https://github.com/DimitriChrysafis/BallDrawer](https://github.com/DimitriChrysafis/BallDrawer)
 
 
