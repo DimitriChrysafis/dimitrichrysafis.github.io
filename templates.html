@@ -20,9 +20,11 @@
 
 <template id="post-page-template">
   <article class="post-page">
-    <button onclick="navigateToHome()" class="back-button">
-      ← BACK
-    </button>
+    <div class="section-nav">
+      <button onclick="navigateToProjects()" class="nav-button">← PROJECTS</button>
+      <button onclick="navigateToHome()" class="nav-button">HOME</button>
+      <button onclick="navigateToWritten()" class="nav-button">WRITTEN</button>
+    </div>
     <header class="post-header">
       <h1>{{postTitle}}</h1>
       <div class="post-meta">
@@ -30,5 +32,32 @@
       </div>
     </header>
     <div class="markdown-content">{{postContent}}</div>
+  </article>
+</template>
+
+<template id="landing-template">
+  <div class="landing">
+    <button type="button" class="landing-card" onclick="navigateToWritten()">
+      <h2>Written</h2>
+      <p>Short notes and thoughts.</p>
+    </button>
+    <button type="button" class="landing-card" onclick="navigateToProjects()">
+      <h2>Projects List</h2>
+      <p>Writeups, demos, and longer posts.</p>
+    </button>
+  </div>
+</template>
+
+<template id="written-page-template">
+  <article class="written-page">
+    <div class="section-nav">
+      <button onclick="navigateToHome()" class="nav-button">← HOME</button>
+      <button onclick="navigateToProjects()" class="nav-button">PROJECTS</button>
+    </div>
+    <header class="post-header">
+      <h1>Written</h1>
+      <div class="post-meta">Short thoughts and notes.</div>
+    </header>
+    <div class="written-list"></div>
   </article>
 </template>

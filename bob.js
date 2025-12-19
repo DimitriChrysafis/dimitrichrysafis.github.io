@@ -1,11 +1,97 @@
 let posts = [];
 let colors = {};
+let writtenPosts = [];
+const dataLoadState = {
+  posts: { loaded: false, error: null },
+  colors: { loaded: false, error: null },
+  written: { loaded: false, error: null }
+};
+
+function localServerHint() {
+  if (window.location.protocol !== 'file:') return '';
+  return [
+    'You are opening this page via file:// which blocks reading local files with fetch().',
+    'Run a local server instead, e.g.:',
+    '  python3 -m http.server',
+    'Then open http://localhost:8000/'
+  ].join('\n');
+}
+
+async function fetchJson(path) {
+  const response = await fetch(path, { cache: 'no-store' });
+  if (!response.ok) throw new Error(`Failed to load ${path} (${response.status})`);
+  return await response.json();
+}
+
+async function fetchText(path) {
+  const response = await fetch(path, { cache: 'no-store' });
+  if (!response.ok) throw new Error(`Failed to load ${path} (${response.status})`);
+  return await response.text();
+}
+
+function parseDate(dateString) {
+  if (!dateString || typeof dateString !== 'string') return new Date(NaN);
+  const m = /^(\d{4})-(\d{1,2})-(\d{1,2})$/.exec(dateString.trim());
+  if (m) {
+    const year = Number(m[1]);
+    const month = Number(m[2]);
+    const day = Number(m[3]);
+    return new Date(year, month - 1, day);
+  }
+  return new Date(dateString);
+}
+
+function formatDate(dateString) {
+  const d = parseDate(dateString);
+  if (Number.isNaN(d.getTime())) return String(dateString || '');
+  return d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+}
 // we
 async function loadTemplates() {
+  const ensureTemplate = (id, innerHtml) => {
+    if (document.getElementById(id)) return;
+    const template = document.createElement('template');
+    template.id = id;
+    template.innerHTML = innerHtml.trim();
+    document.body.appendChild(template);
+  };
+
+  const ensureRequiredTemplates = () => {
+    ensureTemplate('landing-template', `
+      <div class="landing">
+        <button type="button" class="landing-card" onclick="navigateToWritten()">
+          <h2>Written</h2>
+          <p>Short notes and thoughts.</p>
+        </button>
+        <button type="button" class="landing-card" onclick="navigateToProjects()">
+          <h2>Projects List</h2>
+          <p>Writeups, demos, and longer posts.</p>
+        </button>
+      </div>
+    `);
+
+    ensureTemplate('written-page-template', `
+      <article class="written-page">
+        <div class="section-nav">
+          <button onclick="navigateToHome()" class="nav-button">← HOME</button>
+          <button onclick="navigateToProjects()" class="nav-button">PROJECTS</button>
+        </div>
+        <header class="post-header">
+          <h1>Written</h1>
+          <div class="post-meta">Short thoughts and notes.</div>
+        </header>
+        <div class="written-list"></div>
+      </article>
+    `);
+  };
+
   // Prevent duplicate injection if already present
-  if (document.getElementById('post-grid-template')) return;
+  if (document.getElementById('post-grid-template')) {
+    ensureRequiredTemplates();
+    return;
+  }
   try {
-    const response = await fetch('templates.html');
+    const response = await fetch('templates.html', { cache: 'no-store' });
     if (!response.ok) throw new Error('templates fetch failed');
     const html = await response.text();
     document.body.insertAdjacentHTML('beforeend', html);
@@ -27,15 +113,61 @@ async function loadTemplates() {
 
 <template id="post-page-template">
   <article class="post-page">
-    <button onclick="navigateToHome()" class="back-button">← BACK</button>
+    <div class="section-nav">
+      <button onclick="navigateToProjects()" class="nav-button">← PROJECTS</button>
+      <button onclick="navigateToHome()" class="nav-button">HOME</button>
+      <button onclick="navigateToWritten()" class="nav-button">WRITTEN</button>
+    </div>
     <header class="post-header">
       <h1>{{postTitle}}</h1>
       <div class="post-meta">{{postDate}} • {{postAuthor}}</div>
     </header>
     <div class="markdown-content">{{postContent}}</div>
   </article>
+</template>
+
+<template id="landing-template">
+  <div class="landing">
+    <div class="landing-card" onclick="navigateToWritten()">
+      <h2>Written</h2>
+      <p>Short, opinionated notes.</p>
+    </div>
+    <div class="landing-card" onclick="navigateToProjects()">
+      <h2>Projects</h2>
+      <p>Writeups, demos, and longer posts.</p>
+    </div>
+  </div>
+</template>
+
+<template id="written-page-template">
+  <article class="written-page">
+    <div class="section-nav">
+      <button onclick="navigateToHome()" class="nav-button">← HOME</button>
+      <button onclick="navigateToProjects()" class="nav-button">PROJECTS</button>
+    </div>
+    <header class="post-header">
+      <h1>Written</h1>
+      <div class="post-meta">Short thoughts and notes.</div>
+    </header>
+    <div class="written-list"></div>
+  </article>
 </template>`;
-    document.body.insertAdjacentHTML('beforeend', fallback);
+	    document.body.insertAdjacentHTML('beforeend', fallback);
+  }
+
+  ensureRequiredTemplates();
+}
+
+async function displayLanding() {
+  document.body.classList.remove('resume-active');
+  const header = document.querySelector('.header');
+  if (header) header.style.display = 'flex';
+  const mainContent = document.getElementById('main-content');
+  const landingTemplate = document.getElementById('landing-template')?.content?.cloneNode(true);
+
+  mainContent.innerHTML = '';
+  if (landingTemplate) {
+    mainContent.appendChild(landingTemplate);
   }
 }
 
@@ -43,7 +175,26 @@ async function displayPosts() {
   document.body.classList.remove('resume-active');
   const header = document.querySelector('.header');
   if (header) header.style.display = 'flex';
+
+  if (!dataLoadState.posts.loaded) await loadPosts();
+  if (!dataLoadState.colors.loaded) await loadColors();
+
   const mainContent = document.getElementById('main-content');
+  if (dataLoadState.posts.error) {
+    const msg = document.createElement('div');
+    msg.className = 'written-content';
+    msg.textContent = `Could not load json/posts.json.\n\n${localServerHint()}`.trim();
+    mainContent.innerHTML = '';
+    mainContent.appendChild(msg);
+    return;
+  }
+
+  const nav = document.createElement('div');
+  nav.className = 'section-nav';
+  nav.innerHTML = `
+    <button onclick="navigateToHome()" class="nav-button">← HOME</button>
+    <button onclick="navigateToWritten()" class="nav-button">WRITTEN</button>
+  `;
   const postGridTemplate = document.getElementById('post-grid-template').content.cloneNode(true);
   const postGrid = postGridTemplate.querySelector('.posts-grid');
 
@@ -51,7 +202,7 @@ async function displayPosts() {
     const postCardTemplate = document.getElementById('post-card-template').content.cloneNode(true);
     postCardTemplate.querySelector('.post-card').setAttribute('onclick', `navigateToPost('${post.filename}')`);
     postCardTemplate.querySelector('.post-title').textContent = post.title;
-    postCardTemplate.querySelector('.post-meta').innerHTML = `${new Date(post.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })} • ${post.author}`;
+    postCardTemplate.querySelector('.post-meta').innerHTML = `${formatDate(post.date)} • ${post.author}`;
     postCardTemplate.querySelector('.post-bio').textContent = post.bio;
 
     const categories = post.categories.map(category => {
@@ -64,55 +215,75 @@ async function displayPosts() {
   });
 
   mainContent.innerHTML = '';
+  mainContent.appendChild(nav);
   mainContent.appendChild(postGridTemplate);
 }
 
-async function loadPost(filename) {
+async function displayWrittenIndex() {
   document.body.classList.remove('resume-active');
   const header = document.querySelector('.header');
   if (header) header.style.display = 'flex';
-  let markdown = '';
-  // 1) Try local file when served over http(s)
-  try {
-    const response = await fetch(`folder/${filename}`);
-    if (!response.ok) throw new Error('post fetch failed');
-    markdown = await response.text();
-  } catch (e1) {
-    // 2) Try GitHub raw as a network fallback (works on file:// too)
-    try {
-      const ghUrl = `https://raw.githubusercontent.com/DimitriChrysafis/dimitrichrysafis.github.io/main/folder/${filename}`;
-      const ghResp = await fetch(ghUrl, { cache: 'no-store' });
-      if (!ghResp.ok) throw new Error('raw github fetch failed');
-      markdown = await ghResp.text();
-    } catch (e2) {
-      // 3) Try inline fallback embedded in index.html
-      const inline = document.getElementById(`post-${filename}`);
-      if (inline) markdown = inline.textContent || '';
-    }
+
+  if (!dataLoadState.written.loaded) {
+    await loadWrittenPosts();
   }
-  const post = posts.find(p => p.filename === filename);
 
   const mainContent = document.getElementById('main-content');
-  const postPageTemplate = document.getElementById('post-page-template').content.cloneNode(true);
+  const template = document.getElementById('written-page-template')?.content?.cloneNode(true);
 
-  postPageTemplate.querySelector('.post-header h1').textContent = post.title;
-  postPageTemplate.querySelector('.post-meta').innerHTML =
-    `${new Date(post.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })} • ${post.author}`;
+  mainContent.innerHTML = '';
+  if (!template) return;
 
-  const content = (window.marked && typeof marked.parse === 'function') ? marked.parse(markdown) : markdown;
-  const markdownContent = postPageTemplate.querySelector('.markdown-content');
-  markdownContent.innerHTML = content;
+  const list = template.querySelector('.written-list');
+  if (dataLoadState.written.error) {
+    const err = document.createElement('div');
+    err.className = 'written-content';
+    err.textContent = `Could not load json/written.json.\n\n${localServerHint()}`.trim();
+    list.appendChild(err);
+    mainContent.appendChild(template);
+    return;
+  }
 
-  // Normalize media paths so file:// and http(s) both work.
-  // Convert any '../media/...' to 'media/...'
+  const items = Array.isArray(writtenPosts) ? [...writtenPosts] : [];
+  items.sort((a, b) => parseDate(b.date).getTime() - parseDate(a.date).getTime());
+
+  if (!items.length) {
+    const empty = document.createElement('div');
+    empty.className = 'written-content';
+    empty.textContent = 'No written posts yet.';
+    list.appendChild(empty);
+  } else {
+    items.forEach(item => {
+      const article = document.createElement('article');
+      article.className = 'written-item';
+      article.addEventListener('click', () => navigateToWrittenPost(item.filename));
+
+      const title = document.createElement('h2');
+      title.className = 'written-title';
+      title.textContent = item.title || item.filename || '';
+
+      const date = document.createElement('div');
+      date.className = 'written-date';
+      date.textContent = item.date ? formatDate(item.date) : '';
+
+      article.appendChild(title);
+      if (date.textContent) article.appendChild(date);
+      list.appendChild(article);
+    });
+  }
+
+  mainContent.appendChild(template);
+  await renderMath();
+}
+
+function fixMediaPaths(rootEl) {
   const fixUrl = (url) => {
     if (!url || typeof url !== 'string') return url;
     if (url.startsWith('../media/')) return url.replace(/^\.\.\//, '');
     return url;
   };
 
-  // Fix src, href, poster attributes inside the rendered content
-  const elems = markdownContent.querySelectorAll('[src], [href], video[poster], img');
+  const elems = rootEl.querySelectorAll('[src], [href], video[poster], img');
   elems.forEach(el => {
     if (el.hasAttribute('src')) {
       const v = el.getAttribute('src');
@@ -130,10 +301,76 @@ async function loadPost(filename) {
       if (nv !== v) el.setAttribute('poster', nv);
     }
   });
+}
+
+async function loadPost(filename) {
+  document.body.classList.remove('resume-active');
+  const header = document.querySelector('.header');
+  if (header) header.style.display = 'flex';
+  let markdown = '';
+  try {
+    markdown = await fetchText(`folder/${filename}`);
+  } catch (e) {
+    markdown = `# Missing post\n\nCould not load folder/${filename}.\n\n${localServerHint()}`.trim();
+  }
+  const post = posts.find(p => p.filename === filename) || { title: filename, date: '', author: '' };
+
+  const mainContent = document.getElementById('main-content');
+  const postPageTemplate = document.getElementById('post-page-template').content.cloneNode(true);
+
+  postPageTemplate.querySelector('.post-header h1').textContent = post.title || filename;
+
+  const metaParts = [];
+  if (post.date) metaParts.push(formatDate(post.date));
+  if (post.author) metaParts.push(post.author);
+  postPageTemplate.querySelector('.post-meta').textContent = metaParts.join(' • ');
+
+  const content = (window.marked && typeof marked.parse === 'function') ? marked.parse(markdown) : markdown;
+  const markdownContent = postPageTemplate.querySelector('.markdown-content');
+  markdownContent.innerHTML = content;
+
+  fixMediaPaths(markdownContent);
 
   mainContent.innerHTML = '';
   mainContent.appendChild(postPageTemplate);
 
+  await renderMath();
+}
+
+async function loadWrittenPost(filename) {
+  document.body.classList.remove('resume-active');
+  const header = document.querySelector('.header');
+  if (header) header.style.display = 'flex';
+
+  if (!dataLoadState.written.loaded) {
+    await loadWrittenPosts();
+  }
+
+  let markdown = '';
+  try {
+    markdown = await fetchText(`folder/written/${filename}`);
+  } catch (e) {
+    markdown = `# Missing written post\n\nCould not load folder/written/${filename}.\n\n${localServerHint()}`.trim();
+  }
+
+  const post = writtenPosts.find(p => p.filename === filename) || { title: filename, date: '', author: '' };
+  const mainContent = document.getElementById('main-content');
+  const postPageTemplate = document.getElementById('post-page-template').content.cloneNode(true);
+
+  postPageTemplate.querySelector('.post-header h1').textContent = post.title || filename;
+
+  const metaParts = [];
+  if (post.date) metaParts.push(formatDate(post.date));
+  if (post.author) metaParts.push(post.author);
+  postPageTemplate.querySelector('.post-meta').textContent = metaParts.join(' • ');
+
+  const content = (window.marked && typeof marked.parse === 'function') ? marked.parse(markdown) : markdown;
+  const markdownContent = postPageTemplate.querySelector('.markdown-content');
+  markdownContent.innerHTML = content;
+  fixMediaPaths(markdownContent);
+
+  mainContent.innerHTML = '';
+  mainContent.appendChild(postPageTemplate);
   await renderMath();
 }
 
@@ -151,12 +388,23 @@ function navigateToPost(filename) {
   window.location.hash = `post/${filename}`;
 }
 
+function navigateToProjects() {
+  window.location.hash = 'projects';
+}
+
+function navigateToWritten() {
+  window.location.hash = 'written';
+}
+
+function navigateToWrittenPost(filename) {
+  window.location.hash = `written/${encodeURIComponent(filename)}`;
+}
+
 function navigateToHome() {
-  // Keep local navigation working as well
   if (window.location.hash) {
     window.location.hash = '';
   } else {
-    window.location.href = './';
+    routes.home();
   }
 }
 
@@ -166,10 +414,18 @@ function displayResume() {
 
 
 function handleRoute() {
-  const hash = window.location.hash.slice(1);
+  const raw = window.location.hash.startsWith('#') ? window.location.hash.slice(1) : window.location.hash;
+  const hash = raw.replace(/^\//, '').trim();
   if (hash.startsWith('post/')) {
     const filename = hash.slice(5);
     routes.post(filename);
+  } else if (hash.startsWith('written/')) {
+    const filename = decodeURIComponent(hash.slice('written/'.length));
+    routes.writtenPost(filename);
+  } else if (hash === 'projects') {
+    routes.projects();
+  } else if (hash === 'written') {
+    routes.written();
   } else if (hash === 'postresume') {
     routes.resume();
   } else {
@@ -178,10 +434,10 @@ function handleRoute() {
 }
 
 const routes = {
-    home: async () => {
-        await displayPosts();
-        // await displayMiniPosts();  // DISABLED: Mini posts removed from display
-    },
+    home: displayLanding,
+    projects: displayPosts,
+    written: displayWrittenIndex,
+    writtenPost: loadWrittenPost,
     post: loadPost,
     resume: displayResume
 };
@@ -189,45 +445,54 @@ const routes = {
 
 
 async function loadPosts() {
+  dataLoadState.posts.loaded = false;
+  dataLoadState.posts.error = null;
   try {
-    const response = await fetch('json/posts.json');
-    if (!response.ok) throw new Error('posts fetch failed');
-    posts = await response.json();
+    const data = await fetchJson('json/posts.json');
+    posts = Array.isArray(data) ? data : [];
   } catch (e) {
-    const inline = document.getElementById('posts-json');
-    if (inline) {
-      try { posts = JSON.parse(inline.textContent); } catch {}
-    }
-    posts = posts || [];
+    posts = [];
+    dataLoadState.posts.error = e;
+    console.error(e);
+  } finally {
+    dataLoadState.posts.loaded = true;
+  }
+}
+
+async function loadWrittenPosts() {
+  dataLoadState.written.loaded = false;
+  dataLoadState.written.error = null;
+  try {
+    const data = await fetchJson('json/written.json');
+    writtenPosts = Array.isArray(data) ? data : [];
+  } catch (e) {
+    writtenPosts = [];
+    dataLoadState.written.error = e;
+    console.error(e);
+  } finally {
+    dataLoadState.written.loaded = true;
   }
 }
 
 async function loadColors() {
+  dataLoadState.colors.loaded = false;
+  dataLoadState.colors.error = null;
   try {
-    const response = await fetch('json/colors.json');
-    if (!response.ok) throw new Error('colors fetch failed');
-    colors = await response.json();
+    const data = await fetchJson('json/colors.json');
+    colors = (data && typeof data === 'object') ? data : {};
   } catch (e) {
-    const inline = document.getElementById('colors-json');
-    if (inline) {
-      try { colors = JSON.parse(inline.textContent); } catch {}
-    }
-    colors = colors || {};
+    colors = {};
+    dataLoadState.colors.error = e;
+    console.error(e);
+  } finally {
+    dataLoadState.colors.loaded = true;
   }
 }
 
 loadTemplates().then(async () => {
-  await Promise.all([loadColors(), loadPosts()]);
+  await Promise.all([loadColors(), loadPosts(), loadWrittenPosts()]);
   handleRoute();
 });
-
-/*
-loadTemplates().then(async () => {
-    await Promise.all([loadColors(), loadPosts(), loadMiniPosts()]);
-    handleRoute();
-});
-
- */
 
 window.addEventListener('keydown', function(event) {
   if (event.key === 'P' || event.key === 'p') {
@@ -241,41 +506,10 @@ window.addEventListener('keydown', function(event) {
 
 window.addEventListener('hashchange', handleRoute);
 
-let miniPosts = [];
-
-async function loadMiniPosts() {
-  const response = await fetch('json/mini.json');
-  miniPosts = await response.json();
-}
-
-// DISABLED: Mini posts display function - content preserved in json/mini.json
-/*
-async function displayMiniPosts() {
-  const mainContent = document.getElementById('main-content');
-  const miniPostsContainer = document.createElement('div');
-  miniPostsContainer.className = 'mini-posts';
-
-  miniPosts.forEach(miniPost => {
-    const miniPostElement = document.createElement('div');
-    miniPostElement.className = 'mini-post';
-
-    miniPostElement.innerHTML = `
-      <h3 class="mini-title">${miniPost.title}</h3>
-      <p class="mini-date">${new Date(miniPost.date).toLocaleDateString('en-US')}</p>
-      <p class="mini-content">${miniPost.content}</p>
-    `;
-
-    miniPostsContainer.appendChild(miniPostElement);
-  });
-
-  mainContent.appendChild(miniPostsContainer);
-}
-*/
-
 // ensure posts/colors are available even if route changes later
 window.addEventListener('load', async () => {
-  if (!posts.length || !Object.keys(colors).length) {
-    try { await Promise.all([loadColors(), loadPosts()]); } catch {}
+  if (!dataLoadState.posts.loaded || !dataLoadState.colors.loaded || !dataLoadState.written.loaded) {
+    try { await Promise.all([loadColors(), loadPosts(), loadWrittenPosts()]); } catch {}
   }
 });
 
