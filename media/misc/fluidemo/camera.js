@@ -1,4 +1,4 @@
-import { mat4, vec3 } from 'https://cdn.skypack.dev/wgpu-matrix'
+import { mat4, vec3 } from 'https://unpkg.com/wgpu-matrix@3.4.0/dist/3.x/wgpu-matrix.module.js'
 import { renderUniformsValues, renderUniformsViews } from './common.js'
 
 export class Camera {
