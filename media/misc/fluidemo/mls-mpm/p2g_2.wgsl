@@ -58,7 +58,7 @@ fn p2g_2(@builtin(global_invocation_id) id: vec3<u32>) {
             }
         }
 
-        let volume: f32 = 1.0 / density; // particle.mass = 1.0;
+        let volume: f32 = 1.0 / density;
 
         let pressure: f32 = max(-0.0, stiffness * (pow(density / rest_density, 5.) - 1));
 

@@ -1,4 +1,4 @@
-export const renderUniformsValues = new ArrayBuffer(288); // Increased to include box_size
+export const renderUniformsValues = new ArrayBuffer(288);
 export const renderUniformsViews = {
   texel_size: new Float32Array(renderUniformsValues, 0, 2),
   sphere_size: new Float32Array(renderUniformsValues, 8, 2),

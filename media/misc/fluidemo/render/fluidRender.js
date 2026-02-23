@@ -11,6 +11,8 @@ export class FluidRenderer {
         this.renderUniformBuffer = renderUniformBuffer
         this.wireframeEnabled = false
         this.boundingBoxEnabled = true
+        this.qualityMode = 'medium'
+        this.clearColor = { r: 0.8, g: 0.8, b: 0.8, a: 1.0 }
         this.cachedColorView = null
         this.lastTexture = null
     }
@@ -23,9 +25,40 @@ export class FluidRenderer {
         const wireframeModule = this.device.createShaderModule({ code: wireframe })
         const boundingBoxModule = this.device.createShaderModule({ code: boundingBox })
 
+        const sphereBindGroupLayout = this.device.createBindGroupLayout({
+            entries: [
+                {
+                    binding: 0,
+                    visibility: GPUShaderStage.VERTEX | GPUShaderStage.FRAGMENT,
+                    buffer: { type: 'read-only-storage' },
+                },
+                {
+                    binding: 1,
+                    visibility: GPUShaderStage.VERTEX | GPUShaderStage.FRAGMENT,
+                    buffer: { type: 'uniform' },
+                },
+            ],
+        })
+        const spherePipelineLayout = this.device.createPipelineLayout({
+            bindGroupLayouts: [sphereBindGroupLayout],
+        })
+
+        const boundingBoxBindGroupLayout = this.device.createBindGroupLayout({
+            entries: [
+                {
+                    binding: 0,
+                    visibility: GPUShaderStage.VERTEX,
+                    buffer: { type: 'uniform' },
+                },
+            ],
+        })
+        const boundingBoxPipelineLayout = this.device.createPipelineLayout({
+            bindGroupLayouts: [boundingBoxBindGroupLayout],
+        })
+
         this.spherePipeline = this.device.createRenderPipeline({
             label: 'sphere pipeline', 
-            layout: 'auto', 
+            layout: spherePipelineLayout, 
             vertex: { module: sphereModule }, 
             fragment: {
                 module: sphereModule, 
@@ -41,7 +74,7 @@ export class FluidRenderer {
 
         this.wireframePipeline = this.device.createRenderPipeline({
             label: 'wireframe pipeline', 
-            layout: 'auto', 
+            layout: spherePipelineLayout, 
             vertex: { module: wireframeModule }, 
             fragment: {
                 module: wireframeModule, 
@@ -60,7 +93,7 @@ export class FluidRenderer {
 
         this.boundingBoxPipeline = this.device.createRenderPipeline({
             label: 'bounding box pipeline', 
-            layout: 'auto', 
+            layout: boundingBoxPipelineLayout, 
             vertex: { module: boundingBoxModule }, 
             fragment: {
                 module: boundingBoxModule, 
@@ -100,7 +133,7 @@ export class FluidRenderer {
 
         this.sphereBindGroup = this.device.createBindGroup({
             label: 'sphere bind group', 
-            layout: this.spherePipeline.getBindGroupLayout(0),  
+            layout: sphereBindGroupLayout,  
             entries: [
                 { binding: 0, resource: { buffer: this.posvelBuffer }},
                 { binding: 1, resource: { buffer: this.renderUniformBuffer }},
@@ -109,7 +142,7 @@ export class FluidRenderer {
 
         this.wireframeBindGroup = this.device.createBindGroup({
             label: 'wireframe bind group', 
-            layout: this.wireframePipeline.getBindGroupLayout(0),  
+            layout: sphereBindGroupLayout,  
             entries: [
                 { binding: 0, resource: { buffer: this.posvelBuffer }},
                 { binding: 1, resource: { buffer: this.renderUniformBuffer }},
@@ -118,7 +151,7 @@ export class FluidRenderer {
 
         this.boundingBoxBindGroup = this.device.createBindGroup({
             label: 'bounding box bind group', 
-            layout: this.boundingBoxPipeline.getBindGroupLayout(0),  
+            layout: boundingBoxBindGroupLayout,  
             entries: [
                 { binding: 0, resource: { buffer: this.renderUniformBuffer }},
             ]
@@ -127,6 +160,17 @@ export class FluidRenderer {
 
     setWireframeMode(enabled) {
         this.wireframeEnabled = enabled;
+    }
+
+    setQualityMode(mode) {
+        this.qualityMode = mode;
+        if (mode === 'low') {
+            this.wireframeEnabled = true;
+            this.clearColor = { r: 0.8, g: 0.8, b: 0.8, a: 1.0 }
+        } else {
+            this.wireframeEnabled = false;
+            this.clearColor = { r: 0.8, g: 0.8, b: 0.8, a: 1.0 }
+        }
     }
 
     setBoundingBoxMode(enabled) {
@@ -140,12 +184,12 @@ export class FluidRenderer {
             this.cachedColorView = currentTexture.createView();
             this.lastTexture = currentTexture;
         }
-        
+
         const renderPassDescriptor = {
             colorAttachments: [
                 {
                     view: this.cachedColorView,
-                    clearValue: { r: 0.8, g: 0.8, b: 0.8, a: 1.0 },
+                    clearValue: this.clearColor,
                     loadOp: 'clear',
                     storeOp: 'store',
                 },
@@ -159,13 +203,13 @@ export class FluidRenderer {
         }
 
         const renderPassEncoder = commandEncoder.beginRenderPass(renderPassDescriptor);
-        
+
         if (this.boundingBoxEnabled) {
             renderPassEncoder.setBindGroup(0, this.boundingBoxBindGroup);
             renderPassEncoder.setPipeline(this.boundingBoxPipeline);
             renderPassEncoder.draw(54);
         }
-        
+
         if (this.wireframeEnabled) {
             renderPassEncoder.setBindGroup(0, this.wireframeBindGroup);
             renderPassEncoder.setPipeline(this.wireframePipeline);
@@ -175,7 +219,7 @@ export class FluidRenderer {
             renderPassEncoder.setPipeline(this.spherePipeline);
             renderPassEncoder.draw(6, numParticles);
         }
-        
+
         renderPassEncoder.end();
     }
 }

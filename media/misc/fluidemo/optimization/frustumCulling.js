@@ -1,7 +1,7 @@
 export class FrustumCuller {
     constructor(device) {
         this.device = device;
-        this.frustumPlanes = new Float32Array(24); // 6 planes * 4 components (a,b,c,d)
+        this.frustumPlanes = new Float32Array(24);
         this.visibilityBuffer = null;
         this.visibilityPipeline = null;
         this.initialized = false;

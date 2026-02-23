@@ -100,12 +100,12 @@ async function main() {
     let waveAmplitude = 0.40;
     let boxDepth = 100;
     
-    let wireframeEnabled = true;
+    let qualityMode = 'medium';
     let boundingBoxEnabled = true;
     
     renderer.setBoundingBoxMode(boundingBoxEnabled);
     
-    renderer.setWireframeMode(wireframeEnabled);
+    renderer.setQualityMode(qualityMode);
     
     const gui = new dat.GUI();
     
@@ -140,10 +140,17 @@ async function main() {
     cameraFolder.open();
     
     const renderingFolder = gui.addFolder('Rendering');
-    renderingFolder.add({ wireframeEnabled: wireframeEnabled }, 'wireframeEnabled').name('potato friendly mode').onChange((value) => {
-      wireframeEnabled = value;
-      if (renderer && renderer.setWireframeMode) {
-        renderer.setWireframeMode(wireframeEnabled);
+    const qualitySettings = {
+      quality: qualityMode,
+    };
+
+    renderingFolder.add(qualitySettings, 'quality', {
+      'Low (Potato)': 'low',
+      'Medium': 'medium',
+    }).name('Quality').onChange((value) => {
+      qualityMode = value;
+      if (renderer && renderer.setQualityMode) {
+        renderer.setQualityMode(qualityMode);
       }
     });
     
@@ -195,7 +202,6 @@ async function main() {
     camera.reset(canvasElement, 150, [BOX_WIDTH / 2, BOX_HEIGHT / 4, BOX_DEPTH / 2], fov, zoomRate);
 
     let boxWidthRatio = 1.0;
-    let prevBoxSize = [...realBoxSize];
     let uniformsNeedUpdate = true;
 
     let lastTime = performance.now();
@@ -205,8 +211,8 @@ async function main() {
       const deltaTime = (currentTime - lastTime) / 1000;
       lastTime = currentTime;
 
-      // Always allow camera updates regardless of pause state
       camera.update(deltaTime);
+      const cameraDirty = camera.consumeDirty();
 
       if (!isPaused) {
         if (waveEnabled) {
@@ -221,13 +227,12 @@ async function main() {
         }
       }
 
-      // Always update uniforms every frame to ensure camera works while paused
-      renderUniformsViews.box_size.set(realBoxSize);
-      device.queue.writeBuffer(renderUniformBuffer, 0, renderUniformsValues);
-      
-      // Update tracking variables
-      if (realBoxSize[0] !== prevBoxSize[0] || realBoxSize[1] !== prevBoxSize[1] || realBoxSize[2] !== prevBoxSize[2]) {
-        prevBoxSize = [...realBoxSize];
+      if (uniformsNeedUpdate) {
+        renderUniformsViews.box_size.set(realBoxSize);
+      }
+
+      if (uniformsNeedUpdate || cameraDirty) {
+        device.queue.writeBuffer(renderUniformBuffer, 0, renderUniformsValues);
       }
       uniformsNeedUpdate = false;
 
@@ -246,11 +251,6 @@ async function main() {
 
     requestAnimationFrame(frame);
     
-    setInterval(() => {
-      
-      if (Math.floor(Date.now() / 10000) % 30 === 0) {
-      }
-    }, 5000);
   } catch (error) {
   }
 }

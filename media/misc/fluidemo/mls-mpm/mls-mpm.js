@@ -117,7 +117,6 @@ export class MLSMPMSimulator {
         this.device.queue.writeBuffer(this.initBoxSizeBuffer, 0, initBoxSizeValues);
         this.device.queue.writeBuffer(this.realBoxSizeBuffer, 0, realBoxSizeValues);
 
-        // BindGroup
         this.clearGridBindGroup = this.device.createBindGroup({
             layout: this.clearGridPipeline.getBindGroupLayout(0), 
             entries: [{ binding: 0, resource: { buffer: cellBuffer }}]
@@ -166,7 +165,7 @@ export class MLSMPMSimulator {
 
     initDambreak(initBoxSize, numParticles) {
         let particlesBuf = new ArrayBuffer(mlsmpmParticleStructSize * numParticlesMax);
-        const spacing = 0.95; // Reduced spacing to fit more particles
+        const spacing = 0.95;
 
         this.numParticles = 0;
         
@@ -203,7 +202,7 @@ export class MLSMPMSimulator {
     }
 
     reset(numParticles, initBoxSize) {
-        renderUniformsViews.sphere_size.set([this.renderDiameter])
+        renderUniformsViews.sphere_size.set([this.renderDiameter, this.renderDiameter])
         this.initDambreak(initBoxSize, numParticles);
         const maxGridCount = this.max_x_grids * this.max_y_grids * this.max_z_grids;
         this.gridCount = Math.ceil(initBoxSize[0]) * Math.ceil(initBoxSize[1]) * Math.ceil(initBoxSize[2]);
