@@ -100,7 +100,7 @@ async function main() {
     let waveAmplitude = 0.40;
     let boxDepth = 100;
     
-    let qualityMode = 'medium';
+    let qualityMode = 'low';
     let boundingBoxEnabled = true;
     
     renderer.setBoundingBoxMode(boundingBoxEnabled);
