@@ -1,10 +1,8 @@
 let posts = [];
 let colors = {};
-let writtenPosts = [];
 const dataLoadState = {
   posts: { loaded: false, error: null },
-  colors: { loaded: false, error: null },
-  written: { loaded: false, error: null }
+  colors: { loaded: false, error: null }
 };
 
 function localServerHint() {
@@ -59,29 +57,11 @@ async function loadTemplates() {
   const ensureRequiredTemplates = () => {
     ensureTemplate('landing-template', `
       <div class="landing">
-        <button type="button" class="landing-card" onclick="navigateToWritten()">
-          <h2>Written</h2>
-          <p>Short notes and thoughts.</p>
-        </button>
         <button type="button" class="landing-card" onclick="navigateToProjects()">
           <h2>Projects List</h2>
           <p>Writeups, demos, and longer posts.</p>
         </button>
       </div>
-    `);
-
-    ensureTemplate('written-page-template', `
-      <article class="written-page">
-        <div class="section-nav">
-          <button onclick="navigateToHome()" class="nav-button">← HOME</button>
-          <button onclick="navigateToProjects()" class="nav-button">PROJECTS</button>
-        </div>
-        <header class="post-header">
-          <h1>Written</h1>
-          <div class="post-meta">Short thoughts and notes.</div>
-        </header>
-        <div class="written-list"></div>
-      </article>
     `);
   };
 
@@ -116,7 +96,6 @@ async function loadTemplates() {
     <div class="section-nav">
       <button onclick="navigateToProjects()" class="nav-button">← PROJECTS</button>
       <button onclick="navigateToHome()" class="nav-button">HOME</button>
-      <button onclick="navigateToWritten()" class="nav-button">WRITTEN</button>
     </div>
     <header class="post-header">
       <h1>{{postTitle}}</h1>
@@ -128,30 +107,13 @@ async function loadTemplates() {
 
 <template id="landing-template">
   <div class="landing">
-    <div class="landing-card" onclick="navigateToWritten()">
-      <h2>Written</h2>
-      <p>Short, opinionated notes.</p>
-    </div>
     <div class="landing-card" onclick="navigateToProjects()">
       <h2>Projects</h2>
       <p>Writeups, demos, and longer posts.</p>
     </div>
   </div>
 </template>
-
-<template id="written-page-template">
-  <article class="written-page">
-    <div class="section-nav">
-      <button onclick="navigateToHome()" class="nav-button">← HOME</button>
-      <button onclick="navigateToProjects()" class="nav-button">PROJECTS</button>
-    </div>
-    <header class="post-header">
-      <h1>Written</h1>
-      <div class="post-meta">Short thoughts and notes.</div>
-    </header>
-    <div class="written-list"></div>
-  </article>
-</template>`;
+`;
 	    document.body.insertAdjacentHTML('beforeend', fallback);
   }
 
@@ -159,16 +121,7 @@ async function loadTemplates() {
 }
 
 async function displayLanding() {
-  document.body.classList.remove('resume-active');
-  const header = document.querySelector('.header');
-  if (header) header.style.display = 'flex';
-  const mainContent = document.getElementById('main-content');
-  const landingTemplate = document.getElementById('landing-template')?.content?.cloneNode(true);
-
-  mainContent.innerHTML = '';
-  if (landingTemplate) {
-    mainContent.appendChild(landingTemplate);
-  }
+  await displayPosts();
 }
 
 async function displayPosts() {
@@ -182,19 +135,13 @@ async function displayPosts() {
   const mainContent = document.getElementById('main-content');
   if (dataLoadState.posts.error) {
     const msg = document.createElement('div');
-    msg.className = 'written-content';
+    msg.className = 'post-bio';
     msg.textContent = `Could not load json/posts.json.\n\n${localServerHint()}`.trim();
     mainContent.innerHTML = '';
     mainContent.appendChild(msg);
     return;
   }
 
-  const nav = document.createElement('div');
-  nav.className = 'section-nav';
-  nav.innerHTML = `
-    <button onclick="navigateToHome()" class="nav-button">← HOME</button>
-    <button onclick="navigateToWritten()" class="nav-button">WRITTEN</button>
-  `;
   const postGridTemplate = document.getElementById('post-grid-template').content.cloneNode(true);
   const postGrid = postGridTemplate.querySelector('.posts-grid');
 
@@ -215,65 +162,7 @@ async function displayPosts() {
   });
 
   mainContent.innerHTML = '';
-  mainContent.appendChild(nav);
   mainContent.appendChild(postGridTemplate);
-}
-
-async function displayWrittenIndex() {
-  document.body.classList.remove('resume-active');
-  const header = document.querySelector('.header');
-  if (header) header.style.display = 'flex';
-
-  if (!dataLoadState.written.loaded) {
-    await loadWrittenPosts();
-  }
-
-  const mainContent = document.getElementById('main-content');
-  const template = document.getElementById('written-page-template')?.content?.cloneNode(true);
-
-  mainContent.innerHTML = '';
-  if (!template) return;
-
-  const list = template.querySelector('.written-list');
-  if (dataLoadState.written.error) {
-    const err = document.createElement('div');
-    err.className = 'written-content';
-    err.textContent = `Could not load json/written.json.\n\n${localServerHint()}`.trim();
-    list.appendChild(err);
-    mainContent.appendChild(template);
-    return;
-  }
-
-  const items = Array.isArray(writtenPosts) ? [...writtenPosts] : [];
-  items.sort((a, b) => parseDate(b.date).getTime() - parseDate(a.date).getTime());
-
-  if (!items.length) {
-    const empty = document.createElement('div');
-    empty.className = 'written-content';
-    empty.textContent = 'No written posts yet.';
-    list.appendChild(empty);
-  } else {
-    items.forEach(item => {
-      const article = document.createElement('article');
-      article.className = 'written-item';
-      article.addEventListener('click', () => navigateToWrittenPost(item.filename));
-
-      const title = document.createElement('h2');
-      title.className = 'written-title';
-      title.textContent = item.title || item.filename || '';
-
-      const date = document.createElement('div');
-      date.className = 'written-date';
-      date.textContent = item.date ? formatDate(item.date) : '';
-
-      article.appendChild(title);
-      if (date.textContent) article.appendChild(date);
-      list.appendChild(article);
-    });
-  }
-
-  mainContent.appendChild(template);
-  await renderMath();
 }
 
 function fixMediaPaths(rootEl) {
@@ -337,43 +226,6 @@ async function loadPost(filename) {
   await renderMath();
 }
 
-async function loadWrittenPost(filename) {
-  document.body.classList.remove('resume-active');
-  const header = document.querySelector('.header');
-  if (header) header.style.display = 'flex';
-
-  if (!dataLoadState.written.loaded) {
-    await loadWrittenPosts();
-  }
-
-  let markdown = '';
-  try {
-    markdown = await fetchText(`folder/written/${filename}`);
-  } catch (e) {
-    markdown = `# Missing written post\n\nCould not load folder/written/${filename}.\n\n${localServerHint()}`.trim();
-  }
-
-  const post = writtenPosts.find(p => p.filename === filename) || { title: filename, date: '', author: '' };
-  const mainContent = document.getElementById('main-content');
-  const postPageTemplate = document.getElementById('post-page-template').content.cloneNode(true);
-
-  postPageTemplate.querySelector('.post-header h1').textContent = post.title || filename;
-
-  const metaParts = [];
-  if (post.date) metaParts.push(formatDate(post.date));
-  if (post.author) metaParts.push(post.author);
-  postPageTemplate.querySelector('.post-meta').textContent = metaParts.join(' • ');
-
-  const content = (window.marked && typeof marked.parse === 'function') ? marked.parse(markdown) : markdown;
-  const markdownContent = postPageTemplate.querySelector('.markdown-content');
-  markdownContent.innerHTML = content;
-  fixMediaPaths(markdownContent);
-
-  mainContent.innerHTML = '';
-  mainContent.appendChild(postPageTemplate);
-  await renderMath();
-}
-
 async function renderMath() {
   if (window.MathJax) {
     try {
@@ -390,14 +242,6 @@ function navigateToPost(filename) {
 
 function navigateToProjects() {
   window.location.hash = 'projects';
-}
-
-function navigateToWritten() {
-  window.location.hash = 'written';
-}
-
-function navigateToWrittenPost(filename) {
-  window.location.hash = `written/${encodeURIComponent(filename)}`;
 }
 
 function navigateToHome() {
@@ -419,13 +263,8 @@ function handleRoute() {
   if (hash.startsWith('post/')) {
     const filename = hash.slice(5);
     routes.post(filename);
-  } else if (hash.startsWith('written/')) {
-    const filename = decodeURIComponent(hash.slice('written/'.length));
-    routes.writtenPost(filename);
   } else if (hash === 'projects') {
     routes.projects();
-  } else if (hash === 'written') {
-    routes.written();
   } else if (hash === 'postresume') {
     routes.resume();
   } else {
@@ -434,10 +273,8 @@ function handleRoute() {
 }
 
 const routes = {
-    home: displayLanding,
+    home: displayPosts,
     projects: displayPosts,
-    written: displayWrittenIndex,
-    writtenPost: loadWrittenPost,
     post: loadPost,
     resume: displayResume
 };
@@ -459,21 +296,6 @@ async function loadPosts() {
   }
 }
 
-async function loadWrittenPosts() {
-  dataLoadState.written.loaded = false;
-  dataLoadState.written.error = null;
-  try {
-    const data = await fetchJson('json/written.json');
-    writtenPosts = Array.isArray(data) ? data : [];
-  } catch (e) {
-    writtenPosts = [];
-    dataLoadState.written.error = e;
-    console.error(e);
-  } finally {
-    dataLoadState.written.loaded = true;
-  }
-}
-
 async function loadColors() {
   dataLoadState.colors.loaded = false;
   dataLoadState.colors.error = null;
@@ -490,7 +312,7 @@ async function loadColors() {
 }
 
 loadTemplates().then(async () => {
-  await Promise.all([loadColors(), loadPosts(), loadWrittenPosts()]);
+  await Promise.all([loadColors(), loadPosts()]);
   handleRoute();
 });
 
@@ -508,8 +330,8 @@ window.addEventListener('hashchange', handleRoute);
 
 // ensure posts/colors are available even if route changes later
 window.addEventListener('load', async () => {
-  if (!dataLoadState.posts.loaded || !dataLoadState.colors.loaded || !dataLoadState.written.loaded) {
-    try { await Promise.all([loadColors(), loadPosts(), loadWrittenPosts()]); } catch {}
+  if (!dataLoadState.posts.loaded || !dataLoadState.colors.loaded) {
+    try { await Promise.all([loadColors(), loadPosts()]); } catch {}
   }
 });
 

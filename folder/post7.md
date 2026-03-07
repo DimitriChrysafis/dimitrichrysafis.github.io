@@ -1,18 +1,15 @@
-# Physics-Based Particle Simulations: A Deep Dive
+# Small Physics Sim For Balls
 ### SRC: [https://github.com/DimitriChrysafis/BallDrawer](https://github.com/DimitriChrysafis/BallDrawer)
 
-
-## Verlet Integration Demonstrations
+## Demo
 
 <video width="1000" controls autoplay muted>  
   <source src="../media/post7/initial.mp4" type="video/mp4">  
   Your browser does not support the video tag.  
 </video>
 
-
 <br />
 <br />
-
 
 <div style="position: relative; width: 100%; padding-bottom: 56.25%; height: 0;">
   <iframe 
@@ -25,92 +22,81 @@
   </iframe> 
 </div>
 
-
-<br />
-<br />
-<br />
-
-
-## KEY IDEA HOW IT WORKS:
-
-Before each video is recorded, a complete physics simulation runs with predefined parameters. All particles begin as uniform red balls, which later map to colors from a target image. This document provides a comprehensive explanation of the mathematical foundations and implementation details powering these simulations.
-
-
-<br />
 <br />
 <br />
 
+The sim runs first.
+Then each ball gets mapped to a target color, so the final result looks more like a drawing system than a normal physics scene.
 
-## How Verlet Integration Works
+## The pipeline
 
-<br />
-
-The system evolves without explicit velocity tracking, relying entirely on position history.
-
-<br />
+This is the loop:
 
 <div>
 $$
-\begin{align*}
-\text{State}_t &= \{ \vec{x}_t, \vec{x}_{t-\Delta t}, \vec{a}_t \} \\
-\downarrow \\
-\vec{x}_{t+\Delta t} &= 2\vec{x}_t - \vec{x}_{t-\Delta t} + \vec{a}_t \Delta t^2
-\end{align*}
+\text{apply forces}
+\rightarrow
+\text{Verlet update}
+\rightarrow
+\text{substeps}
+\rightarrow
+\text{resolve collisions}
+\rightarrow
+\text{render}
 $$
 </div>
 
-<br />
-<br />
+The two main ideas are:
 
-### Formal derivation from Taylor Series
+- Verlet integration for motion
+- spatial hashing for fast collision checks
 
-<br />
+## Verlet integration
 
-We expand position $\vec{x}$ forward and backward in time around $t$:
-
-<br />
+I do not store velocity as the main state.
+I store current position, previous position, and acceleration.
 
 <div>
 $$
-\begin{cases} 
-\vec{x}(t+\Delta t) &= \vec{x}(t) + \vec{v}(t)\Delta t + \frac{1}{2}\vec{a}(t)\Delta t^2 + \frac{1}{6}\vec{b}(t)\Delta t^3 + \mathcal{O}(\Delta t^4) \\
-\vec{x}(t-\Delta t) &= \vec{x}(t) - \vec{v}(t)\Delta t + \frac{1}{2}\vec{a}(t)\Delta t^2 - \frac{1}{6}\vec{b}(t)\Delta t^3 + \mathcal{O}(\Delta t^4)
-\end{cases}
+\text{state}_t = \{\vec{x}_t,\; \vec{x}_{t-\Delta t},\; \vec{a}_t\}
 $$
 </div>
 
-<br />
-
-Summing the system cancels odd-order terms (Velocity $\vec{v}$ and Jerk $\vec{b}$):
-
-<br />
+Then I step forward with
 
 <div>
 $$
-\vec{x}(t+\Delta t) + \vec{x}(t-\Delta t) = 2\vec{x}(t) + \vec{a}(t)\Delta t^2 + \mathcal{O}(\Delta t^4)
+\boxed{\vec{x}_{t+\Delta t} = 2\vec{x}_t - \vec{x}_{t-\Delta t} + \vec{a}_t\Delta t^2}
 $$
 </div>
 
-<br />
-
-Rearranging for the next state $\vec{x}(t+\Delta t)$:
-
-<br />
+Read it like this:
 
 <div>
 $$
-\boxed{\vec{x}_{next} = 2\vec{x}_{curr} - \vec{x}_{prev} + \vec{a}_{curr} \Delta t^2}
+\text{next} = \text{current} + (\text{current} - \text{previous}) + \text{acceleration push}
 $$
 </div>
 
-<br />
-<br />
+So the particle keeps its motion, then acceleration bends it.
 
-### Impulse-Based Velocity approximation
+### Why this formula works
 
-While velocity is implicit, it can be approximated for damping or friction:
+Use Taylor expansion forward and backward in time:
 
-<br />
+<div>
+$$
+\begin{aligned}
+\vec{x}(t+\Delta t) &= \vec{x}(t) + \vec{v}(t)\Delta t + \frac12 \vec{a}(t)\Delta t^2 + \mathcal{O}(\Delta t^3) \\
+\vec{x}(t-\Delta t) &= \vec{x}(t) - \vec{v}(t)\Delta t + \frac12 \vec{a}(t)\Delta t^2 + \mathcal{O}(\Delta t^3)
+\end{aligned}
+$$
+</div>
+
+Add them and the velocity terms cancel.
+That gives the Verlet step.
+
+If I need velocity anyway, I estimate it with
 
 <div>
 $$
@@ -118,47 +104,36 @@ $$
 $$
 </div>
 
+That is enough for damping-type behavior.
 
-<br />
-<br />
-<br />
+## Why I use substeps
 
-
-## Temporal Stability
-
-<br />
-
-To maintain simpler collision logic at high speeds, we perform temporal supersampling.
-
-<br />
+One big frame step is too risky.
+Particles can tunnel through each other or through walls.
+So I split each frame into smaller physics steps.
 
 <div>
 $$
-\Delta T_{frame} = \frac{1}{60}s
+\Delta T_{frame} = \frac{1}{60}
+\qquad
+N = 8
+\qquad
+\Delta t = \frac{\Delta T_{frame}}{N}
 $$
 </div>
 
-<br />
+Diagram:
 
 <div>
 $$
-\text{Substeps } N = 8
+\text{one frame}
+\rightarrow
+\underbrace{\Delta t + \Delta t + \Delta t + \cdots + \Delta t}_{8\ \text{substeps}}
 $$
 </div>
 
-<br />
-
-<div>
-$$
-\Delta t = \frac{\Delta T_{frame}}{N} \approx 2.08 \text{ms}
-$$
-</div>
-
-<br />
-
-This ensures that particle displacement per step is smaller than the particle radius, preventing tunneling.
-
-<br />
+Smaller steps make the solver much more stable.
+Roughly, I want each move to stay smaller than a ball radius:
 
 <div>
 $$
@@ -166,46 +141,20 @@ $$
 $$
 </div>
 
-<br />
-<br />
-<br />
+## Collision response
 
-
-## Collision Response
-
-<br />
-
-Collision handling acts as a position constraint solver.
-
-<br />
-
-### 1. Separation Vector Analysis
-
-For any two particles $i$ and $j$:
-
-<br />
+I treat collisions as a position-fixing problem.
+For two balls $i$ and $j$:
 
 <div>
 $$
-\vec{\delta}_{ij} = \vec{x}_j - \vec{x}_i
+\vec{\delta}_{ij} = \vec{x}_j - \vec{x}_i,
+\qquad
+d_{ij} = \|\vec{\delta}_{ij}\|
 $$
 </div>
 
-<br />
-
-<div>
-$$
-d_{ij} = ||\vec{\delta}_{ij}||
-$$
-</div>
-
-<br />
-
-### 2. Constraint Violation Check
-
-We check if the distance is less than the sum of radii:
-
-<br />
+If the distance is too small, they overlap:
 
 <div>
 $$
@@ -213,13 +162,7 @@ C(\vec{x}_i, \vec{x}_j) = d_{ij} - (r_i + r_j) < 0
 $$
 </div>
 
-<br />
-
-### 3. Position Correction (Projection)
-
-If $C < 0$, we resolve by projecting particles out of the collision manifold along the normal $\hat{n}$.
-
-<br />
+Then I push them apart along the collision normal:
 
 <div>
 $$
@@ -227,100 +170,81 @@ $$
 $$
 </div>
 
-<br />
-
-The total penetration depth is $P = (r_i + r_j) - d_{ij}$.
-
-We distribute this correction equally (assuming equal mass):
-
-<br />
+The penetration depth is
 
 <div>
 $$
-\Delta \vec{x}_i = -\frac{P}{2} \hat{n}
+P = (r_i + r_j) - d_{ij}
 $$
 </div>
 
-<br />
+For equal-mass particles, I split the correction evenly:
 
 <div>
 $$
-\Delta \vec{x}_j = +\frac{P}{2} \hat{n}
+\Delta \vec{x}_i = -\frac{P}{2}\hat{n},
+\qquad
+\Delta \vec{x}_j = +\frac{P}{2}\hat{n}
 $$
 </div>
 
-<br />
+Picture:
 
 <div>
 $$
-\begin{bmatrix}
-\vec{x}_i' \\
-\vec{x}_j'
-\end{bmatrix}
-=
-\begin{bmatrix}
-\vec{x}_i \\
-\vec{x}_j
-\end{bmatrix}
-+
-\begin{bmatrix}
--0.5 P \hat{n} \\
-+0.5 P \hat{n}
-\end{bmatrix}
+\circ\!\!\!\!\!\circ
+\quad \Longrightarrow \quad
+\circ \qquad \circ
 $$
 </div>
 
+It is simple, but it is stable, and that matters more here.
 
-<br />
-<br />
-<br />
+## Spatial hashing
 
-
-## Spatial Hashing
-
-<br />
-
-Naive $O(N^2)$ checks are computationally prohibitive. We map the continuous simulation domain $\Omega \in \mathbb{R}^2$ to a discrete grid space $\mathbb{Z}^2$.
-
-<br />
-
-### Grid Basis
-
-<br />
+Checking every ball against every other ball is too slow.
+That is
 
 <div>
 $$
-\mathcal{G}_{size} = 2 \cdot r_{max} + \epsilon
+\mathcal{O}(N^2)
 $$
 </div>
 
-<br />
+So I bucket particles into a grid first.
 
-### Discrete Mapping Function
-
-<br />
+### Grid cell size
 
 <div>
 $$
-H(\vec{x}) : \mathbb{R}^2 \rightarrow \mathbb{Z}^2
+\mathcal{G}_{size} = 2r_{max} + \varepsilon
 $$
 </div>
 
-<br />
+### Hash from world space to grid space
 
 <div>
 $$
-H(x, y) = \left( \left\lfloor \frac{x}{\mathcal{G}_{size}} \right\rfloor, \left\lfloor \frac{y}{\mathcal{G}_{size}} \right\rfloor \right)
+H(x,y) = \left( \left\lfloor \frac{x}{\mathcal{G}_{size}} \right\rfloor, \left\lfloor \frac{y}{\mathcal{G}_{size}} \right\rfloor \right)
 $$
 </div>
 
-<br />
+So every particle lands in one cell.
+Then I only search nearby cells.
 
-### Adjacency Search
+Diagram:
 
-For a particle in cell $(u, v)$, we only compute constraints against set $S_{local}$:
+<div>
+$$
+\begin{matrix}
+(u-1,v+1) & (u,v+1) & (u+1,v+1) \\
+(u-1,v)   & (u,v)   & (u+1,v)   \\
+(u-1,v-1) & (u,v-1) & (u+1,v-1)
+\end{matrix}
+$$
+</div>
 
-<br />
+For a particle in cell $(u,v)$, I only test against particles in this $3 \times 3$ neighborhood:
 
 <div>
 $$
@@ -328,16 +252,20 @@ S_{local} = \bigcup_{i=-1}^{1} \bigcup_{j=-1}^{1} \text{Cell}(u+i, v+j)
 $$
 </div>
 
-<br />
+That is the difference between unusable and fast enough.
 
-This reduces the complexity regime from Quadratic to Linear:
+## What mattered most
 
-<br />
+This was not meant to be a perfect physics engine.
+It was meant to be:
 
-<div>
-$$
-\mathcal{O}(N^2) \rightarrow \mathcal{O}(N)
-$$
-</div>
+- stable
+- fast enough for lots of balls
+- easy to tune visually
 
-<br />
+Verlet gives smooth motion.
+Substeps keep it from blowing up.
+Position projection keeps overlaps clean.
+Spatial hashing keeps it fast.
+
+That was enough to make the demos work.
