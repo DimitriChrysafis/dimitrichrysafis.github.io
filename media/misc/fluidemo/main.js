@@ -144,7 +144,7 @@ async function main() {
       quality: qualityMode,
     };
 
-    renderingFolder.add(qualitySettings, 'quality', {
+    const qualityController = renderingFolder.add(qualitySettings, 'quality', {
       'Low (Potato)': 'low',
       'Medium': 'medium',
     }).name('Quality').onChange((value) => {
@@ -153,6 +153,8 @@ async function main() {
         renderer.setQualityMode(qualityMode);
       }
     });
+    qualityController.setValue('low');
+    qualityController.updateDisplay();
     
     renderingFolder.add({ boundingBoxEnabled: boundingBoxEnabled }, 'boundingBoxEnabled').name('Show Bounding Box').onChange((value) => {
       boundingBoxEnabled = value;
