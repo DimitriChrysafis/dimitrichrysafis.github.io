@@ -147,7 +147,8 @@ async function displayPosts() {
 
   posts.forEach(post => {
     const postCardTemplate = document.getElementById('post-card-template').content.cloneNode(true);
-    postCardTemplate.querySelector('.post-card').setAttribute('onclick', `navigateToPost('${post.filename}')`);
+    const action = post.demoUrl ? `navigateToDemo('${post.demoUrl}')` : `navigateToPost('${post.filename}')`;
+    postCardTemplate.querySelector('.post-card').setAttribute('onclick', action);
     postCardTemplate.querySelector('.post-title').textContent = post.title;
     postCardTemplate.querySelector('.post-meta').innerHTML = `${formatDate(post.date)} • ${post.author}`;
     postCardTemplate.querySelector('.post-bio').textContent = post.bio;
@@ -196,13 +197,18 @@ async function loadPost(filename) {
   document.body.classList.remove('resume-active');
   const header = document.querySelector('.header');
   if (header) header.style.display = 'flex';
+  const post = posts.find(p => p.filename === filename) || { title: filename, date: '', author: '' };
+  if (post.demoUrl) {
+    window.location.href = post.demoUrl;
+    return;
+  }
+
   let markdown = '';
   try {
     markdown = await fetchText(`folder/${filename}`);
   } catch (e) {
     markdown = `# Missing post\n\nCould not load folder/${filename}.\n\n${localServerHint()}`.trim();
   }
-  const post = posts.find(p => p.filename === filename) || { title: filename, date: '', author: '' };
 
   const mainContent = document.getElementById('main-content');
   const postPageTemplate = document.getElementById('post-page-template').content.cloneNode(true);
@@ -238,6 +244,10 @@ async function renderMath() {
 
 function navigateToPost(filename) {
   window.location.hash = `post/${filename}`;
+}
+
+function navigateToDemo(url) {
+  window.location.href = url;
 }
 
 function navigateToProjects() {
