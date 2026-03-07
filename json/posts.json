@@ -12,6 +12,18 @@
     "demoUrl": "media/misc/fluidemo/index.html"
   },
   {
+    "title": "New Updated Fourier",
+    "filename": "post10.md",
+    "date": "2026-3-9",
+    "author": "Post 10",
+    "bio": "A new live Fourier drawing demo.",
+    "categories": [
+      "Mathematics",
+      "Computer"
+    ],
+    "demoUrl": "media/post10/index.html"
+  },
+  {
     "title": "Sphere Packing",
     "filename": "post8.md",
     "date": "2025-3-19",
