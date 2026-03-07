@@ -214,47 +214,6 @@ body {
     line-height: 1.5;
 }
 
-.written-page {
-    max-width: 900px;
-    margin: 40px auto;
-    padding: 40px;
-    background: var(--card);
-    border: 2px solid var(--border);
-}
-
-.written-item {
-    padding: 24px 0;
-    border-top: 1px solid #ddd;
-    cursor: pointer;
-    transition: background 0.2s ease;
-}
-
-.written-item:first-child {
-    padding-top: 0;
-    border-top: none;
-}
-
-.written-item:hover {
-    background: rgba(0, 0, 0, 0.03);
-}
-
-.written-title {
-    font-size: 18px;
-    margin-bottom: 6px;
-}
-
-.written-date {
-    font-size: 12px;
-    color: #666;
-    margin-bottom: 12px;
-}
-
-.written-content {
-    font-size: 14px;
-    line-height: 1.7;
-    white-space: pre-wrap;
-}
-
 .back-button {
     margin-bottom: 24px;
 }
@@ -263,44 +222,6 @@ body {
     margin-bottom: 32px;
     padding-bottom: 24px;
     border-bottom: 1px solid #ddd;
-}
-
-.mini-posts {
-    margin-top: 40px;
-    padding-top: 20px;
-    border-top: 2px solid var(--border);
-    width: calc(100%);
-    height: auto; /* Make height 50% of its parent's height */
-}
-
-
-.mini-post {
-    margin-bottom: 20px;
-    padding: 15px;
-    background: var(--card);
-    border: 1px solid var(--border);
-    transition: background 0.2s ease, transform 0.2s ease;
-
-}
-
-
-
-.mini-title {
-    font-size: 16px;
-    margin-bottom: 8px;
-    color: var(--text);
-}
-
-.mini-date {
-    font-size: 12px;
-    color: #666;
-    margin-bottom: 12px;
-}
-
-.mini-content {
-    font-size: 14px;
-    line-height: 1.5;
-    color: var(--text);
 }
 
 .sparkle {
