@@ -1,4 +1,4 @@
-import { numParticlesMax, renderUniformsViews } from '../common.js';
+import { numParticlesMax, renderUniformsViews } from '../common.js?v=20260309e';
 
 export const mlsmpmParticleStructSize = 80
 

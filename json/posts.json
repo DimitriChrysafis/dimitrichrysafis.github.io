@@ -1,27 +1,27 @@
 [
   {
     "title": "3D Fluid Simulator",
-    "filename": "post9.md",
+    "filename": "post10.md",
     "date": "2026-3-8",
-    "author": "Post 9",
+    "author": "Post 10",
     "bio": "A live WebGPU MLS-MPM fluid demo running in the browser.",
     "categories": [
       "Computer",
       "Physics"
     ],
-    "demoUrl": "media/misc/fluidemo/index.html"
+    "demoUrl": "media/post10/index.html"
   },
   {
     "title": "New Updated Fourier",
-    "filename": "post10.md",
+    "filename": "post9.md",
     "date": "2026-3-9",
-    "author": "Post 10",
+    "author": "Post 9",
     "bio": "A new live Fourier drawing demo.",
     "categories": [
       "Mathematics",
       "Computer"
     ],
-    "demoUrl": "media/post10/index.html"
+    "demoUrl": "media/post9/index.html"
   },
   {
     "title": "Sphere Packing",

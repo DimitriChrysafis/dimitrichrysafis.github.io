@@ -10,7 +10,6 @@ export class FluidRenderer {
         this.posvelBuffer = posvelBuffer
         this.renderUniformBuffer = renderUniformBuffer
         this.wireframeEnabled = false
-        this.boundingBoxEnabled = true
         this.qualityMode = 'low'
         this.clearColor = { r: 0.8, g: 0.8, b: 0.8, a: 1.0 }
         this.cachedColorView = null
@@ -18,12 +17,12 @@ export class FluidRenderer {
     }
 
     async initialize() {
-        const sphere = await fetch('render/sphere.wgsl').then(r => r.text());
-        const wireframe = await fetch('render/wireframe.wgsl').then(r => r.text());
-        const boundingBox = await fetch('render/boundingBox.wgsl').then(r => r.text());
+        const sphere = await fetch('render/sphere.wgsl?v=20260309i').then(r => r.text());
+        const wireframe = await fetch('render/wireframe.wgsl?v=20260309i').then(r => r.text());
+        const wall = await fetch('render/wall.wgsl?v=20260309i').then(r => r.text());
         const sphereModule = this.device.createShaderModule({ code: sphere })
         const wireframeModule = this.device.createShaderModule({ code: wireframe })
-        const boundingBoxModule = this.device.createShaderModule({ code: boundingBox })
+        const wallModule = this.device.createShaderModule({ code: wall })
 
         const sphereBindGroupLayout = this.device.createBindGroupLayout({
             entries: [
@@ -41,19 +40,6 @@ export class FluidRenderer {
         })
         const spherePipelineLayout = this.device.createPipelineLayout({
             bindGroupLayouts: [sphereBindGroupLayout],
-        })
-
-        const boundingBoxBindGroupLayout = this.device.createBindGroupLayout({
-            entries: [
-                {
-                    binding: 0,
-                    visibility: GPUShaderStage.VERTEX,
-                    buffer: { type: 'uniform' },
-                },
-            ],
-        })
-        const boundingBoxPipelineLayout = this.device.createPipelineLayout({
-            bindGroupLayouts: [boundingBoxBindGroupLayout],
         })
 
         this.spherePipeline = this.device.createRenderPipeline({
@@ -91,35 +77,18 @@ export class FluidRenderer {
             }
         })
 
-        this.boundingBoxPipeline = this.device.createRenderPipeline({
-            label: 'bounding box pipeline', 
-            layout: boundingBoxPipelineLayout, 
-            vertex: { module: boundingBoxModule }, 
+        this.wallPipeline = this.device.createRenderPipeline({
+            label: 'wall pipeline',
+            layout: 'auto',
+            vertex: { module: wallModule },
             fragment: {
-                module: boundingBoxModule, 
-                targets: [{
-                    format: this.presentationFormat,
-                    blend: {
-                        color: {
-                            srcFactor: 'src-alpha',
-                            dstFactor: 'one-minus-src-alpha',
-                            operation: 'add',
-                        },
-                        alpha: {
-                            srcFactor: 'one',
-                            dstFactor: 'one-minus-src-alpha',
-                            operation: 'add',
-                        },
-                    },
-                }]
-            }, 
-            primitive: { 
-                topology: 'triangle-list',
-                stripIndexFormat: undefined
+                module: wallModule,
+                targets: [{ format: this.presentationFormat }]
             },
+            primitive: { topology: 'triangle-list', cullMode: 'none' },
             depthStencil: {
                 depthWriteEnabled: true,
-                depthCompare: 'less-equal',
+                depthCompare: 'less',
                 format: 'depth32float'
             }
         })
@@ -149,13 +118,14 @@ export class FluidRenderer {
             ]
         })
 
-        this.boundingBoxBindGroup = this.device.createBindGroup({
-            label: 'bounding box bind group', 
-            layout: boundingBoxBindGroupLayout,  
+        this.wallBindGroup = this.device.createBindGroup({
+            label: 'wall bind group',
+            layout: this.wallPipeline.getBindGroupLayout(0),
             entries: [
                 { binding: 0, resource: { buffer: this.renderUniformBuffer }},
             ]
         })
+
     }
 
     setWireframeMode(enabled) {
@@ -171,10 +141,6 @@ export class FluidRenderer {
             this.wireframeEnabled = false;
             this.clearColor = { r: 0.8, g: 0.8, b: 0.8, a: 1.0 }
         }
-    }
-
-    setBoundingBoxMode(enabled) {
-        this.boundingBoxEnabled = enabled;
     }
 
     execute(context, commandEncoder, numParticles) {
@@ -204,11 +170,9 @@ export class FluidRenderer {
 
         const renderPassEncoder = commandEncoder.beginRenderPass(renderPassDescriptor);
 
-        if (this.boundingBoxEnabled) {
-            renderPassEncoder.setBindGroup(0, this.boundingBoxBindGroup);
-            renderPassEncoder.setPipeline(this.boundingBoxPipeline);
-            renderPassEncoder.draw(54);
-        }
+        renderPassEncoder.setBindGroup(0, this.wallBindGroup);
+        renderPassEncoder.setPipeline(this.wallPipeline);
+        renderPassEncoder.draw(31 * 36);
 
         if (this.wireframeEnabled) {
             renderPassEncoder.setBindGroup(0, this.wireframeBindGroup);
