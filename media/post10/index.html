@@ -1,13 +1,40 @@
-<!doctype html>
-<html>
+<!DOCTYPE html>
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>◌</title>
-    <script type="module" crossorigin src="./assets/index-DVHWE60j.js"></script>
-    <link rel="stylesheet" crossorigin href="./assets/index-7Ab37ubu.css">
+    <title>WebGPU-Ocean-JS</title>
+    <style>
+      body, html {
+        height: 100%;
+        width: 100%;
+        margin: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      
+      canvas {
+        width: 100%;
+        height: 100%;
+      }
+
+      #debug-info {
+        position: fixed; 
+      }
+      
+      * {
+        user-select: none; 
+      }
+    </style>
   </head>
   <body>
-    <div id="app"></div>
+    <div id="debug-info">
+      <span id="error-reason"></span>
+    </div>
+    <canvas id="fluidCanvas"></canvas>
+    <script src="https://unpkg.com/stats.js@0.17.0/build/stats.min.js"></script>
+    <script src="https://unpkg.com/dat.gui@0.7.9/build/dat.gui.min.js"></script>
+    <script type="module" src="main.js?v=20260309i"></script>
   </body>
 </html>

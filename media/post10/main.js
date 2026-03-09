@@ -1,7 +1,7 @@
-import { Camera } from './camera.js'
-import { MLSMPMSimulator, mlsmpmParticleStructSize } from './mls-mpm/mls-mpm.js'
-import { FluidRenderer } from './render/fluidRender.js'
-import { renderUniformsValues, renderUniformsViews, numParticlesMax } from './common.js'
+import { Camera } from './camera.js?v=20260309i'
+import { MLSMPMSimulator, mlsmpmParticleStructSize } from './mls-mpm/mls-mpm.js?v=20260309e'
+import { FluidRenderer } from './render/fluidRender.js?v=20260309i'
+import { renderUniformsValues, renderUniformsViews, numParticlesMax } from './common.js?v=20260309e'
 
 const BOX_WIDTH = 100;
 const BOX_HEIGHT = 100;
@@ -9,16 +9,23 @@ const BOX_DEPTH = 100;
 
 async function init() {
   const canvas = document.querySelector('canvas');
+  const userAgent = navigator.userAgent.toLowerCase();
+  const isZen = userAgent.includes('zen');
+  const isFirefoxFamily = userAgent.includes('firefox') || isZen;
 
   if (!navigator.gpu) {
-    alert("WebGPU is not supported on your browser.");
-    throw new Error();
+    if (isZen) {
+      throw new Error('Zen Browser does not expose WebGPU for this demo. Use Brave/Chrome, or a Firefox build with WebGPU support enabled.');
+    }
+    if (isFirefoxFamily) {
+      throw new Error('This Firefox-based browser is not exposing WebGPU here. Try Brave/Chrome, or a compatible Firefox build with WebGPU enabled.');
+    }
+    throw new Error('WebGPU is not supported on your browser.');
   }
 
   const adapter = await navigator.gpu.requestAdapter();
   if (!adapter) {
-    alert("Adapter is not available.");
-    throw new Error();
+    throw new Error('WebGPU adapter is not available in this browser session.');
   }
 
   const device = await adapter.requestDevice({
@@ -101,10 +108,7 @@ async function main() {
     let boxDepth = 100;
     
     let qualityMode = 'low';
-    let boundingBoxEnabled = true;
-    
-    renderer.setBoundingBoxMode(boundingBoxEnabled);
-    
+
     renderer.setQualityMode(qualityMode);
     
     const gui = new dat.GUI();
@@ -156,13 +160,6 @@ async function main() {
     qualityController.setValue('low');
     qualityController.updateDisplay();
     
-    renderingFolder.add({ boundingBoxEnabled: boundingBoxEnabled }, 'boundingBoxEnabled').name('Show Bounding Box').onChange((value) => {
-      boundingBoxEnabled = value;
-      if (renderer && renderer.setBoundingBoxMode) {
-        renderer.setBoundingBoxMode(boundingBoxEnabled);
-      }
-    });
-    
     renderingFolder.open();
     
     function addMoreParticles() {
@@ -201,7 +198,7 @@ async function main() {
     let realBoxSize = [...initBoxSize];
     simulator.reset(currentParticleCount, initBoxSize);
     
-    camera.reset(canvasElement, 150, [BOX_WIDTH / 2, BOX_HEIGHT / 4, BOX_DEPTH / 2], fov, zoomRate);
+    camera.reset(canvasElement, 145, [BOX_WIDTH / 2, 18, 68], fov, zoomRate);
 
     let boxWidthRatio = 1.0;
     let uniformsNeedUpdate = true;
@@ -254,6 +251,18 @@ async function main() {
     requestAnimationFrame(frame);
     
   } catch (error) {
+    const errorLog = document.getElementById('error-reason');
+    const message = error instanceof Error ? error.message : String(error);
+    if (errorLog) {
+      errorLog.textContent = message;
+      errorLog.style.color = 'red';
+      errorLog.style.background = 'rgba(255,255,255,0.85)';
+      errorLog.style.padding = '8px 12px';
+      errorLog.style.borderRadius = '6px';
+      errorLog.style.maxWidth = '80vw';
+      errorLog.style.zIndex = '9999';
+    }
+    console.error(error);
   }
 }
 
