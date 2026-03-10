@@ -5,12 +5,20 @@ struct Cell {
     mass: i32, 
 }
 
+struct PistonState {
+    wall_velocity_z: f32,
+    boundary_width: f32,
+    pad0: f32,
+    pad1: f32,
+}
+
 override fixed_point_multiplier: f32; 
 override dt: f32; 
 
 @group(0) @binding(0) var<storage, read_write> cells: array<Cell>;
 @group(0) @binding(1) var<uniform> real_box_size: vec3f;
 @group(0) @binding(2) var<uniform> init_box_size: vec3f;
+@group(0) @binding(3) var<uniform> piston_state: PistonState;
 
 fn encodeFixedPoint(floating_point: f32) -> i32 {
 	return i32(floating_point * fixed_point_multiplier);
@@ -40,6 +48,15 @@ fn updateGrid(@builtin(global_invocation_id) id: vec3<u32>) {
             if (x < 2 || x > i32(ceil(real_box_size.x) - 3)) { cells[id.x].vx = 0; } 
             if (y < 2 || y > i32(ceil(real_box_size.y) - 3)) { cells[id.x].vy = 0; }
             if (z < 2 || z > i32(ceil(real_box_size.z) - 3)) { cells[id.x].vz = 0; }
+
+            let piston_wall_z = real_box_size.z - 4.0;
+            let wall_distance = max(piston_wall_z - f32(z), 0.0);
+            if (piston_state.wall_velocity_z < 0.0 && wall_distance < piston_state.boundary_width) {
+                let influence = clamp((piston_state.boundary_width - wall_distance) / piston_state.boundary_width, 0.0, 1.0);
+                let wall_vz = mix(float_v.z, piston_state.wall_velocity_z, influence);
+                let target_vz = min(float_v.z, wall_vz);
+                cells[id.x].vz = encodeFixedPoint(target_vz);
+            }
         }
     }
 }

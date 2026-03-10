@@ -24,6 +24,8 @@ struct RenderUniforms {
     view_matrix: mat4x4f,
     inv_view_matrix: mat4x4f,
     box_size: vec3f,
+    render_z_offset: f32,
+    box_anchor_z: f32,
 }
 
 struct PosVel {
@@ -51,7 +53,7 @@ fn vs(
     let corner = vec3(corner_positions[vertex_index] * uniforms.sphere_size, 0.0);
     let uv = corner_positions[vertex_index] + 0.5;
 
-    let real_position = particles[instance_index].position;
+    let real_position = particles[instance_index].position + vec3f(0.0, 0.0, uniforms.render_z_offset);
     let view_position = (uniforms.view_matrix * vec4f(real_position, 1.0)).xyz;
 
     let out_position = uniforms.projection_matrix * vec4f(view_position + corner, 1.0);
