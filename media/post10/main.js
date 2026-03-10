@@ -1,7 +1,7 @@
-import { Camera } from './camera.js?v=20260310l'
-import { MLSMPMSimulator, mlsmpmParticleStructSize } from './mls-mpm/mls-mpm.js?v=20260310l'
+import { Camera } from './camera.js?v=20260310m'
+import { MLSMPMSimulator, mlsmpmParticleStructSize } from './mls-mpm/mls-mpm.js?v=20260310m'
 import { FluidRenderer } from './render/fluidRender.js?v=20260310k'
-import { renderUniformsValues, renderUniformsViews, numParticlesMax } from './common.js?v=20260310l'
+import { renderUniformsValues, renderUniformsViews, numParticlesMax } from './common.js?v=20260310m'
 
 const BOX_WIDTH = 100;
 const BOX_HEIGHT = 100;
@@ -12,7 +12,7 @@ const BOX_LENGTH = 220;
 const PISTON_MIN_LENGTH = 120;
 const PISTON_PERIOD_SECONDS = (2 * Math.PI) / 1.2;
 const FLUID_LENGTH = 100;
-const PISTON_POWER = 1.0;
+const PISTON_POWER = 0.8;
 const PUSH_WIDTH = 3.0;
 const PARTICLE_COUNT = 400000;
 const QUALITY_MODE = 'low';
@@ -141,7 +141,7 @@ async function main() {
       previousDepth = realBoxSize[2];
       pistonTime = Math.PI * 0.5;
       if (resetCamera) {
-        camera.reset(canvasElement, 160, [BOX_WIDTH / 2, 18, getCameraTargetZ()], fov, zoomRate);
+        camera.reset(canvasElement, 172, [BOX_WIDTH / 2, 18, getCameraTargetZ()], fov, zoomRate);
         camera.setCameraMode('orbit');
       }
       updateRenderUniforms();
