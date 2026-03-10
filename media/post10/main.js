@@ -1,4 +1,4 @@
-import { Camera } from './camera.js?v=20260309i'
+import { Camera } from './camera.js?v=20260310a'
 import { MLSMPMSimulator, mlsmpmParticleStructSize } from './mls-mpm/mls-mpm.js?v=20260309e'
 import { FluidRenderer } from './render/fluidRender.js?v=20260309i'
 import { renderUniformsValues, renderUniformsViews, numParticlesMax } from './common.js?v=20260309e'

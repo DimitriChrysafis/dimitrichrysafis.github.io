@@ -188,7 +188,7 @@ export class Camera {
         this.target = target;
         this.zoomRate = zoomRate;
 
-        this.currentXtheta = 0.55;
+        this.currentXtheta = 0.55 + Math.PI;
         this.currentYtheta = -Math.PI / 14;
         this.maxYTheta = 0;
         this.minYTheta = -0.99 * Math.PI / 2;

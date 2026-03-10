@@ -4,7 +4,7 @@
   "description": "WebGPU Ocean Fluid Simulation - Pure JavaScript Version",
   "type": "module",
   "scripts": {
-    "serve": "python3 -m http.server 8080 || python -m http.server 8080 || npx serve ."
+    "serve": "python3 -m http.server 8000 || python -m http.server 8000 || npx serve -l 8000 ."
   },
   "dependencies": {
     "stats.js": "^0.17.0"
