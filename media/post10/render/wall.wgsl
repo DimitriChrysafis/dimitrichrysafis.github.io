@@ -13,6 +13,8 @@ struct RenderUniforms {
     view_matrix: mat4x4f,
     inv_view_matrix: mat4x4f,
     box_size: vec3f,
+    render_z_offset: f32,
+    box_anchor_z: f32,
 }
 
 struct Piece {
@@ -66,35 +68,35 @@ fn actuator_lane_x(index: u32) -> f32 {
 }
 
 fn actuator_machine_z(index: u32) -> f32 {
-    let zs = array<f32, 2>(174.5, 174.5);
-    return zs[index];
+    return uniforms.box_anchor_z + 14.5;
 }
 
 fn frame_piece(index: u32) -> Piece {
+    let anchor_z = uniforms.box_anchor_z;
     if (index == 1u) {
         return Piece(
-            vec3f(3.0, 0.0, 166.0),
-            vec3f(97.0, 5.5, 192.0),
+            vec3f(3.0, 0.0, anchor_z + 6.0),
+            vec3f(97.0, 5.5, anchor_z + 32.0),
             KIND_HEADER
         );
     }
     if (index == 2u) {
         return Piece(
-            vec3f(5.5, 5.5, 170.0),
-            vec3f(25.5, 27.5, 190.0),
+            vec3f(5.5, 5.5, anchor_z + 10.0),
+            vec3f(25.5, 27.5, anchor_z + 30.0),
             KIND_FRAME
         );
     }
     if (index == 3u) {
         return Piece(
-            vec3f(74.5, 5.5, 170.0),
-            vec3f(94.5, 27.5, 190.0),
+            vec3f(74.5, 5.5, anchor_z + 10.0),
+            vec3f(94.5, 27.5, anchor_z + 30.0),
             KIND_FRAME
         );
     }
     return Piece(
-        vec3f(25.5, 18.0, 177.0),
-        vec3f(74.5, 24.0, 185.0),
+        vec3f(25.5, 18.0, anchor_z + 17.0),
+        vec3f(74.5, 24.0, anchor_z + 25.0),
         KIND_HEADER
     );
 }
@@ -415,10 +417,11 @@ fn vs(@builtin(vertex_index) vertex_index: u32) -> VertexOutput {
     let uv = quad_corner(quad_index);
     let world_position = face_position(piece, face, uv);
     let world_normal = face_normal(face);
-    let view_position = uniforms.view_matrix * vec4f(world_position, 1.0);
+    let shifted_world_position = world_position + vec3f(0.0, 0.0, uniforms.render_z_offset);
+    let view_position = uniforms.view_matrix * vec4f(shifted_world_position, 1.0);
     let clip_position = uniforms.projection_matrix * view_position;
 
-    return VertexOutput(clip_position, world_position, world_normal, piece.kind);
+    return VertexOutput(clip_position, shifted_world_position, world_normal, piece.kind);
 }
 
 @fragment

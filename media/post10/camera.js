@@ -1,5 +1,5 @@
 import { mat4, vec3 } from 'https://unpkg.com/wgpu-matrix@3.4.0/dist/3.x/wgpu-matrix.module.js'
-import { renderUniformsValues, renderUniformsViews } from './common.js?v=20260309e'
+import { renderUniformsValues, renderUniformsViews } from './common.js?v=20260310m'
 
 export class Camera {
     constructor (canvasElement) {
@@ -188,7 +188,7 @@ export class Camera {
         this.target = target;
         this.zoomRate = zoomRate;
 
-        this.currentXtheta = 0.55 + Math.PI;
+        this.currentXtheta = 0.32 + Math.PI;
         this.currentYtheta = -Math.PI / 14;
         this.maxYTheta = 0;
         this.minYTheta = -0.99 * Math.PI / 2;
