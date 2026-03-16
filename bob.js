@@ -1,4 +1,3 @@
-// test
 let posts = [];
 let colors = {};
 const dataLoadState = {
