@@ -14,8 +14,10 @@
         canvas { width: 100vw; height: 100vh; display: block; }
     </style>
 </head>
-<body>
+<body data-analytics-page="demo:post6:newton" data-analytics-page-type="project" data-analytics-project="post6" data-analytics-project-title="Newton Fractal">
     <canvas id="glCanvas"></canvas>
+    <script src="/analytics-config.js"></script>
+    <script src="/analytics.js"></script>
     <script>
         const canvas = document.getElementById('glCanvas');
         const gl = canvas.getContext('webgl');
