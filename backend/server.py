@@ -243,7 +243,15 @@ class AnalyticsBackend:
         request = Request(
             self.discord_webhook_url,
             data=json.dumps(payload).encode("utf-8"),
-            headers={"content-type": "application/json"},
+            headers={
+                "content-type": "application/json",
+                "accept": "application/json,text/plain,*/*",
+                "user-agent": (
+                    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
+                    "AppleWebKit/537.36 (KHTML, like Gecko) "
+                    "Chrome/134.0.0.0 Safari/537.36"
+                ),
+            },
             method="POST",
         )
         try:
