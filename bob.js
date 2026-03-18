@@ -5,6 +5,19 @@ const dataLoadState = {
   colors: { loaded: false, error: null }
 };
 
+function postSlug(filename) {
+  return String(filename || '').replace(/\.md$/i, '');
+}
+
+function analyticsEnabled() {
+  return Boolean(window.siteAnalytics && window.siteAnalytics.enabled);
+}
+
+function syncAnalyticsPage(page) {
+  if (!analyticsEnabled() || typeof window.siteAnalytics.virtualPage !== 'function') return;
+  window.siteAnalytics.virtualPage(page);
+}
+
 function localServerHint() {
   if (window.location.protocol !== 'file:') return '';
   return [
@@ -128,6 +141,7 @@ async function displayPosts() {
   document.body.classList.remove('resume-active');
   const header = document.querySelector('.header');
   if (header) header.style.display = 'flex';
+  document.title = "Dimitri's Blog";
 
   if (!dataLoadState.posts.loaded) await loadPosts();
   if (!dataLoadState.colors.loaded) await loadColors();
@@ -165,6 +179,12 @@ async function displayPosts() {
 
   mainContent.innerHTML = '';
   mainContent.appendChild(postGridTemplate);
+  syncAnalyticsPage({
+    pageId: window.location.hash === '#projects' ? 'projects' : 'home',
+    pageType: 'listing',
+    title: document.title,
+    route: window.location.hash ? window.location.hash.slice(1) : 'home'
+  });
 }
 
 function fixMediaPaths(rootEl) {
@@ -213,6 +233,7 @@ async function loadPost(filename) {
 
   const mainContent = document.getElementById('main-content');
   const postPageTemplate = document.getElementById('post-page-template').content.cloneNode(true);
+  document.title = `${post.title || filename} | Dimitri's Blog`;
 
   postPageTemplate.querySelector('.post-header h1').textContent = post.title || filename;
 
@@ -231,6 +252,14 @@ async function loadPost(filename) {
   mainContent.appendChild(postPageTemplate);
 
   await renderMath();
+  syncAnalyticsPage({
+    pageId: `post:${postSlug(filename)}`,
+    pageType: 'post',
+    projectId: postSlug(filename),
+    projectTitle: post.title || filename,
+    title: document.title,
+    route: `post/${filename}`
+  });
 }
 
 async function renderMath() {
