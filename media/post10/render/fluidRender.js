@@ -9,22 +9,19 @@ export class FluidRenderer {
         this.presentationFormat = presentationFormat
         this.posvelBuffer = posvelBuffer
         this.renderUniformBuffer = renderUniformBuffer
-        this.wireframeEnabled = false
-        this.qualityMode = 'low'
+        this.boundaryVisible = true
         this.clearColor = { r: 0.8, g: 0.8, b: 0.8, a: 1.0 }
         this.cachedColorView = null
         this.lastTexture = null
     }
 
     async initialize() {
-        const sphere = await fetch('render/sphere.wgsl?v=20260310k').then(r => r.text());
         const wireframe = await fetch('render/wireframe.wgsl?v=20260310k').then(r => r.text());
         const wall = await fetch('render/wall.wgsl?v=20260310k').then(r => r.text());
-        const sphereModule = this.device.createShaderModule({ code: sphere })
         const wireframeModule = this.device.createShaderModule({ code: wireframe })
         const wallModule = this.device.createShaderModule({ code: wall })
 
-        const sphereBindGroupLayout = this.device.createBindGroupLayout({
+        const particleBindGroupLayout = this.device.createBindGroupLayout({
             entries: [
                 {
                     binding: 0,
@@ -38,29 +35,13 @@ export class FluidRenderer {
                 },
             ],
         })
-        const spherePipelineLayout = this.device.createPipelineLayout({
-            bindGroupLayouts: [sphereBindGroupLayout],
-        })
-
-        this.spherePipeline = this.device.createRenderPipeline({
-            label: 'sphere pipeline', 
-            layout: spherePipelineLayout, 
-            vertex: { module: sphereModule }, 
-            fragment: {
-                module: sphereModule, 
-                targets: [{ format: this.presentationFormat }]
-            }, 
-            primitive: { topology: 'triangle-list' },
-            depthStencil: {
-                depthWriteEnabled: true, 
-                depthCompare: 'less',
-                format: 'depth32float'
-            }
+        const particlePipelineLayout = this.device.createPipelineLayout({
+            bindGroupLayouts: [particleBindGroupLayout],
         })
 
         this.wireframePipeline = this.device.createRenderPipeline({
             label: 'wireframe pipeline', 
-            layout: spherePipelineLayout, 
+            layout: particlePipelineLayout, 
             vertex: { module: wireframeModule }, 
             fragment: {
                 module: wireframeModule, 
@@ -100,18 +81,9 @@ export class FluidRenderer {
         })
         this.depthTestTextureView = depthTestTexture.createView()
 
-        this.sphereBindGroup = this.device.createBindGroup({
-            label: 'sphere bind group', 
-            layout: sphereBindGroupLayout,  
-            entries: [
-                { binding: 0, resource: { buffer: this.posvelBuffer }},
-                { binding: 1, resource: { buffer: this.renderUniformBuffer }},
-            ]
-        })
-
         this.wireframeBindGroup = this.device.createBindGroup({
             label: 'wireframe bind group', 
-            layout: sphereBindGroupLayout,  
+            layout: particleBindGroupLayout,  
             entries: [
                 { binding: 0, resource: { buffer: this.posvelBuffer }},
                 { binding: 1, resource: { buffer: this.renderUniformBuffer }},
@@ -128,19 +100,8 @@ export class FluidRenderer {
 
     }
 
-    setWireframeMode(enabled) {
-        this.wireframeEnabled = enabled;
-    }
-
-    setQualityMode(mode) {
-        this.qualityMode = mode;
-        if (mode === 'low') {
-            this.wireframeEnabled = true;
-            this.clearColor = { r: 0.8, g: 0.8, b: 0.8, a: 1.0 }
-        } else {
-            this.wireframeEnabled = false;
-            this.clearColor = { r: 0.8, g: 0.8, b: 0.8, a: 1.0 }
-        }
+    setBoundaryVisible(visible) {
+        this.boundaryVisible = visible;
     }
 
     execute(context, commandEncoder, numParticles) {
@@ -170,19 +131,15 @@ export class FluidRenderer {
 
         const renderPassEncoder = commandEncoder.beginRenderPass(renderPassDescriptor);
 
-        renderPassEncoder.setBindGroup(0, this.wallBindGroup);
-        renderPassEncoder.setPipeline(this.wallPipeline);
-        renderPassEncoder.draw(31 * 36);
-
-        if (this.wireframeEnabled) {
-            renderPassEncoder.setBindGroup(0, this.wireframeBindGroup);
-            renderPassEncoder.setPipeline(this.wireframePipeline);
-            renderPassEncoder.draw(96, numParticles);
-        } else {
-            renderPassEncoder.setBindGroup(0, this.sphereBindGroup);
-            renderPassEncoder.setPipeline(this.spherePipeline);
-            renderPassEncoder.draw(6, numParticles);
+        if (this.boundaryVisible) {
+            renderPassEncoder.setBindGroup(0, this.wallBindGroup);
+            renderPassEncoder.setPipeline(this.wallPipeline);
+            renderPassEncoder.draw(31 * 36);
         }
+
+        renderPassEncoder.setBindGroup(0, this.wireframeBindGroup);
+        renderPassEncoder.setPipeline(this.wireframePipeline);
+        renderPassEncoder.draw(96, numParticles);
 
         renderPassEncoder.end();
     }

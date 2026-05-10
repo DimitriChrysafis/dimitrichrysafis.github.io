@@ -85,9 +85,8 @@ async function loadTemplates() {
 <template id="post-card-template">
   <article class="post-card" onclick="navigateToPost('{{filename}}')">
     <h2 class="post-title">{{title}}</h2>
-    <div class="post-meta">{{date}} • {{author}}</div>
+    <div class="post-meta">{{date}}</div>
     <div class="post-bio">{{bio}}</div>
-    <div class="categories">{{categories}}</div>
   </article>
 </template>
 
@@ -99,7 +98,7 @@ async function loadTemplates() {
     </div>
     <header class="post-header">
       <h1>{{postTitle}}</h1>
-      <div class="post-meta">{{postDate}} • {{postAuthor}}</div>
+      <div class="post-meta">{{postDate}}</div>
     </header>
     <div class="markdown-content">{{postContent}}</div>
   </article>
@@ -124,6 +123,27 @@ async function displayLanding() {
   await displayPosts();
 }
 
+function setPostCardImage(card, postNumber) {
+  const extensions = ['gif', 'png', 'webp', 'jpg', 'jpeg'];
+  let extensionIndex = 0;
+
+  const tryNextImage = () => {
+    if (extensionIndex >= extensions.length) return;
+
+    const imageUrl = `media/post-images/${postNumber}.${extensions[extensionIndex]}`;
+    const image = new Image();
+    extensionIndex += 1;
+
+    image.onload = () => {
+      card.style.backgroundImage = `url('${imageUrl}')`;
+    };
+    image.onerror = tryNextImage;
+    image.src = imageUrl;
+  };
+
+  tryNextImage();
+}
+
 async function displayPosts() {
   document.body.classList.remove('resume-active');
   const header = document.querySelector('.header');
@@ -146,20 +166,17 @@ async function displayPosts() {
   const postGridTemplate = document.getElementById('post-grid-template').content.cloneNode(true);
   const postGrid = postGridTemplate.querySelector('.posts-grid');
 
-  posts.forEach(post => {
+  posts.forEach((post, i) => {
     const postCardTemplate = document.getElementById('post-card-template').content.cloneNode(true);
     const action = post.demoUrl ? `navigateToDemo('${post.demoUrl}')` : `navigateToPost('${post.filename}')`;
     const postCard = postCardTemplate.querySelector('.post-card');
     postCard.setAttribute('onclick', action);
     postCardTemplate.querySelector('.post-title').textContent = post.title;
-    postCardTemplate.querySelector('.post-meta').innerHTML = `${formatDate(post.date)} • ${post.author}`;
+    postCardTemplate.querySelector('.post-meta').textContent = formatDate(post.date);
     postCardTemplate.querySelector('.post-bio').textContent = post.bio;
-
-    const categories = post.categories.map(category => {
-      const color = colors[category] || 'gray'; // Default color if category not in colors.json
-      return `<span class="category" style="background-color: ${color}; color: white;">${category}</span>`;
-    }).join('');
-    postCardTemplate.querySelector('.categories').innerHTML = categories;
+    setPostCardImage(postCard, i + 1);
+    postCard.style.backgroundSize = 'cover';
+    postCard.style.backgroundPosition = 'center';
 
     postGrid.appendChild(postCardTemplate);
   });
@@ -220,7 +237,6 @@ async function loadPost(filename) {
 
   const metaParts = [];
   if (post.date) metaParts.push(formatDate(post.date));
-  if (post.author) metaParts.push(post.author);
   postPageTemplate.querySelector('.post-meta').textContent = metaParts.join(' • ');
 
   const content = (window.marked && typeof marked.parse === 'function') ? marked.parse(markdown) : markdown;

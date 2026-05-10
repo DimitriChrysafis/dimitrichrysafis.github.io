@@ -1,6 +1,6 @@
 import { Camera } from './camera.js?v=20260310p'
 import { MLSMPMSimulator, mlsmpmParticleStructSize } from './mls-mpm/mls-mpm.js?v=20260310p'
-import { FluidRenderer } from './render/fluidRender.js?v=20260310k'
+import { FluidRenderer } from './render/fluidRender.js?v=20260510b'
 import { renderUniformsValues, renderUniformsViews, numParticlesMax } from './common.js?v=20260310p'
 
 const BOX_WIDTH = 100;
@@ -131,8 +131,8 @@ async function main() {
       cameraMode: 'orbit',
       resetView: () => resetCameraView(),
     };
-    const qualitySettings = {
-      quality: 'low',
+    const renderingSettings = {
+      showBoundary: true,
     };
 
     let pistonTime = Math.PI * 0.5;
@@ -216,8 +216,6 @@ async function main() {
       simulator.addSphere(centerX, centerY, centerZ, sphereRadius, numSphereParticles);
     }
 
-    renderer.setQualityMode(qualitySettings.quality);
-
     const simulationFolder = gui.addFolder('Simulation');
     controllerRefs.isPaused = simulationFolder.add(simulationSettings, 'isPaused').name('Pause Simulation').onChange((value) => {
       simulationSettings.isPaused = value;
@@ -279,12 +277,9 @@ async function main() {
     cameraFolder.open();
 
     const renderingFolder = gui.addFolder('Rendering');
-    controllerRefs.quality = renderingFolder.add(qualitySettings, 'quality', {
-      'Low (Potato)': 'low',
-      'Medium': 'medium',
-    }).name('Quality').onChange((value) => {
-      qualitySettings.quality = value;
-      renderer.setQualityMode(value);
+    controllerRefs.showBoundary = renderingFolder.add(renderingSettings, 'showBoundary').name('Show Wall & Piston').onChange((value) => {
+      renderingSettings.showBoundary = value;
+      renderer.setBoundaryVisible(value);
     });
     renderingFolder.open();
 
