@@ -8,9 +8,7 @@
 \usepackage[brazil]{babel}
 \titlespacing*{\section}{0pt}{6pt}{6pt} % Adjust spacing before/after section titles
 \titleformat{\section}{\Large\bfseries}{}{}{}
-\usepackage{lipsum}
 \usepackage[left=1.2cm,top=1.2cm,right=1.2cm,bottom=0.5cm]{geometry}
-\usepackage{cancel}
 \usepackage{xcolor}
 \usepackage{hyperref}
 \usepackage[svgnames,x11names,table]{xcolor}
@@ -24,14 +22,6 @@
 \usepackage{fontawesome5} % For icons
 \usepackage{tikz} % For custom graphics and decorations
 \usepackage{tcolorbox} % For colored boxes
-\usepackage{tabularx} % For better tables
-\usepackage{array} % For advanced table formatting
-\usepackage{multirow} % For multi-row table cells
-\usepackage{booktabs} % For professional tables
-\usepackage{fancyhdr} % For headers and footers
-\usepackage{mdframed} % For framed text boxes
-\usepackage{shadowtext} % For shadow effects
-\usepackage{lettrine} % For drop caps
 
 
 
@@ -119,29 +109,17 @@ Bachelor of Science in Computer Science \hfill \textcolor{accentgreen}{\textbf{G
 
 \noindent\rule{\textwidth}{0.5pt}
 
-\section*{\textcolor{modernblue}{\Large Software Experience}}
-\textbf{\href{https://simplex.chat/}{\underline{Simplex Chat}}}% \hfill \textcolor{modernblue}{\textbf{12 Approved Pull Requests}}
+\section*{\textcolor{modernblue}{\Large Experience}}
+\textbf{\href{https://simplex.chat/}{\underline{SimpleX Chat}}} \hfill \textcolor{modernblue}{\textbf{Open Source Contributor}}
 \begin{itemize}[leftmargin=*, topsep=0pt, itemsep=0pt, parsep=0pt]
-\item Engineered high-performance multi-device message synchronization system with intelligent network connection manager that dynamically optimizes active server connections, keeping message delivery under \textbf{150ms} while substantially reducing bandwidth usage through efficient differential sync that eliminates duplicate messages and ensures seamless conversation continuity across phones and tablets
-\end{itemize}
-\vspace{1pt}
-\noindent\textbf{\href{https://www.taichi-lang.org/}{\underline{Taichi}}}% \hfill \textcolor{modernblue}{\textbf{8 Approved Pull Requests}}
-\begin{itemize}[leftmargin=*, topsep=0pt, itemsep=0pt, parsep=0pt]
-\item Redesigned Apple Metal backend implementing buffer–image copy routines at GPU command list level
-\item Enabled direct GPU memory transfers between buffers and textures on macOS, removing CPU-side staging overhead
+\item Contributed to SimpleX Chat, an open-source private messaging platform, by improving multi-device sync logic in the client messaging pipeline
+\item Implemented sync-state reconciliation and connection lifecycle updates to reduce duplicate delivery edge cases across linked devices
 \end{itemize}
 
 \noindent\rule{\textwidth}{0.5pt}
 
 \section*{\textcolor{modernblue}{\Large Projects}}
-\textbf{Fourier Drawing Machine} \href{https://github.com/DimitriChrysafis/FourierDrawer}{\underline{[GitHub]}} \href{https://dimitrichrysafis.github.io/#post/post2.md}{\underline{[Blog]}}
-\begin{itemize}[leftmargin=*, topsep=1pt, itemsep=1pt, parsep=0pt]
-\item Implemented a full Discrete Fourier Transform pipeline in Python that converts sampled drawing points into complex coefficients and reconstructs curves with rotating epicycles
-\item Built an animation renderer that generates frame-by-frame trajectory output with PIL/NumPy and exports smooth drawing visualizations from custom or image-derived point sets
-\end{itemize}
-
-\vspace{3pt}
-\noindent\textbf{Interactive 3D Fluid Simulator Using Material Point Method} \href{https://dimitrichrysafis.github.io/media/post10/index.html}{\underline{[Demo]}} \href{https://github.com/DimitriChrysafis/3d-Volumetric-Fluid-Simulator-From-Scratch}{\underline{[GitHub]}}
+\textbf{Interactive 3D Fluid Simulator Using Material Point Method} \href{https://dimitrichrysafis.github.io/media/post10/index.html}{\underline{[Demo]}} \href{https://github.com/DimitriChrysafis/3d-Volumetric-Fluid-Simulator-From-Scratch}{\underline{[GitHub]}}
 \begin{itemize}[leftmargin=*, topsep=1pt, itemsep=1pt, parsep=0pt]
 \item Built browser-based physics engine implementing Material Point Method (MLS-MPM) with WebGPU compute shaders, simulating \textbf{400,000+ particles} in real-time with interactive camera controls and dynamic boundary animations
 \item Optimized particle-to-grid transfers through GPU parallelization and fixed-point arithmetic, achieving smooth performance for dam break scenarios and real-time particle injection
@@ -155,17 +133,22 @@ Bachelor of Science in Computer Science \hfill \textcolor{accentgreen}{\textbf{G
 \end{itemize}
 
 \vspace{3pt}
+\noindent\textbf{Volumetric Sphere Packing for 3D Meshes} \href{https://github.com/DimitriChrysafis/SpherePacker}{\underline{[GitHub]}} \href{https://dimitrichrysafis.github.io/#post/post8.md}{\underline{[Blog]}}
+\begin{itemize}[leftmargin=*, topsep=1pt, itemsep=1pt, parsep=0pt]
+\item Built mesh-based sphere packing system that fills arbitrary 3D models with non-overlapping tangent spheres using ray-mesh containment tests and nearest-surface distance queries
+\item Accelerated candidate search and clearance updates with PyTorch tensor operations, Open3D mesh processing, and live visualization for iterative packing of complex OBJ meshes
+\end{itemize}
+
+\vspace{3pt}
 \noindent\textbf{Tennis Match Prediction System}
 \begin{itemize}[leftmargin=*, topsep=1pt, itemsep=1pt, parsep=0pt]
 \item Built ensemble classifier using CatBoost on \textbf{92,000 ATP matches (1982-2024)} obtained from publicly available historical datasets, engineering features including player ELO ratings, surface-specific performance metrics, head-to-head statistics, recent form indicators, and fatigue scores from tournament schedules to achieve \textbf{83.7\% prediction accuracy}, outperforming baseline models by \textbf{12\%}
 \end{itemize}
 
-\noindent\rule{\textwidth}{0.5pt}
-
-\section*{\textcolor{modernblue}{\Large Skills and Interests}}
-\textbf{Languages}: C++, Python, Rust, Go, Swift, JavaScript/TypeScript, SQL\\[3pt]
-\textbf{ML / Data}: PyTorch, TensorFlow, NumPy, scikit-learn, Hugging Face, OpenCV\\[3pt]
-\textbf{Systems}: CUDA, Metal, Docker, Kubernetes, OpenCL\\[3pt]
-\textbf{Tools}: Bash, Git, LaTeX\\[3pt]
-\textbf{Interests}: Competitive marathon runner and triathlete; Calisthenics, Squash
+\vspace{3pt}
+\noindent\textbf{Fourier Drawing Machine} \href{https://github.com/DimitriChrysafis/FourierDrawer}{\underline{[GitHub]}} \href{https://dimitrichrysafis.github.io/#post/post2.md}{\underline{[Blog]}}
+\begin{itemize}[leftmargin=*, topsep=1pt, itemsep=1pt, parsep=0pt]
+\item Implemented a full Discrete Fourier Transform pipeline in Python that converts sampled drawing points into complex coefficients and reconstructs curves with rotating epicycles
+\item Built an animation renderer that generates frame-by-frame trajectory output with PIL/NumPy and exports smooth drawing visualizations from custom or image-derived point sets
+\end{itemize}
 \end{document}
