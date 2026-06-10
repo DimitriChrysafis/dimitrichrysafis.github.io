@@ -123,14 +123,16 @@ async function displayLanding() {
   await displayPosts();
 }
 
-function setPostCardImage(card, postNumber) {
+function setPostCardImage(card, imageHash) {
+  if (!imageHash) return;
+
   const extensions = ['gif', 'png', 'webp', 'jpg', 'jpeg'];
   let extensionIndex = 0;
 
   const tryNextImage = () => {
     if (extensionIndex >= extensions.length) return;
 
-    const imageUrl = `media/post-images/${postNumber}.${extensions[extensionIndex]}`;
+    const imageUrl = `media/post-images/${imageHash}.${extensions[extensionIndex]}`;
     const image = new Image();
     extensionIndex += 1;
 
@@ -166,7 +168,7 @@ async function displayPosts() {
   const postGridTemplate = document.getElementById('post-grid-template').content.cloneNode(true);
   const postGrid = postGridTemplate.querySelector('.posts-grid');
 
-  posts.forEach((post, i) => {
+  posts.forEach((post) => {
     const postCardTemplate = document.getElementById('post-card-template').content.cloneNode(true);
     const action = post.demoUrl ? `navigateToDemo('${post.demoUrl}')` : `navigateToPost('${post.filename}')`;
     const postCard = postCardTemplate.querySelector('.post-card');
@@ -174,7 +176,7 @@ async function displayPosts() {
     postCardTemplate.querySelector('.post-title').textContent = post.title;
     postCardTemplate.querySelector('.post-meta').textContent = formatDate(post.date);
     postCardTemplate.querySelector('.post-bio').textContent = post.bio;
-    setPostCardImage(postCard, i + 1);
+    setPostCardImage(postCard, post.imageHash);
     postCard.style.backgroundSize = 'cover';
     postCard.style.backgroundPosition = 'center';
 

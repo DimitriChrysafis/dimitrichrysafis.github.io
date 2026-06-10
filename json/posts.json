@@ -9,7 +9,8 @@
       "Computer",
       "Physics"
     ],
-    "demoUrl": "media/post10/index.html"
+    "demoUrl": "media/post10/index.html",
+    "imageHash": "f9bf9baa"
   },
   {
     "title": "New Updated Fourier",
@@ -21,7 +22,8 @@
       "Mathematics",
       "Computer"
     ],
-    "demoUrl": "media/post9/index.html"
+    "demoUrl": "media/post9/index.html",
+    "imageHash": "e3bb3bfb"
   },
   {
     "title": "Sphere Packing",
@@ -31,7 +33,8 @@
     "bio": "How to pack spheres into your 3d model",
     "categories": [
       "Computer"
-    ]
+    ],
+    "imageHash": "28995e79"
   },
   {
     "title": "Small Physics Sim For Balls",
@@ -42,7 +45,8 @@
     "categories": [
       "Computer Graphics",
       "Physics"
-    ]
+    ],
+    "imageHash": "750f96e5"
   },
   {
     "title": "Cool Complex Shapes",
