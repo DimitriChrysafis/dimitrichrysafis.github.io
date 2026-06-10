@@ -1,5 +1,17 @@
 [
   {
+    "title": "X-Lab Power Meter",
+    "filename": "post11.md",
+    "date": "2026-6-9",
+    "author": "Post 11",
+    "bio": "Coming soon.",
+    "categories": [
+      "Bluetooth",
+      "Cycling"
+    ],
+    "imageHash": "xlab-power-meter"
+  },
+  {
     "title": "3D Fluid Simulator",
     "filename": "post10.md",
     "date": "2026-3-8",
@@ -34,7 +46,7 @@
     "categories": [
       "Computer"
     ],
-    "imageHash": "28995e79"
+    "imageHash": "sphere-packing"
   },
   {
     "title": "Small Physics Sim For Balls",
@@ -46,7 +58,7 @@
       "Computer Graphics",
       "Physics"
     ],
-    "imageHash": "750f96e5"
+    "imageHash": "small-physics-balls"
   },
   {
     "title": "Cool Complex Shapes",
@@ -56,7 +68,8 @@
     "bio": "Mandelebulb, Julia set, Kleinian limit set-Maskit, Newton's Fractal",
     "categories": [
       "Mathematics"
-    ]
+    ],
+    "imageHash": "750f96e5"
   },
   {
     "title": "Graphing Some English Words",
@@ -66,7 +79,8 @@
     "bio": "Making cool graphs with some words",
     "categories": [
       "Graph Theory"
-    ]
+    ],
+    "imageHash": "28995e79"
   },
   {
     "title": "Solving a Polynomial",
