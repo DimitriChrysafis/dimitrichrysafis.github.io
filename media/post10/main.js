@@ -1,6 +1,6 @@
 import { Camera } from './camera.js?v=20260310p'
 import { MLSMPMSimulator, mlsmpmParticleStructSize } from './mls-mpm/mls-mpm.js?v=20260310p'
-import { FluidRenderer } from './render/fluidRender.js?v=20260510b'
+import { FluidRenderer } from './render/fluidRender.js?v=20260716a'
 import { renderUniformsValues, renderUniformsViews, numParticlesMax } from './common.js?v=20260310p'
 
 const BOX_WIDTH = 100;

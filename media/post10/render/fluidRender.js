@@ -16,9 +16,9 @@ export class FluidRenderer {
     }
 
     async initialize() {
-        const wireframe = await fetch('render/wireframe.wgsl?v=20260310k').then(r => r.text());
+        const sphere = await fetch('render/sphere.wgsl?v=20260716a').then(r => r.text());
         const wall = await fetch('render/wall.wgsl?v=20260310k').then(r => r.text());
-        const wireframeModule = this.device.createShaderModule({ code: wireframe })
+        const sphereModule = this.device.createShaderModule({ code: sphere })
         const wallModule = this.device.createShaderModule({ code: wall })
 
         const particleBindGroupLayout = this.device.createBindGroupLayout({
@@ -39,18 +39,15 @@ export class FluidRenderer {
             bindGroupLayouts: [particleBindGroupLayout],
         })
 
-        this.wireframePipeline = this.device.createRenderPipeline({
-            label: 'wireframe pipeline', 
+        this.spherePipeline = this.device.createRenderPipeline({
+            label: 'sphere pipeline', 
             layout: particlePipelineLayout, 
-            vertex: { module: wireframeModule }, 
+            vertex: { module: sphereModule }, 
             fragment: {
-                module: wireframeModule, 
+                module: sphereModule, 
                 targets: [{ format: this.presentationFormat }]
             }, 
-            primitive: { 
-                topology: 'line-list',
-                stripIndexFormat: undefined
-            },
+            primitive: { topology: 'triangle-list' },
             depthStencil: {
                 depthWriteEnabled: true, 
                 depthCompare: 'less',
@@ -81,8 +78,8 @@ export class FluidRenderer {
         })
         this.depthTestTextureView = depthTestTexture.createView()
 
-        this.wireframeBindGroup = this.device.createBindGroup({
-            label: 'wireframe bind group', 
+        this.sphereBindGroup = this.device.createBindGroup({
+            label: 'sphere bind group', 
             layout: particleBindGroupLayout,  
             entries: [
                 { binding: 0, resource: { buffer: this.posvelBuffer }},
@@ -137,9 +134,9 @@ export class FluidRenderer {
             renderPassEncoder.draw(31 * 36);
         }
 
-        renderPassEncoder.setBindGroup(0, this.wireframeBindGroup);
-        renderPassEncoder.setPipeline(this.wireframePipeline);
-        renderPassEncoder.draw(96, numParticles);
+        renderPassEncoder.setBindGroup(0, this.sphereBindGroup);
+        renderPassEncoder.setPipeline(this.spherePipeline);
+        renderPassEncoder.draw(6, numParticles);
 
         renderPassEncoder.end();
     }
