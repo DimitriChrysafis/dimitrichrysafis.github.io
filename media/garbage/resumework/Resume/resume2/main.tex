@@ -1,0 +1,133 @@
+\documentclass[10pt,letterpaper]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=0.52in,top=0.44in,bottom=0.44in]{geometry}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{tabularx}
+\usepackage{microtype}
+\usepackage{helvet}
+
+\renewcommand{\familydefault}{\sfdefault}
+\pagestyle{empty}
+\setlength{\parindent}{0pt}
+\setlength{\tabcolsep}{0pt}
+\setlength{\emergencystretch}{1em}
+\hyphenpenalty=10000
+\exhyphenpenalty=10000
+\urlstyle{same}
+
+\definecolor{navy}{HTML}{17365D}
+\definecolor{slate}{HTML}{3E4C59}
+\definecolor{rulegray}{HTML}{AAB4BE}
+
+\hypersetup{
+  colorlinks=true,
+  urlcolor=navy,
+  linkcolor=navy,
+  pdftitle={Dimitri Chrysafis Resume},
+  pdfauthor={Dimitri Chrysafis}
+}
+
+\titleformat{\section}
+  {\color{navy}\bfseries\large}
+  {}{0pt}{\MakeUppercase}
+  [\vspace{-4pt}\color{rulegray}\titlerule]
+\titlespacing*{\section}{0pt}{7pt}{4pt}
+
+\setlist[itemize]{
+  leftmargin=1.15em,
+  label=\textcolor{navy}{\small\textbullet},
+  topsep=0.5pt,
+  itemsep=1pt,
+  parsep=0pt,
+  partopsep=0pt
+}
+
+\newcommand{\entry}[4]{%
+  \begin{tabularx}{\textwidth}{@{}Xr@{}}
+    \textbf{#1} \textcolor{slate}{\small #2} & \textcolor{slate}{\small #3}\\[-1pt]
+  \end{tabularx}
+  #4
+}
+
+\newcommand{\project}[3]{%
+  \textbf{#1}\par\vspace{-1pt}
+  {\textcolor{slate}{\small #2}}\par\vspace{-3pt}
+  #3\vspace{1pt}
+}
+
+\begin{document}
+\raggedright
+
+\begin{center}
+  {\fontsize{21}{22}\selectfont\bfseries\color{navy} Dimitri Chrysafis}\\[1pt]
+  {\small GPU, Graphics \& Machine Learning Systems}\\[2pt]
+  {\small
+    \href{mailto:dimitri.chrysafis@gmail.com}{dimitri.chrysafis@gmail.com}
+    \enspace\textcolor{rulegray}{|}\enspace 650-305-9037
+    \enspace\textcolor{rulegray}{|}\enspace
+    \href{https://github.com/DimitriChrysafis}{github.com/DimitriChrysafis}
+    \enspace\textcolor{rulegray}{|}\enspace
+    \href{https://dimitrichrysafis.github.io/}{dimitrichrysafis.github.io}
+  }
+\end{center}
+
+\vspace{-4pt}
+\section*{Profile}
+Computer science student with a \textbf{4.0 GPA} building GPU-accelerated simulation, graphics, geometry, and ML systems---from mathematical models and low-level kernels to polished interactive tools. Open-source contributor and competitive endurance athlete.
+
+\section*{Education}
+\begin{tabularx}{\textwidth}{@{}Xr@{}}
+  \textbf{University of Wisconsin--Madison} --- B.S. Computer Science, \textbf{GPA: 4.0} & Expected May 2027
+\end{tabularx}
+
+\section*{Technical Skills}
+\textbf{Languages:} Python, C++, JavaScript/TypeScript, Swift, SQL, WGSL/GLSL\\[-1pt]
+\textbf{GPU \& Systems:} WebGPU, Metal, CUDA/MPS, shader programming, Git\\[-1pt]
+\textbf{ML \& Geometry:} PyTorch, CatBoost, NumPy, scikit-learn, Open3D, LoRA/QLoRA, quantization, adapter merging
+
+\section*{Open-Source Experience}
+\entry{SimpleX Chat}{--- Privacy-first messaging platform}{Open-Source Contributor}{
+\begin{itemize}
+  \item Improved multi-device synchronization in the client messaging pipeline, tracing message and state flow across linked devices and resolving reconciliation edge cases.
+  \item Updated connection-lifecycle handling to keep device state coherent and reduce duplicate-delivery scenarios through disconnects, reconnects, and concurrent sync.
+\end{itemize}}
+
+\section*{Selected Projects}
+\project{Interactive 3D Fluid Simulator}{\href{https://dimitrichrysafis.github.io/media/post10/index.html}{Live Demo} \textcolor{rulegray}{|} \href{https://github.com/DimitriChrysafis/3d-Volumetric-Fluid-Simulator}{GitHub} \textcolor{rulegray}{|} WebGPU, WGSL, JavaScript}{
+\begin{itemize}
+  \item Designed a browser-native MLS-MPM physics engine and GPU pipeline that simulates \textbf{400,000 particles} in real time using parallel particle-to-grid, grid-update, and grid-to-particle compute passes.
+  \item Eliminated CPU-side particle copies with shared storage buffers and direct rendering; implemented 128-thread workgroups, atomic fixed-point accumulation, dynamic piston boundaries, turbulence pulses, and adaptive render density.
+\end{itemize}}
+
+\project{Volumetric Sphere Packing for Arbitrary 3D Meshes}{\href{https://github.com/DimitriChrysafis/SpherePacker}{GitHub} \textcolor{rulegray}{|} \href{https://dimitrichrysafis.github.io/\#post/post8.md}{Technical Write-up} \textcolor{rulegray}{|} PyTorch, Open3D}{
+\begin{itemize}
+  \item Built a geometry pipeline that packs non-overlapping tangent spheres inside arbitrary OBJ meshes using M\"oller--Trumbore parity tests, nearest-surface queries, global grid seeding, and stochastic tangent growth.
+  \item Vectorized containment, clearance, and overlap checks as batched PyTorch operations on CUDA/MPS; combined binary-search radius fitting, mesh decimation, surface sampling, and live Open3D visualization.
+\end{itemize}}
+
+\project{Tennis Match Prediction System}{CatBoost, Python, scikit-learn}{
+\begin{itemize}
+  \item Trained a gradient-boosted classifier on \textbf{92,000 ATP matches (1982--2024)}, engineering player and surface Elo, head-to-head history, recent form, and schedule-derived fatigue features.
+  \item Reached \textbf{83.7\% prediction accuracy}, outperforming baseline models by \textbf{12\%}, through feature iteration and ensemble-based modeling of nonlinear player, surface, and recency effects.
+\end{itemize}}
+
+\project{Real-Time Fractal Visualization Engine}{\href{https://dimitrichrysafis.github.io/\#post/post6.md}{Demos \& Write-up} \textcolor{rulegray}{|} WebGL, GLSL, Swift/Metal}{
+\begin{itemize}
+  \item Implemented interactive Mandelbrot, Julia, Newton, and Kleinian renderers with complex recurrences and M\"obius transformations evaluated per pixel in GPU fragment shaders.
+  \item Added smooth pan/zoom, animated parameter interpolation, supersampling, and iteration-based coloring; also built a native Julia-set renderer in Swift/Metal for Apple GPUs.
+\end{itemize}}
+
+\project{Fourier Drawing Machine}{\href{https://github.com/DimitriChrysafis/FourierDrawer}{GitHub} \textcolor{rulegray}{|} \href{https://dimitrichrysafis.github.io/\#post/post2.md}{Demo} \textcolor{rulegray}{|} Python, NumPy, JavaScript}{
+\begin{itemize}
+  \item Built a DFT pipeline that converts sampled or image-derived paths into complex coefficients, reconstructs them with rotating epicycles, and exports eased frame-by-frame animations; later moved computation to a web worker for an interactive browser version.
+\end{itemize}}
+
+\vspace{1pt}
+{\small\textcolor{slate}{\textbf{Interests:} Competitive marathon running and triathlon; calisthenics and squash.}}
+
+\end{document}

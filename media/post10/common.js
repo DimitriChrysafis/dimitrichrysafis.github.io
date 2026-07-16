@@ -9,6 +9,7 @@ export const renderUniformsViews = {
   box_size: new Float32Array(renderUniformsValues, 272, 3),
   render_z_offset: new Float32Array(renderUniformsValues, 284, 1),
   box_anchor_z: new Float32Array(renderUniformsValues, 288, 1),
+  render_stride: new Uint32Array(renderUniformsValues, 292, 1),
 };
 
 export const numParticlesMax = 1000000;

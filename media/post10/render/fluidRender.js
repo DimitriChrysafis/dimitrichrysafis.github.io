@@ -1,25 +1,43 @@
 export class FluidRenderer {
     constructor(
         device, canvas, presentationFormat,
-        radius, fov, posvelBuffer, 
+        radius, fov, particleBuffer,
         renderUniformBuffer
     ) {
         this.device = device
         this.canvas = canvas
         this.presentationFormat = presentationFormat
-        this.posvelBuffer = posvelBuffer
+        this.particleBuffer = particleBuffer
         this.renderUniformBuffer = renderUniformBuffer
         this.boundaryVisible = true
-        this.clearColor = { r: 0.8, g: 0.8, b: 0.8, a: 1.0 }
+        this.clearColor = { r: 0.012, g: 0.028, b: 0.055, a: 1.0 }
         this.cachedColorView = null
         this.lastTexture = null
     }
 
     async initialize() {
-        const wireframe = await fetch('render/wireframe.wgsl?v=20260310k').then(r => r.text());
+        const background = await fetch('render/background.wgsl?v=20260712reflective3').then(r => r.text());
+        const sphere = await fetch('render/sphere.wgsl?v=20260712reflective3').then(r => r.text());
         const wall = await fetch('render/wall.wgsl?v=20260310k').then(r => r.text());
-        const wireframeModule = this.device.createShaderModule({ code: wireframe })
+        const backgroundModule = this.device.createShaderModule({ code: background })
+        const sphereModule = this.device.createShaderModule({ code: sphere })
         const wallModule = this.device.createShaderModule({ code: wall })
+
+        this.backgroundPipeline = this.device.createRenderPipeline({
+            label: 'reflective background pipeline',
+            layout: 'auto',
+            vertex: { module: backgroundModule },
+            fragment: {
+                module: backgroundModule,
+                targets: [{ format: this.presentationFormat }]
+            },
+            primitive: { topology: 'triangle-list' },
+            depthStencil: {
+                depthWriteEnabled: false,
+                depthCompare: 'always',
+                format: 'depth32float'
+            }
+        })
 
         const particleBindGroupLayout = this.device.createBindGroupLayout({
             entries: [
@@ -39,18 +57,15 @@ export class FluidRenderer {
             bindGroupLayouts: [particleBindGroupLayout],
         })
 
-        this.wireframePipeline = this.device.createRenderPipeline({
-            label: 'wireframe pipeline', 
+        this.particlePipeline = this.device.createRenderPipeline({
+            label: 'sphere particle pipeline',
             layout: particlePipelineLayout, 
-            vertex: { module: wireframeModule }, 
+            vertex: { module: sphereModule },
             fragment: {
-                module: wireframeModule, 
+                module: sphereModule,
                 targets: [{ format: this.presentationFormat }]
             }, 
-            primitive: { 
-                topology: 'line-list',
-                stripIndexFormat: undefined
-            },
+            primitive: { topology: 'triangle-list' },
             depthStencil: {
                 depthWriteEnabled: true, 
                 depthCompare: 'less',
@@ -81,11 +96,11 @@ export class FluidRenderer {
         })
         this.depthTestTextureView = depthTestTexture.createView()
 
-        this.wireframeBindGroup = this.device.createBindGroup({
-            label: 'wireframe bind group', 
+        this.particleBindGroup = this.device.createBindGroup({
+            label: 'sphere particle bind group',
             layout: particleBindGroupLayout,  
             entries: [
-                { binding: 0, resource: { buffer: this.posvelBuffer }},
+                { binding: 0, resource: { buffer: this.particleBuffer }},
                 { binding: 1, resource: { buffer: this.renderUniformBuffer }},
             ]
         })
@@ -98,13 +113,19 @@ export class FluidRenderer {
             ]
         })
 
+        this.backgroundBindGroup = this.device.createBindGroup({
+            label: 'reflective background bind group',
+            layout: this.backgroundPipeline.getBindGroupLayout(0),
+            entries: [{ binding: 0, resource: { buffer: this.renderUniformBuffer }}]
+        })
+
     }
 
     setBoundaryVisible(visible) {
         this.boundaryVisible = visible;
     }
 
-    execute(context, commandEncoder, numParticles) {
+    execute(context, commandEncoder, numParticles, renderStride = 1) {
         const currentTexture = context.getCurrentTexture();
         
         if (this.lastTexture !== currentTexture) {
@@ -131,15 +152,20 @@ export class FluidRenderer {
 
         const renderPassEncoder = commandEncoder.beginRenderPass(renderPassDescriptor);
 
+        renderPassEncoder.setBindGroup(0, this.backgroundBindGroup);
+        renderPassEncoder.setPipeline(this.backgroundPipeline);
+        renderPassEncoder.draw(6);
+
         if (this.boundaryVisible) {
             renderPassEncoder.setBindGroup(0, this.wallBindGroup);
             renderPassEncoder.setPipeline(this.wallPipeline);
             renderPassEncoder.draw(31 * 36);
         }
 
-        renderPassEncoder.setBindGroup(0, this.wireframeBindGroup);
-        renderPassEncoder.setPipeline(this.wireframePipeline);
-        renderPassEncoder.draw(96, numParticles);
+        renderPassEncoder.setBindGroup(0, this.particleBindGroup);
+        renderPassEncoder.setPipeline(this.particlePipeline);
+        const safeRenderStride = Math.max(1, Math.floor(renderStride));
+        renderPassEncoder.draw(6, Math.ceil(numParticles / safeRenderStride));
 
         renderPassEncoder.end();
     }

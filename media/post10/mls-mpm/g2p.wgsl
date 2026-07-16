@@ -17,6 +17,13 @@ struct PistonState {
     pad1: f32,
 }
 
+struct InteractionState {
+    point: vec3f,
+    radius: f32,
+    impulse: vec3f,
+    strength: f32,
+}
+
 override fixed_point_multiplier: f32; 
 override dt: f32; 
 
@@ -25,6 +32,7 @@ override dt: f32;
 @group(0) @binding(2) var<uniform> real_box_size: vec3f;
 @group(0) @binding(3) var<uniform> init_box_size: vec3f;
 @group(0) @binding(4) var<uniform> piston_state: PistonState;
+@group(0) @binding(5) var<uniform> interaction_state: InteractionState;
 
 fn decodeFixedPoint(fixed_point: i32) -> f32 {
 	return f32(fixed_point) / fixed_point_multiplier;
@@ -74,6 +82,19 @@ fn g2p(@builtin(global_invocation_id) id: vec3<u32>) {
 
                     particles[id.x].v += weighted_velocity;
                 }
+            }
+        }
+
+        if (interaction_state.strength > 0.0) {
+            let offset = particle.position - interaction_state.point;
+            let distance = length(offset);
+            if (distance < interaction_state.radius) {
+                let influence = pow(1.0 - distance / interaction_state.radius, 2.0);
+                let energy = influence * interaction_state.strength;
+                let radial = normalize(offset + vec3f(0.0, 0.25, 0.0));
+                let swirl = normalize(vec3f(-offset.z, 0.0, offset.x) + vec3f(0.001, 0.0, 0.001));
+                particles[id.x].v += interaction_state.impulse * energy;
+                particles[id.x].v += radial * (0.85 * energy) + swirl * (1.15 * energy);
             }
         }
 
