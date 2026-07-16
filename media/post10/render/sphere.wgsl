@@ -1,21 +1,20 @@
 struct VertexOutput {
     @builtin(position) position: vec4f,
     @location(0) uv: vec2f,
-    @location(1) speed: f32,
+    @location(1) view_position: vec3f,
+    @location(2) speed: f32,
 }
 
 struct FragmentInput {
     @location(0) uv: vec2f,
-    @location(1) speed: f32,
+    @location(1) view_position: vec3f,
+    @location(2) speed: f32,
 }
 
 struct FragmentOutput {
     @location(0) frag_color: vec4f,
+    @builtin(frag_depth) frag_depth: f32,
 }
-
-const LIGHT1_DIR = vec3f(0.5773503, 0.5773503, 0.5773503);
-const LIGHT2_DIR = vec3f(-0.4082483, 0.8164966, -0.4082483);
-const LIGHT3_DIR = vec3f(0.0, -0.8944272, 0.4472136);
 
 struct RenderUniforms {
     texel_size: vec2f,
@@ -27,16 +26,14 @@ struct RenderUniforms {
     box_size: vec3f,
     render_z_offset: f32,
     box_anchor_z: f32,
-    render_stride: u32,
 }
 
-struct Particle {
+struct PosVel {
     position: vec3f,
     v: vec3f,
-    C: mat3x3f,
 }
 
-@group(0) @binding(0) var<storage, read> particles: array<Particle>;
+@group(0) @binding(0) var<storage> particles: array<PosVel>;
 @group(0) @binding(1) var<uniform> uniforms: RenderUniforms;
 
 @vertex
@@ -56,64 +53,88 @@ fn vs(
     let corner = vec3(corner_positions[vertex_index] * uniforms.sphere_size, 0.0);
     let uv = corner_positions[vertex_index] + 0.5;
 
-    let particle_index = instance_index * uniforms.render_stride;
-    let particle = particles[particle_index];
-    let real_position = particle.position + vec3f(0.0, 0.0, uniforms.render_z_offset);
+    let real_position = particles[instance_index].position + vec3f(0.0, 0.0, uniforms.render_z_offset);
     let view_position = (uniforms.view_matrix * vec4f(real_position, 1.0)).xyz;
 
     let out_position = uniforms.projection_matrix * vec4f(view_position + corner, 1.0);
 
-    let speed = sqrt(dot(particle.v, particle.v));
+    let speed = sqrt(dot(particles[instance_index].v, particles[instance_index].v));
 
-    return VertexOutput(out_position, uv, speed);
+    return VertexOutput(out_position, uv, view_position, speed);
 }
 
-fn value_to_color(value: f32) -> vec3f {
+fn value_to_color(value: f32) -> vec3<f32> {
     let col0 = vec3f(0.05, 0.0, 0.15);
     let col1 = vec3f(0.4, 0.1, 0.6);
     let col2 = vec3f(0.8, 0.2, 0.9);
     let col3 = vec3f(1.0, 0.4, 0.2);
     let col4 = vec3f(1.0, 0.9, 0.1);
     let col5 = vec3f(1.0, 0.0, 0.0);
+
+    let shimmer = sin(value * 20.0) * 0.1;
+
     var base_color: vec3f;
 
-    if (value < 0.15) {
-        base_color = mix(col0, col1, value / 0.15);
-    } else if (value < 0.35) {
-        base_color = mix(col1, col2, (value - 0.15) / 0.2);
-    } else if (value < 0.55) {
-        base_color = mix(col2, col3, (value - 0.35) / 0.2);
-    } else if (value < 0.8) {
-        base_color = mix(col3, col4, (value - 0.55) / 0.25);
+    if (0 <= value && value < 0.15) {
+        let t = value / 0.15;
+        base_color = mix(col0, col1, t);
+    } else if (0.15 <= value && value < 0.35) {
+        let t = (value - 0.15) / 0.2;
+        base_color = mix(col1, col2, t);
+    } else if (0.35 <= value && value < 0.55) {
+        let t = (value - 0.35) / 0.2;
+        base_color = mix(col2, col3, t);
+    } else if (0.55 <= value && value < 0.8) {
+        let t = (value - 0.55) / 0.25;
+        base_color = mix(col3, col4, t);
     } else {
-        base_color = mix(col4, col5, (value - 0.8) / 0.2);
+        let t = (value - 0.8) / 0.2;
+        base_color = mix(col4, col5, t);
     }
 
-    return base_color;
+    if (value > 0.7) {
+        let intensity = (value - 0.7) / 0.3;
+        base_color += vec3f(shimmer * intensity, shimmer * intensity * 0.5, shimmer * intensity * 0.2);
+    }
+
+    return clamp(base_color, vec3f(0.0), vec3f(1.0));
 }
 
 @fragment
 fn fs(input: FragmentInput) -> FragmentOutput {
     var out: FragmentOutput;
 
-    let normalxy = input.uv * 2.0 - 1.0;
-    let r2 = dot(normalxy, normalxy);
+    var normalxy: vec2f = input.uv * 2.0 - 1.0;
+    var r2: f32 = dot(normalxy, normalxy);
     if (r2 > 1.0) {
         discard;
     }
-    let normalz = sqrt(1.0 - r2);
-    let normal = vec3f(normalxy, normalz);
+    var normalz = sqrt(1.0 - r2);
+    var normal = vec3(normalxy, normalz);
 
-    let diffuse1 = max(0.0, dot(normal, LIGHT1_DIR)) * 0.8;
-    let diffuse2 = max(0.0, dot(normal, LIGHT2_DIR)) * 0.4;
-    let diffuse3 = max(0.0, dot(normal, LIGHT3_DIR)) * 0.3;
-    let total_lighting = 0.4 + diffuse1 + diffuse2 + diffuse3;
-    let color = value_to_color(input.speed / 1.5);
-    let rim_base = 1.0 - abs(normalz);
-    let rim_factor = rim_base * rim_base;
+    var radius = uniforms.sphere_size / 2;
+    var real_view_pos: vec4f = vec4f(input.view_position + normal * radius, 1.0);
+    var clip_space_pos: vec4f = uniforms.projection_matrix * real_view_pos;
+    out.frag_depth = clip_space_pos.z / clip_space_pos.w;
+
+    let light1_dir = normalize(vec3(1.0, 1.0, 1.0));
+    let light2_dir = normalize(vec3(-0.5, 1.0, -0.5));
+    let light3_dir = normalize(vec3(0.0, -1.0, 0.5));
+
+    let diffuse1 = max(0.0, dot(normal, light1_dir)) * 0.8;
+    let diffuse2 = max(0.0, dot(normal, light2_dir)) * 0.4;
+    let diffuse3 = max(0.0, dot(normal, light3_dir)) * 0.3;
+
+    let ambient = 0.4;
+
+    let total_lighting = ambient + diffuse1 + diffuse2 + diffuse3;
+
+    var color: vec3f = value_to_color(input.speed / 1.5);
+
+    let rim_factor = pow(1.0 - abs(normalz), 2.0);
     let speed_factor = min(input.speed / 2.0, 1.0);
     let rim_lighting = rim_factor * speed_factor * 0.3;
 
-    out.frag_color = vec4(color * total_lighting + vec3f(rim_lighting), 1.0);
+    out.frag_color = vec4(color * total_lighting + vec3(rim_lighting), 1.0);
     return out;
 }

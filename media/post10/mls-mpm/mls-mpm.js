@@ -1,9 +1,9 @@
-import { numParticlesMax, renderUniformsViews } from '../common.js?v=20260712reflective3';
+import { numParticlesMax, renderUniformsViews } from '../common.js?v=20260310p';
 
 export const mlsmpmParticleStructSize = 80
 
 export class MLSMPMSimulator {
-    constructor (particleBuffer, renderDiameter, device, boxWidth, boxHeight, boxDepth)
+    constructor (particleBuffer, posvelBuffer, renderDiameter, device, boxWidth, boxHeight, boxDepth) 
     {
         this.max_x_grids = Math.ceil(boxWidth * 1.1);
         this.max_y_grids = Math.ceil(boxHeight * 1.1);
@@ -14,12 +14,10 @@ export class MLSMPMSimulator {
         this.renderDiameter = renderDiameter
         this.device = device
         this.particleBuffer = particleBuffer
+        this.posvelBuffer = posvelBuffer
         this.boundaryCouplingWidth = 3.0
         this.pistonPower = 1.0
         this.initialFluidDepth = Math.min(boxDepth, 100)
-        this.realBoxSizeValues = new Float32Array(3)
-        this.initBoxSizeValues = new Float32Array(3)
-        this.pistonStateValues = new Float32Array(4)
     }
 
     async initialize() {
@@ -27,13 +25,15 @@ export class MLSMPMSimulator {
         const p2g_1 = await fetch('mls-mpm/p2g_1.wgsl?v=20260310k').then(r => r.text());
         const p2g_2 = await fetch('mls-mpm/p2g_2.wgsl?v=20260310k').then(r => r.text());
         const updateGrid = await fetch('mls-mpm/updateGrid.wgsl?v=20260310k').then(r => r.text());
-        const g2p = await fetch('mls-mpm/g2p.wgsl?v=20260712reflective3').then(r => r.text());
+        const g2p = await fetch('mls-mpm/g2p.wgsl?v=20260310k').then(r => r.text());
+        const copyPosition = await fetch('mls-mpm/copyPosition.wgsl?v=20260310k').then(r => r.text());
 
         const clearGridModule = this.device.createShaderModule({ code: clearGrid });
         const p2g1Module = this.device.createShaderModule({ code: p2g_1 });
         const p2g2Module = this.device.createShaderModule({ code: p2g_2 });
         const updateGridModule = this.device.createShaderModule({ code: updateGrid });
         const g2pModule = this.device.createShaderModule({ code: g2p });
+        const copyPositionModule = this.device.createShaderModule({ code: copyPosition });
 
         const constants = {
             stiffness: 3., 
@@ -92,10 +92,16 @@ export class MLSMPMSimulator {
                 }
             }
         });
+        this.copyPositionPipeline = this.device.createComputePipeline({
+            label: "copy position pipeline", 
+            layout: 'auto', 
+            compute: { module: copyPositionModule }
+        });
 
         const maxGridCount = this.max_x_grids * this.max_y_grids * this.max_z_grids;
-        this.interactionValues = new Float32Array(8);
-        this.interactionActive = false;
+        const realBoxSizeValues = new ArrayBuffer(12);
+        const initBoxSizeValues = new ArrayBuffer(12);
+        const pistonStateValues = new ArrayBuffer(16);
 
         const cellBuffer = this.device.createBuffer({ 
             label: 'cells buffer', 
@@ -104,28 +110,22 @@ export class MLSMPMSimulator {
         })
         this.realBoxSizeBuffer = this.device.createBuffer({
             label: 'real box size buffer', 
-            size: this.realBoxSizeValues.byteLength,
+            size: realBoxSizeValues.byteLength, 
             usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
         })
         this.initBoxSizeBuffer = this.device.createBuffer({
             label: 'init box size buffer', 
-            size: this.initBoxSizeValues.byteLength,
+            size: initBoxSizeValues.byteLength, 
             usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
         })
         this.pistonStateBuffer = this.device.createBuffer({
             label: 'piston state buffer',
-            size: this.pistonStateValues.byteLength,
+            size: pistonStateValues.byteLength,
             usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
         })
-        this.interactionStateBuffer = this.device.createBuffer({
-            label: 'interaction state buffer',
-            size: this.interactionValues.byteLength,
-            usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
-        })
-        this.device.queue.writeBuffer(this.initBoxSizeBuffer, 0, this.initBoxSizeValues);
-        this.device.queue.writeBuffer(this.realBoxSizeBuffer, 0, this.realBoxSizeValues);
-        this.device.queue.writeBuffer(this.pistonStateBuffer, 0, this.pistonStateValues);
-        this.device.queue.writeBuffer(this.interactionStateBuffer, 0, this.interactionValues);
+        this.device.queue.writeBuffer(this.initBoxSizeBuffer, 0, initBoxSizeValues);
+        this.device.queue.writeBuffer(this.realBoxSizeBuffer, 0, realBoxSizeValues);
+        this.device.queue.writeBuffer(this.pistonStateBuffer, 0, pistonStateValues);
 
         this.clearGridBindGroup = this.device.createBindGroup({
             layout: this.clearGridPipeline.getBindGroupLayout(0), 
@@ -163,8 +163,14 @@ export class MLSMPMSimulator {
                 { binding: 1, resource: { buffer: cellBuffer }},
                 { binding: 2, resource: { buffer: this.realBoxSizeBuffer }},
                 { binding: 3, resource: { buffer: this.initBoxSizeBuffer }},
-                { binding: 4, resource: { buffer: this.pistonStateBuffer }},
-                { binding: 5, resource: { buffer: this.interactionStateBuffer }}
+                { binding: 4, resource: { buffer: this.pistonStateBuffer }}
+            ]
+        })
+        this.copyPositionBindGroup = this.device.createBindGroup({
+            layout: this.copyPositionPipeline.getBindGroupLayout(0),
+            entries: [
+                { binding: 0, resource: { buffer: this.particleBuffer }}, 
+                { binding: 1, resource: { buffer: this.posvelBuffer }}
             ]
         })
     }
@@ -172,11 +178,7 @@ export class MLSMPMSimulator {
     initDambreak(initBoxSize, numParticles) {
         let particlesBuf = new ArrayBuffer(mlsmpmParticleStructSize * numParticlesMax);
         const spacing = 0.95;
-        const margin = 3.0;
-        const fluidStartZ = Math.max(margin, initBoxSize[2] - this.initialFluidDepth + margin);
-        const fluidEndX = initBoxSize[0] - margin;
-        const fluidEndY = initBoxSize[1] - margin;
-        const fluidEndZ = initBoxSize[2] - margin;
+        const fluidStartZ = Math.max(3, initBoxSize[2] - this.initialFluidDepth + 3);
 
         this.numParticles = 0;
         
@@ -184,13 +186,13 @@ export class MLSMPMSimulator {
         let jCount = 0;
         let iCount = 0;
 
-        for (let j = margin; j < fluidEndY && this.numParticles < numParticles; j += spacing) {
+        for (let j = 0; j < initBoxSize[1] * 1.6 && this.numParticles < numParticles; j += spacing) {
             jCount++;
             iCount = 0;
-            for (let i = margin; i < fluidEndX && this.numParticles < numParticles; i += spacing) {
+            for (let i = 3; i < initBoxSize[0] - 4 && this.numParticles < numParticles; i += spacing) {
                 iCount++;
                 let kCount = 0;
-                for (let k = fluidStartZ; k < fluidEndZ && this.numParticles < numParticles; k += spacing) {
+                for (let k = fluidStartZ; k < initBoxSize[2] - 4 && this.numParticles < numParticles; k += spacing) {
                     kCount++;
                     const offset = mlsmpmParticleStructSize * this.numParticles;
                     const particleViews = {
@@ -198,7 +200,7 @@ export class MLSMPMSimulator {
                         v: new Float32Array(particlesBuf, offset + 16, 3),
                         C: new Float32Array(particlesBuf, offset + 32, 12),
                     };
-                    const jitter = (Math.random() - 0.5) * 0.04;
+                    const jitter = 1.0 * Math.random();
                     particleViews.position.set([i + jitter, j + jitter, k + jitter]);
                     this.numParticles++;
                     
@@ -220,18 +222,20 @@ export class MLSMPMSimulator {
         if (this.gridCount > maxGridCount) {
             throw new Error("gridCount should be equal to or less than maxGridCount")
         }
-        this.initBoxSizeValues.set(gridBoxSize);
-        this.realBoxSizeValues.set(seedBoxSize);
-        this.device.queue.writeBuffer(this.initBoxSizeBuffer, 0, this.initBoxSizeValues);
-        this.device.queue.writeBuffer(this.realBoxSizeBuffer, 0, this.realBoxSizeValues);
+        const realBoxSizeValues = new ArrayBuffer(12);
+        const realBoxSizeViews = new Float32Array(realBoxSizeValues);
+        const initBoxSizeValues = new ArrayBuffer(12);
+        const initBoxSizeViews = new Float32Array(initBoxSizeValues);
+        initBoxSizeViews.set(gridBoxSize);    
+        realBoxSizeViews.set(seedBoxSize); 
+        this.device.queue.writeBuffer(this.initBoxSizeBuffer, 0, initBoxSizeValues);
+        this.device.queue.writeBuffer(this.realBoxSizeBuffer, 0, realBoxSizeValues);
         this.writePistonState(0);
-        this.clearInteraction();
     }
 
-    execute(commandEncoder, substeps = 2) {
+    execute(commandEncoder) {
         const computePass = commandEncoder.beginComputePass();
-        const steps = Math.max(1, Math.floor(substeps));
-        for (let i = 0; i < steps; i++) {
+        for (let i = 0; i < 2; i++) { 
             computePass.setBindGroup(0, this.clearGridBindGroup);
             computePass.setPipeline(this.clearGridPipeline);
             computePass.dispatchWorkgroups(Math.ceil(this.gridCount / 64))
@@ -247,30 +251,19 @@ export class MLSMPMSimulator {
             computePass.setBindGroup(0, this.g2pBindGroup)
             computePass.setPipeline(this.g2pPipeline)
             computePass.dispatchWorkgroups(Math.ceil(this.numParticles / 64)) 
+            computePass.setBindGroup(0, this.copyPositionBindGroup)
+            computePass.setPipeline(this.copyPositionPipeline)
+            computePass.dispatchWorkgroups(Math.ceil(this.numParticles / 64))             
         }
         computePass.end()
     }
 
     writePistonState(pistonVelocity) {
-        this.pistonStateValues[0] = pistonVelocity * this.pistonPower;
-        this.pistonStateValues[1] = this.boundaryCouplingWidth;
-        this.device.queue.writeBuffer(this.pistonStateBuffer, 0, this.pistonStateValues);
-    }
-
-    setInteraction(point, impulse, radius, strength) {
-        this.interactionValues.set(point, 0);
-        this.interactionValues[3] = radius;
-        this.interactionValues.set(impulse, 4);
-        this.interactionValues[7] = strength;
-        this.device.queue.writeBuffer(this.interactionStateBuffer, 0, this.interactionValues);
-        this.interactionActive = true;
-    }
-
-    clearInteraction() {
-        if (!this.interactionActive) return;
-        this.interactionValues.fill(0);
-        this.device.queue.writeBuffer(this.interactionStateBuffer, 0, this.interactionValues);
-        this.interactionActive = false;
+        const pistonStateValues = new ArrayBuffer(16);
+        const pistonStateViews = new Float32Array(pistonStateValues);
+        pistonStateViews[0] = pistonVelocity * this.pistonPower;
+        pistonStateViews[1] = this.boundaryCouplingWidth;
+        this.device.queue.writeBuffer(this.pistonStateBuffer, 0, pistonStateValues);
     }
 
     setInitialFluidDepth(value) {
@@ -286,8 +279,10 @@ export class MLSMPMSimulator {
     }
 
     changeBoxSize(realBoxSize, pistonVelocity = 0) {
-        this.realBoxSizeValues.set(realBoxSize)
-        this.device.queue.writeBuffer(this.realBoxSizeBuffer, 0, this.realBoxSizeValues)
+        const realBoxSizeValues = new ArrayBuffer(12);
+        const realBoxSizeViews = new Float32Array(realBoxSizeValues);
+        realBoxSizeViews.set(realBoxSize)
+        this.device.queue.writeBuffer(this.realBoxSizeBuffer, 0, realBoxSizeViews)
         this.writePistonState(pistonVelocity)
     }
 
