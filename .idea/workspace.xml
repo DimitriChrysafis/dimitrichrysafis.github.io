@@ -4,9 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="5b79210f-ace1-4c6d-8a9e-c09f32e7ec5c" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/bob.js" beforeDir="false" afterPath="$PROJECT_DIR$/bob.js" afterDir="false" />
-    </list>
+    <list default="true" id="5b79210f-ace1-4c6d-8a9e-c09f32e7ec5c" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -180,6 +178,7 @@
       <workItem from="1773587836564" duration="6000" />
       <workItem from="1773684633686" duration="3000" />
       <workItem from="1773716908417" duration="1000" />
+      <workItem from="1784517121461" duration="8000" />
     </task>
     <servers />
   </component>
