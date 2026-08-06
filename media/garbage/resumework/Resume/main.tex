@@ -6,13 +6,13 @@
 \usepackage[utf8]{inputenc} 
 \usepackage[T1]{fontenc}
 \usepackage[english]{babel}
-\titlespacing*{\section}{0pt}{6pt}{6pt} % Adjust spacing before/after section titles
+\titlespacing*{\section}{0pt}{8pt}{7pt} % Adjust spacing before/after section titles
 \titleformat{\section}{\Large\bfseries}{}{}{}
 \usepackage[left=1.2cm,top=1.2cm,right=1.2cm,bottom=0.5cm]{geometry}
 \usepackage{xcolor}
 \usepackage{hyperref}
 \usepackage[svgnames,x11names,table]{xcolor}
-\renewcommand{\baselinestretch}{0.96}
+\renewcommand{\baselinestretch}{1.05}
 
 % Prevent text overflow
 \sloppy
@@ -111,8 +111,8 @@ Bachelor of Science in Computer Science \hfill \textcolor{accentgreen}{\textbf{G
 
 \vspace{2pt}
 \section*{\textcolor{modernblue}{\Large Technical Skills}}
-\small{\textbf{ML Systems:} PyTorch, CatBoost, LoRA/QLoRA fine-tuning, quantization, adapter merging\\
-\textbf{GPU/Graphics Systems:} WebGPU/WGSL, WebGL/GLSL, Apple Metal, compute shaders, real-time rendering, mesh geometry, low-level GPU memory access}
+\small{\textbf{ML Systems:} PyTorch, CatBoost, model inference, quantization, model serving, LLM evaluation\\
+\textbf{GPU Computing:} WebGPU/WGSL, WebGL/GLSL, Apple Metal, tensor kernels, parallel compute, GPU memory access}
 \normalsize
 
 \noindent\rule{\textwidth}{0.5pt}
@@ -127,36 +127,38 @@ Bachelor of Science in Computer Science \hfill \textcolor{accentgreen}{\textbf{G
 \noindent\rule{\textwidth}{0.5pt}
 
 \section*{\textcolor{modernblue}{\Large Projects}}
-\textbf{Interactive 3D Fluid Simulator (MLS-MPM)} \href{https://dimitrichrysafis.github.io/media/post10/index.html}{\underline{[Demo]}} \href{https://github.com/DimitriChrysafis/3d-Volumetric-Fluid-Simulator}{\underline{[GitHub]}}
+\noindent\textbf{Qwen3.6 NVMe Inference Engine}
+\begin{itemize}[leftmargin=*, topsep=1pt, itemsep=1pt, parsep=0pt]
+\item Developing a quantized, disk-backed Qwen3.6-35B-A3B format targeting a reduction from \textbf{about 25 GB} for standard Q4 inference to \textbf{about 12 GB} resident memory by streaming router-selected MoE experts from NVMe
+\item Building a runtime with memory-mapped weights, bounded expert caching, and asynchronous prefetching under configurable memory budgets; measuring cache hit rate, exact-logit agreement, throughput, latency, and minimum memory
+\end{itemize}
+
+\vspace{4pt}
+\noindent\textbf{Interactive 3D Fluid Simulator (MLS-MPM)} \href{https://dimitrichrysafis.github.io/media/post10/index.html}{\underline{[Demo]}} \href{https://github.com/DimitriChrysafis/3d-Volumetric-Fluid-Simulator}{\underline{[GitHub]}}
 \begin{itemize}[leftmargin=*, topsep=1pt, itemsep=1pt, parsep=0pt]
 \item Built a browser-based 3D MLS-MPM simulator in JavaScript/WebGPU, keeping particle and grid state in GPU storage buffers and simulating \textbf{400,000 particles} with staged compute kernels
 \item Implemented fixed-point atomic accumulation for particle-to-grid transfers plus interactive dam-break, piston, particle-injection, and orbit-camera controls
 \end{itemize}
 
-\vspace{3pt}
+\vspace{4pt}
+\noindent\textbf{Tennis Match Prediction System}
+\begin{itemize}[leftmargin=*, topsep=1pt, itemsep=1pt, parsep=0pt]
+\item Built a feature pipeline over \textbf{92,000 ATP matches (1982--2024)} with player and surface-specific ELO, head-to-head, recent-form, and schedule-fatigue features
+\item Trained a CatBoost ensemble to predict winners; achieved \textbf{83.7\% accuracy} and outperformed a baseline model
+\end{itemize}
+
+\vspace{4pt}
 \noindent\textbf{GPU Fractal Rendering Engine} \href{https://github.com/DimitriChrysafis/Julia-Stuff}{\underline{[GitHub]}} \href{https://dimitrichrysafis.github.io/#post/post6.md}{\underline{[Blog]}}
 \begin{itemize}[leftmargin=*, topsep=1pt, itemsep=1pt, parsep=0pt]
 \item Built GPU fractal renderers in WebGL2/GLSL and Apple Metal for Newton, Kleinian, and Julia sets with interactive pan/zoom and shader-based iteration
 \item Implemented a Metal compute pipeline for \textbf{6,000\(\times\)6,000} Julia frames with adaptive iteration counts and GPU-parallel image generation
 \end{itemize}
 
-\vspace{3pt}
+\vspace{4pt}
 \noindent\textbf{GPU-Accelerated Sphere Packing in Arbitrary Meshes} \href{https://github.com/DimitriChrysafis/SpherePacker}{\underline{[GitHub]}} \href{https://dimitrichrysafis.github.io/#post/post8.md}{\underline{[Blog]}}
 \begin{itemize}[leftmargin=*, topsep=1pt, itemsep=1pt, parsep=0pt]
 \item Built a stochastic tangent-sphere packing solver for arbitrary OBJ meshes, enforcing interior, surface-clearance, and pairwise non-overlap constraints
 \item Accelerated ray-mesh containment, nearest-surface queries, and candidate search with batched PyTorch tensors on MPS/CUDA; visualized results in Open3D
 \end{itemize}
 
-\vspace{3pt}
-\noindent\textbf{Tennis Match Prediction System}
-\begin{itemize}[leftmargin=*, topsep=1pt, itemsep=1pt, parsep=0pt]
-\item Trained a CatBoost ensemble on \textbf{92,000 ATP matches (1982--2024)}, engineering ELO, surface, head-to-head, recent-form, and schedule-fatigue features to achieve \textbf{83.7\% accuracy}, outperforming the baseline by \textbf{12\%}
-\end{itemize}
-
-\vspace{3pt}
-\noindent\textbf{Fourier Drawing Machine} \href{https://github.com/DimitriChrysafis/FourierDrawer}{\underline{[GitHub]}} \href{https://dimitrichrysafis.github.io/#post/post2.md}{\underline{[Blog]}}
-\begin{itemize}[leftmargin=*, topsep=1pt, itemsep=1pt, parsep=0pt]
-\item Implemented a Discrete Fourier Transform pipeline with nearest-neighbor point ordering to reconstruct drawings as rotating epicycles
-\item Parallelized high-resolution frame rendering with Numba, PIL/NumPy, and a 14-worker executor for custom and image-derived point sets
-\end{itemize}
 \end{document}
