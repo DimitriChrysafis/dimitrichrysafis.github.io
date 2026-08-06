@@ -5,7 +5,7 @@
 \usepackage{titlesec}
 \usepackage[utf8]{inputenc} 
 \usepackage[T1]{fontenc}
-\usepackage[brazil]{babel}
+\usepackage[english]{babel}
 \titlespacing*{\section}{0pt}{6pt}{6pt} % Adjust spacing before/after section titles
 \titleformat{\section}{\Large\bfseries}{}{}{}
 \usepackage[left=1.2cm,top=1.2cm,right=1.2cm,bottom=0.5cm]{geometry}
@@ -107,56 +107,56 @@ dimitri.chrysafis@gmail.com \textbullet \ 650-305-9037\\
 \textbf{University of Wisconsin–Madison} \hfill Graduating May 2027\\
 Bachelor of Science in Computer Science \hfill \textcolor{accentgreen}{\textbf{GPA: 4.0}}
 
-\noindent\textit{Relevant Coursework:} Computer Sciences 577, Computer Sciences 524, Mathematics 435 (Cryptography)
+\noindent\textit{Relevant Coursework:} COMP SCI 577 (Algorithms), COMP SCI 524 (Optimization), MATH 435 (Cryptography)
 
 \vspace{2pt}
 \section*{\textcolor{modernblue}{\Large Technical Skills}}
-\small{\textbf{ML Systems:} LoRA/QLoRA fine-tuning, efficient quantization, adapter merging\\
-\textbf{GPU/Graphics Systems:} real-time rendering, shader programming, mesh geometry, low-level GPU memory access, compute-shader kernels}
+\small{\textbf{ML Systems:} PyTorch, CatBoost, LoRA/QLoRA fine-tuning, quantization, adapter merging\\
+\textbf{GPU/Graphics Systems:} WebGPU/WGSL, WebGL/GLSL, Apple Metal, compute shaders, real-time rendering, mesh geometry, low-level GPU memory access}
 \normalsize
 
 \noindent\rule{\textwidth}{0.5pt}
 
 \section*{\textcolor{modernblue}{\Large Experience}}
-\textbf{\href{https://simplex.chat/}{\underline{SimpleX Chat}}} \hfill \textcolor{modernblue}{\textbf{Open Source Contributor}}
+\textbf{\href{https://simplex.chat/}{\underline{SimpleX Chat}}} \hfill \textcolor{modernblue}{\textbf{Open Source Contributor}} \quad \textcolor{darkgray}{\small Sep 2025--Present}
 \begin{itemize}[leftmargin=*, topsep=0pt, itemsep=0pt, parsep=0pt]
-\item Contributed to SimpleX Chat, an open-source private messaging platform, by improving multi-device sync logic in the client messaging pipeline
-\item Implemented sync-state reconciliation and connection lifecycle updates to reduce duplicate delivery edge cases across linked devices
+\item Improved multi-device synchronization in the Haskell client pipeline of an open-source messaging platform
+\item Implemented sync-state reconciliation and connection-lifecycle updates to reduce duplicate delivery edge cases across linked devices
 \end{itemize}
 
 \noindent\rule{\textwidth}{0.5pt}
 
 \section*{\textcolor{modernblue}{\Large Projects}}
-\textbf{Interactive 3D Fluid Simulator Using Material Point Method} \href{https://dimitrichrysafis.github.io/media/post10/index.html}{\underline{[Demo]}} \href{https://github.com/DimitriChrysafis/3d-Volumetric-Fluid-Simulator-From-Scratch}{\underline{[GitHub]}}
+\textbf{Interactive 3D Fluid Simulator (MLS-MPM)} \href{https://dimitrichrysafis.github.io/media/post10/index.html}{\underline{[Demo]}} \href{https://github.com/DimitriChrysafis/3d-Volumetric-Fluid-Simulator}{\underline{[GitHub]}}
 \begin{itemize}[leftmargin=*, topsep=1pt, itemsep=1pt, parsep=0pt]
-\item Built browser-based physics engine implementing Material Point Method (MLS-MPM) with WebGPU compute shaders, simulating \textbf{400,000+ particles} in real-time with interactive camera controls and dynamic boundary animations
-\item Optimized particle-to-grid transfers through GPU parallelization and fixed-point arithmetic, achieving smooth performance for dam break scenarios and real-time particle injection
+\item Built a browser-based 3D MLS-MPM simulator in JavaScript/WebGPU, keeping particle and grid state in GPU storage buffers and simulating \textbf{400,000 particles} with staged compute kernels
+\item Implemented fixed-point atomic accumulation for particle-to-grid transfers plus interactive dam-break, piston, particle-injection, and orbit-camera controls
 \end{itemize}
 
 \vspace{3pt}
-\noindent\textbf{Real-Time Fractal Visualization Engine} \href{https://dimitrichrysafis.github.io/#post/post6.md}{\underline{[Blog]}}
+\noindent\textbf{GPU Fractal Rendering Engine} \href{https://github.com/DimitriChrysafis/Julia-Stuff}{\underline{[GitHub]}} \href{https://dimitrichrysafis.github.io/#post/post6.md}{\underline{[Blog]}}
 \begin{itemize}[leftmargin=*, topsep=1pt, itemsep=1pt, parsep=0pt]
-\item Engineered real-time fractal visualization for Mandelbrot, Newton's, and Kleinian limit sets using GPU-accelerated WebGL fragment shaders optimized for deep zoom
-\item Achieved up to \textbf{60×} speedup through adaptive sampling, tile-based rendering, and optimized complex arithmetic
+\item Built GPU fractal renderers in WebGL2/GLSL and Apple Metal for Newton, Kleinian, and Julia sets with interactive pan/zoom and shader-based iteration
+\item Implemented a Metal compute pipeline for \textbf{6,000\(\times\)6,000} Julia frames with adaptive iteration counts and GPU-parallel image generation
 \end{itemize}
 
 \vspace{3pt}
-\noindent\textbf{Volumetric Sphere Packing for 3D Meshes} \href{https://github.com/DimitriChrysafis/SpherePacker}{\underline{[GitHub]}} \href{https://dimitrichrysafis.github.io/#post/post8.md}{\underline{[Blog]}}
+\noindent\textbf{GPU-Accelerated Sphere Packing in Arbitrary Meshes} \href{https://github.com/DimitriChrysafis/SpherePacker}{\underline{[GitHub]}} \href{https://dimitrichrysafis.github.io/#post/post8.md}{\underline{[Blog]}}
 \begin{itemize}[leftmargin=*, topsep=1pt, itemsep=1pt, parsep=0pt]
-\item Built mesh-based sphere packing system that fills arbitrary 3D models with non-overlapping tangent spheres using ray-mesh containment tests and nearest-surface distance queries
-\item Accelerated candidate search and clearance updates with PyTorch tensor operations, Open3D mesh processing, and live visualization for iterative packing of complex OBJ meshes
+\item Built a stochastic tangent-sphere packing solver for arbitrary OBJ meshes, enforcing interior, surface-clearance, and pairwise non-overlap constraints
+\item Accelerated ray-mesh containment, nearest-surface queries, and candidate search with batched PyTorch tensors on MPS/CUDA; visualized results in Open3D
 \end{itemize}
 
 \vspace{3pt}
 \noindent\textbf{Tennis Match Prediction System}
 \begin{itemize}[leftmargin=*, topsep=1pt, itemsep=1pt, parsep=0pt]
-\item Built ensemble classifier using CatBoost on \textbf{92,000 ATP matches (1982-2024)} obtained from publicly available historical datasets, engineering features including player ELO ratings, surface-specific performance metrics, head-to-head statistics, recent form indicators, and fatigue scores from tournament schedules to achieve \textbf{83.7\% prediction accuracy}, outperforming baseline models by \textbf{12\%}
+\item Trained a CatBoost ensemble on \textbf{92,000 ATP matches (1982--2024)}, engineering ELO, surface, head-to-head, recent-form, and schedule-fatigue features to achieve \textbf{83.7\% accuracy}, outperforming the baseline by \textbf{12\%}
 \end{itemize}
 
 \vspace{3pt}
 \noindent\textbf{Fourier Drawing Machine} \href{https://github.com/DimitriChrysafis/FourierDrawer}{\underline{[GitHub]}} \href{https://dimitrichrysafis.github.io/#post/post2.md}{\underline{[Blog]}}
 \begin{itemize}[leftmargin=*, topsep=1pt, itemsep=1pt, parsep=0pt]
-\item Implemented a full Discrete Fourier Transform pipeline in Python that converts sampled drawing points into complex coefficients and reconstructs curves with rotating epicycles
-\item Built an animation renderer that generates frame-by-frame trajectory output with PIL/NumPy and exports smooth drawing visualizations from custom or image-derived point sets
+\item Implemented a Discrete Fourier Transform pipeline with nearest-neighbor point ordering to reconstruct drawings as rotating epicycles
+\item Parallelized high-resolution frame rendering with Numba, PIL/NumPy, and a 14-worker executor for custom and image-derived point sets
 \end{itemize}
 \end{document}
