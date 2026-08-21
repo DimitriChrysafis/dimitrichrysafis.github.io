@@ -42,40 +42,10 @@ function formatDate(dateString) {
   if (Number.isNaN(d.getTime())) return String(dateString || '');
   return d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
 }
-// we
-async function loadTemplates() {
-  const ensureTemplate = (id, innerHtml) => {
-    if (document.getElementById(id)) return;
-    const template = document.createElement('template');
-    template.id = id;
-    template.innerHTML = innerHtml.trim();
-    document.body.appendChild(template);
-  };
+const REQUIRED_TEMPLATES = ['post-grid-template', 'post-card-template', 'post-page-template', 'landing-template'];
 
-  const ensureRequiredTemplates = () => {
-    ensureTemplate('landing-template', `
-      <div class="landing">
-        <button type="button" class="landing-card" onclick="navigateToProjects()">
-          <h2>Projects List</h2>
-          <p>Writeups, demos, and longer posts.</p>
-        </button>
-      </div>
-    `);
-  };
-
-  // Prevent duplicate injection if already present
-  if (document.getElementById('post-grid-template')) {
-    ensureRequiredTemplates();
-    return;
-  }
-  try {
-    const response = await fetch('templates.html', { cache: 'no-store' });
-    if (!response.ok) throw new Error('templates fetch failed');
-    const html = await response.text();
-    document.body.insertAdjacentHTML('beforeend', html);
-  } catch (e) {
-    // Fallback inline templates for file:// or fetch failures
-    const fallback = `
+// Inline fallback for file:// or fetch failures
+const FALLBACK_TEMPLATES = `
 <template id="post-grid-template">
   <div class="posts-grid"></div>
 </template>
@@ -111,10 +81,19 @@ async function loadTemplates() {
   </div>
 </template>
 `;
-	    document.body.insertAdjacentHTML('beforeend', fallback);
-  }
 
-  ensureRequiredTemplates();
+async function loadTemplates() {
+  const missing = REQUIRED_TEMPLATES.filter((id) => !document.getElementById(id));
+  if (missing.length === 0) return;
+
+  try {
+    const response = await fetch('templates.html', { cache: 'no-store' });
+    if (!response.ok) throw new Error('templates fetch failed');
+    document.body.insertAdjacentHTML('beforeend', await response.text());
+  } catch (e) {
+    console.warn('using inline template fallback:', e);
+    document.body.insertAdjacentHTML('beforeend', FALLBACK_TEMPLATES);
+  }
 }
 
 function setPostCardImage(card, imageHash) {
