@@ -1,8 +1,6 @@
 let posts = [];
-let colors = {};
 const dataLoadState = {
-  posts: { loaded: false, error: null },
-  colors: { loaded: false, error: null }
+  posts: { loaded: false, error: null }
 };
 
 function localServerHint() {
@@ -119,10 +117,6 @@ async function loadTemplates() {
   ensureRequiredTemplates();
 }
 
-async function displayLanding() {
-  await displayPosts();
-}
-
 function setPostCardImage(card, imageHash) {
   if (!imageHash) return;
 
@@ -153,7 +147,6 @@ async function displayPosts() {
   document.title = "Dimitri's Blog";
 
   if (!dataLoadState.posts.loaded) await loadPosts();
-  if (!dataLoadState.colors.loaded) await loadColors();
 
   const mainContent = document.getElementById('main-content');
   if (dataLoadState.posts.error) {
@@ -326,23 +319,8 @@ async function loadPosts() {
   }
 }
 
-async function loadColors() {
-  dataLoadState.colors.loaded = false;
-  dataLoadState.colors.error = null;
-  try {
-    const data = await fetchJson('json/colors.json');
-    colors = (data && typeof data === 'object') ? data : {};
-  } catch (e) {
-    colors = {};
-    dataLoadState.colors.error = e;
-    console.error(e);
-  } finally {
-    dataLoadState.colors.loaded = true;
-  }
-}
-
 loadTemplates().then(async () => {
-  await Promise.all([loadColors(), loadPosts()]);
+  await loadPosts();
   handleRoute();
 });
 
@@ -361,10 +339,10 @@ window.addEventListener('keydown', function(event) {
 
 window.addEventListener('hashchange', handleRoute);
 
-// ensure posts/colors are available even if route changes later
+// ensure posts are available even if route changes later
 window.addEventListener('load', async () => {
-  if (!dataLoadState.posts.loaded || !dataLoadState.colors.loaded) {
-    try { await Promise.all([loadColors(), loadPosts()]); } catch {}
+  if (!dataLoadState.posts.loaded) {
+    try { await loadPosts(); } catch {}
   }
 });
 
