@@ -261,7 +261,7 @@ body {
 }
 
 .sparkle {
-    position: absolute;
+    position: fixed;
     pointer-events: none;
     font-size: 16px; /* Adjust as needed */
     animation: sparkle-animation 0.15s ease-out forwards;
