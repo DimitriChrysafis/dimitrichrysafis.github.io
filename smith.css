@@ -162,7 +162,7 @@ body {
 }
 
 .post-page {
-    max-width: 8040px;
+    max-width: 840px;
     margin: 40px auto;
     padding: 40px;
     background: var(--card);
