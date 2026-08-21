@@ -347,8 +347,11 @@ loadTemplates().then(async () => {
   handleRoute();
 });
 
+let easterEggLoaded = false;
 window.addEventListener('keydown', function(event) {
   if (event.key === 'P' || event.key === 'p') {
+    if (easterEggLoaded) return;
+    easterEggLoaded = true;
     const script = document.createElement('script');
     script.src = '3.js';
     script.type = 'module';
