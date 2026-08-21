@@ -259,7 +259,12 @@ function displayResume() {
 }
 
 
-function handleRoute() {
+async function handleRoute() {
+  // Guard against routes firing before templates are ready
+  if (REQUIRED_TEMPLATES.some((id) => !document.getElementById(id))) {
+    await loadTemplates();
+  }
+
   const raw = window.location.hash.startsWith('#') ? window.location.hash.slice(1) : window.location.hash;
   const hash = raw.replace(/^\//, '').trim();
   if (hash.startsWith('post/')) {
