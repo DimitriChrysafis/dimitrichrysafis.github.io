@@ -276,10 +276,9 @@ function navigateToProjects() {
 }
 
 function navigateToHome() {
+  routes.home();
   if (window.location.hash) {
-    window.location.hash = '';
-  } else {
-    routes.home();
+    history.replaceState(null, '', window.location.pathname);
   }
 }
 
