@@ -259,6 +259,16 @@ function displayResume() {
 }
 
 
+function showRouteError(error) {
+  const mainContent = document.getElementById('main-content');
+  if (!mainContent) return;
+  const msg = document.createElement('div');
+  msg.className = 'post-bio';
+  msg.textContent = `Something went wrong while rendering this page.\n\n${error}`.trim();
+  mainContent.innerHTML = '';
+  mainContent.appendChild(msg);
+}
+
 async function handleRoute() {
   // Guard against routes firing before templates are ready
   if (REQUIRED_TEMPLATES.some((id) => !document.getElementById(id))) {
@@ -267,15 +277,22 @@ async function handleRoute() {
 
   const raw = window.location.hash.startsWith('#') ? window.location.hash.slice(1) : window.location.hash;
   const hash = raw.replace(/^\//, '').trim();
+  let route;
   if (hash.startsWith('post/')) {
-    const filename = hash.slice(5);
-    routes.post(filename);
+    route = routes.post(hash.slice(5));
   } else if (hash === 'projects') {
-    routes.projects();
+    route = routes.projects();
   } else if (hash === 'postresume') {
-    routes.resume();
+    route = routes.resume();
   } else {
-    routes.home();
+    route = routes.home();
+  }
+
+  try {
+    await route;
+  } catch (e) {
+    console.error('route render failed:', e);
+    showRouteError(e);
   }
 }
 
