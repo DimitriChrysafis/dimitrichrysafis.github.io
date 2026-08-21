@@ -351,7 +351,7 @@ window.addEventListener('load', async () => {
 let emojis = [];
 let lastSparkleTime = 0;
 
-fetch('json/emojis.json')
+fetch('json/emojis.json', { cache: 'no-store' })
     .then((response) => {
         return response.json();
     })
