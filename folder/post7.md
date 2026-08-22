@@ -3,7 +3,7 @@
 
 ## Demo
 
-<video width="1000" controls autoplay muted>  
+<video class="post-video" controls autoplay muted>
   <source src="../media/post7/initial.mp4" type="video/mp4">  
   Your browser does not support the video tag.  
 </video>
@@ -11,12 +11,10 @@
 <br />
 <br />
 
-<div style="position: relative; width: 100%; padding-bottom: 56.25%; height: 0;">
-  <iframe 
-    width="100%" 
-    height="500" 
+<div class="responsive-embed">
+  <iframe
     src="https://www.youtube.com/embed/Gz6gZwLvjaw" 
-    frameborder="0" 
+    frameborder="0"
     allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" 
     allowfullscreen> 
   </iframe> 

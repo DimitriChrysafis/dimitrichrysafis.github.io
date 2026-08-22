@@ -1,87 +1,84 @@
 # Sphere Packing inside Arbitrary Meshes
-### SRC: [https://github.com/DimitriChrysafis/SpherePacking](https://github.com/DimitriChrysafis)
+### SRC: [SpherePacking](https://github.com/DimitriChrysafis/SpherePacking)
 
 ## Demos
 
-### 1. The Stanford Bunny
-
-Links: <a href="../media/post8/dragon.html" target="_blank" rel="noopener noreferrer">Dragon</a> | <a href="../media/post8/ogre.html" target="_blank" rel="noopener noreferrer">Ogre</a>
+[Bunny](../media/post8/bunny.html) · [Dragon](../media/post8/dragon.html) · [Ogre](../media/post8/ogre.html) · [Binary Search](../media/post8/animation.html)
 
 <div style="position: relative; width: 100%; padding-bottom: 56.25%; height: 0;">
   <iframe
     src="../media/post8/bunny.html"
+    title="Sphere packing inside the Stanford Bunny"
     style="position: absolute; top:0; left:0; width:100%; height:100%; border:none;"
     scrolling="no">
   </iframe>
 </div>
 
-## KEY IDEA HOW IT WORKS:
+<br />
 
-To tightly pack spheres inside an arbitrary 3D mesh, we use a hybrid approach combining GPU-accelerated grid search for initial placement and a stochastic tangent-based purely iterative solver for filling gaps. All geometric queries invoke custom CUDA/MPS kernels for high-throughput ray-triangle intersection tests.
+## The loop
 
-## GPU Intersection
+<img class="latex-formula formula-wide" src="../media/post8/diagrams/formula-01.svg?v=3" alt="Mesh to inside and clearance queries to largest seed sphere to tangent expansion to packed mesh">
 
-Point containment is determined via the Generalized Winding Number or simple Ray Casting (Parity Rule) for watertight meshes: $\text{Inside}(P) \iff \left( \sum_{T \in \text{Mesh}} \text{Intersect}(P, \vec{d}, T) \right) \equiv 1 \pmod 2$.
+GPU kernels batch the ray/triangle tests, nearest-surface distance queries, and candidate checks.
+The first stage is global: it finds a safe, large seed anywhere in the mesh. The second stage is local: each new sphere grows from an existing one until a constraint becomes active.
 
-We solve for intersection time $t$ and barycentric coordinates $(u, v)$ against triangle vertices $V_0, V_1, V_2$. This is a change of basis problem mapping the ray space to the triangle's barycentric space, where $\vec{P} = \vec{O} + t\vec{D} = (1 - u - v)V_0 + uV_1 + vV_2$.
+## 1. Inside or outside
 
-Rearranging into a linear system $Ax = b$ gives:
+For a watertight mesh, cast a non-degenerate ray from $O$ through $P$.
 
-$$
-\begin{bmatrix}
--\vec{D} & V_1 - V_0 & V_2 - V_0
-\end{bmatrix}
-\begin{bmatrix}
-t \\ u \\ v
-\end{bmatrix}
-= \vec{O} - V_0
-$$
+<img class="latex-diagram" src="../media/post8/diagrams/ray-triangle.svg?v=3" alt="LaTeX diagram of a ray intersecting a triangle">
 
-Using Cramer's Rule (Moller-Trumbore algorithm), define $\vec{E}_1 = V_1 - V_0$, $\vec{E}_2 = V_2 - V_0$, $\vec{T} = \vec{O} - V_0$, $\vec{P} = \vec{D} \times \vec{E}_2$, and $\vec{Q} = \vec{T} \times \vec{E}_1$.
+<img class="latex-formula" src="../media/post8/diagrams/formula-02.svg?v=3" alt="Ray and barycentric-coordinate intersection equation">
 
-The solution for $t$ is then $t = \frac{\det(\vec{T}, \vec{E}_1, \vec{E}_2)}{\det(-\vec{D}, \vec{E}_1, \vec{E}_2)} = \frac{1}{\vec{P} \cdot \vec{E}_1}(\vec{Q} \cdot \vec{E}_2)$.
+<img class="latex-formula" src="../media/post8/diagrams/formula-03.svg?v=3" alt="Forward ray and barycentric hit constraints">
 
-## Grid Search
+The parity rule is then
 
-To find the largest possible sphere in standard space, we discretize the bounding volume into a high-resolution grid $G$, where $G_{ijk} \in \mathbb{R}^3 \cap \Omega_{mesh}$. This acts as a global optimization step to escape local optima that a purely greedy approach might fall into.
+<img class="latex-formula" src="../media/post8/diagrams/formula-04.svg?v=3" alt="Parity rule for point containment">
 
-For every valid grid point, we compute the nearest distance to the surface point cloud $S$. This is effectively computing the Signed Distance Function (SDF) on the GPU: $\text{SDF}(p) = \min_{s \in S} ||p - s||$. The best starting sphere radius is $R_{max} = \max_{p \in G}(\text{SDF}(p))$.
+Each ray kernel returns $(t,u,v)$. Only forward hits with valid barycentric coordinates contribute to the parity count; shared edge and vertex hits need a consistent tie-break rule.
 
-This provides the optimal starting seed for the packing algorithm.
+For Möller–Trumbore:
 
-## Tangent Solver
+<img class="latex-formula" src="../media/post8/diagrams/formula-05.svg?v=3" alt="Triangle edge definitions">
 
-Subsequent spheres are placed by expanding from the surface of existing spheres. This ensures tight packing density ($\phi_{local} \approx 0.74$).
+<img class="latex-formula" src="../media/post8/diagrams/formula-06.svg?v=3" alt="Möller Trumbore intermediate values">
 
-Given an anchor sphere $(C_a, r_a)$ and a random direction $\hat{d}$, the new sphere center is parameterized by its radius $r$: $C_{new}(r) = C_a + (r_a + r)\hat{d}$.
+<img class="latex-formula" src="../media/post8/diagrams/formula-07.svg?v=3" alt="Möller Trumbore barycentric and ray solutions">
 
-We find the maximum valid $r$ using a **Binary Search** over the interval $[0, R_{max}]$.
+## 2. Largest interior sphere
 
-### Binary Search Logic
+Sample the interior on a grid $G$. For every interior point, measure the distance to the triangle surface. The seed is the point with the largest such distance.
 
-$$
-\begin{array}{c}
-\text{Start Interval: } [L, H] \\
-\downarrow \\
-\text{Midpoint: } m = \frac{L+H}{2} \\
-\downarrow \\
-\text{Check Validity}(C_{new}(m), m) \\
-\swarrow \qquad \searrow \\
-\text{Valid} \qquad \text{Invalid} \\
-L \leftarrow m \qquad H \leftarrow m
-\end{array}
-$$
+<img class="latex-diagram" src="../media/post8/diagrams/grid-clearance.svg?v=4" alt="LaTeX diagram of grid samples and the largest interior clearance circle">
 
-The validity check $\text{Valid}(C, r)$ involves three simultaneous constraints.
+<img class="latex-formula" src="../media/post8/diagrams/formula-08.svg?v=3" alt="Distance from a point to the mesh boundary">
 
-### 1. Mesh Containment
+<img class="latex-formula" src="../media/post8/diagrams/formula-09.svg?v=3" alt="Largest-clearance grid seed and radius">
 
-The sphere must remain entirely inside the mesh: $\text{Inside}(C) \land (\text{SDF}(C) \ge r)$.
+That radius is a conservative upper bound for every later sphere. This global pass avoids committing the solver to the first local gap it sees.
 
-### 2. Surface Clearance
+## 3. Tangent expansion
 
-The sphere cannot penetrate the mesh boundary, so $r \le \min_{s \in S} ||C - s||$.
+From an accepted sphere $(C_a,r_a)$, choose a unit direction $\hat d$ and solve for the next radius. As $r$ grows, the candidate center moves outward by exactly the same amount, so the new sphere stays tangent to its anchor.
 
-### 3. Mutual Exclusion
+<img class="latex-formula" src="../media/post8/diagrams/formula-10.svg?v=3" alt="Tangent candidate-center equation">
 
-The sphere cannot overlap with any existing sphere $i$, so $\forall i: ||C - C_i|| \ge r + r_i$.
+The two spheres touch because
+
+<img class="latex-formula" src="../media/post8/diagrams/formula-11.svg?v=3" alt="Tangency condition">
+
+For a valid/invalid bracket $[L,H]$ around the first failed radius:
+
+<img class="latex-formula" src="../media/post8/diagrams/formula-12.svg?v=3" alt="Binary search update rule">
+
+<img class="latex-formula" src="../media/post8/diagrams/formula-13.svg?v=3" alt="Candidate sphere validity test">
+
+The containment term keeps the center inside the mesh. The clearance term prevents surface penetration. The last term rejects overlap with every sphere already accepted into the packing. The output is a hierarchy of large interior spheres followed by progressively smaller gap-filling spheres, all using the same compact GPU-friendly tests.
+
+## Result
+
+<img class="post8-result" src="../media/post-images/sphere-packing.png" alt="Sphere packing result inside the Stanford Bunny">
+
+<img class="latex-formula formula-wide" src="../media/post8/diagrams/formula-14.svg?v=3" alt="Global seed to local tangent solve to dense non-overlapping packing">

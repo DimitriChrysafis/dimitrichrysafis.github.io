@@ -1,0 +1,62 @@
+\documentclass[multi=formula,border=2pt]{standalone}
+\usepackage{amsmath,amssymb}
+\newenvironment{formula}{\Large\begin{math}\displaystyle}{\end{math}}
+\begin{document}
+
+\begin{formula}
+\text{mesh} \rightarrow \text{inside + clearance queries} \rightarrow \text{largest seed sphere} \rightarrow \text{tangent expansion} \rightarrow \text{packed mesh}
+\end{formula}
+
+\begin{formula}
+P = O + t\hat D = V_0 + u(V_1-V_0) + v(V_2-V_0)
+\end{formula}
+
+\begin{formula}
+t>0, \qquad u\ge0, \qquad v\ge0, \qquad u+v\le1
+\end{formula}
+
+\begin{formula}
+\operatorname{Inside}(P) \iff \left(\sum_{T\in\partial\Omega}\mathbf{1}[\operatorname{hit}(P,\hat D,T)]\right) \bmod 2 = 1
+\end{formula}
+
+\begin{formula}
+E_1=V_1-V_0, \qquad E_2=V_2-V_0
+\end{formula}
+
+\begin{formula}
+q=\hat D\times E_2, \qquad \Delta=E_1\cdot q, \qquad T=O-V_0
+\end{formula}
+
+\begin{formula}
+u=\frac{T\cdot q}{\Delta}, \qquad v=\frac{\hat D\cdot(T\times E_1)}{\Delta}, \qquad t=\frac{E_2\cdot(T\times E_1)}{\Delta}
+\end{formula}
+
+\begin{formula}
+d(p,\partial\Omega)=\min_{s\in\partial\Omega}\lVert p-s\rVert
+\end{formula}
+
+\begin{formula}
+p^*=\underset{p\in G\cap\Omega}{\operatorname{argmax}}\ d(p,\partial\Omega), \qquad R_{\max}=d(p^*,\partial\Omega)
+\end{formula}
+
+\begin{formula}
+C_{\mathrm{new}}(r)=C_a+(r_a+r)\hat d, \qquad \lVert\hat d\rVert=1
+\end{formula}
+
+\begin{formula}
+\lVert C_{\mathrm{new}}(r)-C_a\rVert=r_a+r
+\end{formula}
+
+\begin{formula}
+m=\frac{L+H}{2}, \qquad \operatorname{Valid}(m)\Rightarrow L\leftarrow m, \qquad \neg\operatorname{Valid}(m)\Rightarrow H\leftarrow m
+\end{formula}
+
+\begin{formula}
+\operatorname{Valid}(C,r) \iff \operatorname{Inside}(C) \land d(C,\partial\Omega)\ge r \land \forall i:\ \lVert C-C_i\rVert\ge r+r_i
+\end{formula}
+
+\begin{formula}
+\text{global seed} \rightarrow \text{local tangent solve} \rightarrow \text{dense non-overlapping packing}
+\end{formula}
+
+\end{document}

@@ -295,3 +295,58 @@ body.resume-active .content {
 body.resume-active #main-content {
     height: 100%;
 }
+
+/* Post 8 LaTeX figures */
+.markdown-content .latex-diagram,
+.markdown-content .post8-result {
+    display: block;
+    width: 100%;
+    height: auto;
+    margin: 28px auto;
+    border: 1px solid var(--border);
+    background: #fff;
+}
+
+.markdown-content .latex-formula {
+    display: block;
+    width: auto;
+    max-width: 100%;
+    height: auto;
+    margin: 14px 0;
+}
+
+.markdown-content .latex-formula.formula-wide {
+    width: 100%;
+}
+
+/* Responsive media used by project posts */
+.markdown-content :is(img, video, canvas, iframe, embed, object) {
+    box-sizing: border-box;
+    max-width: 100%;
+}
+
+.markdown-content :is(img, video, canvas) {
+    height: auto;
+}
+
+.markdown-content .post-video {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+}
+
+.markdown-content .responsive-embed {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+}
+
+.markdown-content .responsive-embed iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+}
