@@ -1,18 +1,19 @@
 \documentclass[11pt]{article}
 \usepackage{graphicx} % Required for inserting images
-% \setlength{\parindent}{0pt}
+\setlength{\parindent}{0pt}
 \usepackage{enumitem}
 \usepackage{titlesec}
 \usepackage[utf8]{inputenc} 
 \usepackage[T1]{fontenc}
 \usepackage[english]{babel}
-\titlespacing*{\section}{0pt}{8pt}{7pt} % Adjust spacing before/after section titles
+\titlespacing*{\section}{0pt}{10pt}{8pt}
 \titleformat{\section}{\Large\bfseries}{}{}{}
 \usepackage[left=1.2cm,top=1.2cm,right=1.2cm,bottom=0.5cm]{geometry}
 \usepackage{xcolor}
 \usepackage{hyperref}
 \usepackage[svgnames,x11names,table]{xcolor}
-\renewcommand{\baselinestretch}{1.05}
+\renewcommand{\baselinestretch}{1.08}
+\setlist[itemize]{leftmargin=*, topsep=0pt, itemsep=3pt, parsep=0pt, partopsep=0pt}
 
 % Prevent text overflow
 \sloppy
@@ -101,27 +102,25 @@ dimitri.chrysafis@gmail.com \textbullet \ 650-305-9037\\
 \faGithub \ \href{https://github.com/DimitriChrysafis}{DimitriChrysafis} \textbullet \ \href{https://dimitrichrysafis.github.io/}{dimitrichrysafis.github.io}
 \end{center}
 
-\vspace{1pt}
-
 \section*{\textcolor{modernblue}{\Large Education}}
 \textbf{University of Wisconsin–Madison} \hfill Graduating May 2027\\
-Bachelor of Science in Computer Science \hfill \textcolor{accentgreen}{\textbf{GPA: 4.0}}
+Bachelor of Science in Computer Science
 
-\noindent\textit{Relevant Coursework:} COMP SCI 577 (Algorithms), COMP SCI 524 (Optimization), MATH 435 (Cryptography)
+\noindent\small{\textit{Relevant Coursework:} COMP SCI 577 (Algorithms), COMP SCI 524 (Optimization), MATH 435 (Cryptography); A in each}\normalsize
 
-\vspace{2pt}
+\vspace{3pt}
 \section*{\textcolor{modernblue}{\Large Technical Skills}}
-\small{\textbf{ML Systems:} PyTorch, CatBoost, model inference, quantization, model serving, LLM evaluation\\
-\textbf{GPU Computing:} WebGPU/WGSL, WebGL/GLSL, Apple Metal, tensor kernels, parallel compute, GPU memory access}
+\small{\textbf{Languages:} Python, C++, Haskell, Julia, Go, JavaScript\\
+\textbf{ML/GPU:} PyTorch, CatBoost, WebGPU/WGSL, WebGL/GLSL, Apple Metal, inference, quantization, model serving}
 \normalsize
 
 \noindent\rule{\textwidth}{0.5pt}
 
 \section*{\textcolor{modernblue}{\Large Experience}}
-\textbf{\href{https://simplex.chat/}{\underline{SimpleX Chat}}} \hfill \textcolor{modernblue}{\textbf{Open Source Contributor}} \quad \textcolor{darkgray}{\small Sep 2025--Present}
-\begin{itemize}[leftmargin=*, topsep=0pt, itemsep=0pt, parsep=0pt]
-\item Improved multi-device synchronization in the Haskell client pipeline of an open-source messaging platform
-\item Implemented sync-state reconciliation and connection-lifecycle updates to reduce duplicate delivery edge cases across linked devices
+\textbf{Quantum Circuit Routing} \href{https://dimitrichrysafis.github.io/media/post10/524-project-final-report.pdf}{\underline{[Final Report]}} \hfill \textcolor{modernblue}{\textbf{COMPSCI 524 Project}} \quad \textcolor{darkgray}{\small Jul 2026}
+\begin{itemize}
+\item Built an exact Julia/JuMP/HiGHS MILP for routing quantum circuits on sparse superconducting hardware
+\item Solved 24 instances to proven optimality; grid3x3 lowered the objective \textbf{56.1\%} versus heavy-7
 \end{itemize}
 
 \noindent\rule{\textwidth}{0.5pt}
