@@ -25,23 +25,6 @@ async function fetchText(path) {
   return await response.text();
 }
 
-function parseDate(dateString) {
-  if (!dateString || typeof dateString !== 'string') return new Date(NaN);
-  const m = /^(\d{4})-(\d{1,2})-(\d{1,2})$/.exec(dateString.trim());
-  if (m) {
-    const year = Number(m[1]);
-    const month = Number(m[2]);
-    const day = Number(m[3]);
-    return new Date(year, month - 1, day);
-  }
-  return new Date(dateString);
-}
-
-function formatDate(dateString) {
-  const d = parseDate(dateString);
-  if (Number.isNaN(d.getTime())) return String(dateString || '');
-  return d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
-}
 const REQUIRED_TEMPLATES = ['post-grid-template', 'post-card-template', 'post-page-template', 'landing-template'];
 
 // Inline fallback for file:// or fetch failures
@@ -53,7 +36,6 @@ const FALLBACK_TEMPLATES = `
 <template id="post-card-template">
   <article class="post-card" onclick="navigateToPost('{{filename}}')">
     <h2 class="post-title">{{title}}</h2>
-    <div class="post-meta">{{date}}</div>
     <div class="post-bio">{{bio}}</div>
   </article>
 </template>
@@ -66,7 +48,6 @@ const FALLBACK_TEMPLATES = `
     </div>
     <header class="post-header">
       <h1>{{postTitle}}</h1>
-      <div class="post-meta">{{postDate}}</div>
     </header>
     <div class="markdown-content">{{postContent}}</div>
   </article>
@@ -146,7 +127,6 @@ async function displayPosts() {
     const postCard = postCardTemplate.querySelector('.post-card');
     postCard.setAttribute('onclick', action);
     postCardTemplate.querySelector('.post-title').textContent = post.title;
-    postCardTemplate.querySelector('.post-meta').textContent = formatDate(post.date);
     postCardTemplate.querySelector('.post-bio').textContent = post.bio;
     setPostCardImage(postCard, post.imageHash);
     postCard.style.backgroundSize = 'cover';
@@ -208,10 +188,6 @@ async function loadPost(filename) {
   document.title = `${post.title || filename} | Dimitri's Blog`;
 
   postPageTemplate.querySelector('.post-header h1').textContent = post.title || filename;
-
-  const metaParts = [];
-  if (post.date) metaParts.push(formatDate(post.date));
-  postPageTemplate.querySelector('.post-meta').textContent = metaParts.join(' • ');
 
   const content = (window.marked && typeof marked.parse === 'function') ? marked.parse(markdown) : markdown;
   const markdownContent = postPageTemplate.querySelector('.markdown-content');
