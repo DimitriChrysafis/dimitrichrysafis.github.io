@@ -6,7 +6,7 @@
 \usepackage[utf8]{inputenc} 
 \usepackage[T1]{fontenc}
 \usepackage[english]{babel}
-\titlespacing*{\section}{0pt}{10pt}{8pt}
+\titlespacing*{\section}{0pt}{6pt}{4pt}
 \titleformat{\section}{\Large\bfseries}{}{}{}
 \usepackage[left=1.2cm,top=1.2cm,right=1.2cm,bottom=0.5cm]{geometry}
 \usepackage{xcolor}
@@ -112,7 +112,7 @@ Bachelor of Science in Computer Science
 \noindent\small{\textit{Relevant Coursework:} COMP SCI 577 (Algorithms), COMP SCI 524 (Optimization), COMP SCI 400 (Programming III), COMP SCI 300 (Programming II), COMP SCI 252 (Computer Engineering), MATH 435 (Cryptography), MATH 331 (Probability), MATH 340 (Matrix and Linear Algebra)}\normalsize
 
 
-\vspace{3pt}
+\vspace{2pt}
 \section*{\textcolor{modernblue}{\Large Technical Skills}}
 
 % TODO
@@ -121,60 +121,54 @@ Bachelor of Science in Computer Science
 %
 
 % You might want to mention Devin + Claude or whatever other AI tools you know
-\small{\textbf{Languages:} Python, C++, Julia, Go, JavaScript\\
-\textbf{ML/GPU:} PyTorch, CatBoost, WebGPU/WGSL, WebGL/GLSL, Apple Metal, inference, quantization, model serving}
+\small{\textbf{Languages:} Python, C++, Swift/SwiftUI, Julia, Go, JavaScript\\
+\textbf{ML/GPU:} PyTorch, WebGPU/WGSL, WebGL/GLSL, Metal, inference, quantization, model serving}
 \normalsize
 
 %\noindent\rule{\textwidth}{0.5pt}
 
 % The report looks great
 \section*{\textcolor{modernblue}{\Large Experience}}
-\textbf{Quantum Circuit Routing} \href{https://dimitrichrysafis.github.io/media/post10/524-project-final-report.pdf}{\underline{[Final Report]}} \hfill \textcolor{modernblue}{\textbf{COMPSCI 524 Project}} \quad \textcolor{darkgray}{\small Jul 2026}
+\textbf{Quantum Circuit Routing} \href{https://dimitrichrysafis.github.io/media/post10/524-project-final-report.pdf}{\underline{[Final Report]}} \hfill \textcolor{darkgray}{\small Jul 2026}
 \begin{itemize}
-\item Built an exact Julia/JuMP/HiGHS MILP for routing quantum circuits on sparse superconducting hardware
-\item Solved 24 instances to proven optimality; grid3x3 lowered the objective \textbf{56.1\%} versus heavy-7
+\item Built an exact Julia/JuMP/HiGHS MILP that routes logical circuits onto sparse superconducting hardware via SWAPs, with calibrated coupling and readout errors
+\item Solved all 24 experiment instances to proven optimality; a 3$\times$3 grid topology cut routing cost \textbf{56.1\%} versus the 7-qubit heavy-hex baseline
 \end{itemize}
 
 %\noindent\rule{\textwidth}{0.5pt}
 
 \section*{\textcolor{modernblue}{\Large Projects}}
-% TODO
-% You need a link to the report
-%
 \noindent\textbf{Qwen3.8-Flash-Next NVMe Inference Engine} \href{https://github.com/DimitriChrysafis/qwen3.8-flash-next}{\underline{[GitHub]}}
 \begin{itemize}[leftmargin=*, topsep=1pt, itemsep=1pt, parsep=0pt]
-\item Building a disk-backed inference engine that runs the \textbf{180B-parameter Qwen3.8-Flash-Next} model on a Mac with \textbf{36 GB unified memory} by streaming MoE experts from NVMe instead of loading the full model into memory
-\item Implementing memory-mapped weights, dynamic expert caching, and asynchronous prefetching; benchmarking \textbf{throughput, latency, disk I/O, and peak memory}
+\item Built a disk-backed inference engine that runs the \textbf{180B-parameter Qwen3.8-Flash-Next} model on a Mac with \textbf{36 GB unified memory} by streaming MoE experts from NVMe instead of loading the full model into memory
+\item Implemented memory-mapped weights, dynamic expert caching, and asynchronous prefetching, and benchmarked throughput, latency, disk I/O, and peak memory
 \end{itemize}
 
-\vspace{3pt}
+\vspace{2pt}
 \noindent\textbf{Interactive 3D Fluid Simulator (MLS-MPM)} \href{https://dimitrichrysafis.github.io/media/post10/index.html}{\underline{[Demo]}} \href{https://github.com/DimitriChrysafis/3d-Volumetric-Fluid-Simulator}{\underline{[GitHub]}}
 \begin{itemize}[leftmargin=*, topsep=1pt, itemsep=1pt, parsep=0pt]
-\item Built a browser-based 3D MLS-MPM simulator in JavaScript/WebGPU, keeping particle and grid state in GPU storage buffers and simulating \textbf{400,000 particles} with staged compute kernels
+\item Engineered a browser-based 3D MLS-MPM simulator in JavaScript/WebGPU, keeping particle and grid state in GPU storage buffers and simulating \textbf{400,000 particles} with staged compute kernels
 \item Implemented fixed-point atomic accumulation for particle-to-grid transfers plus interactive dam-break, piston, particle-injection, and orbit-camera controls
 \end{itemize}
 
-\vspace{3pt}
-% TODO
-% You need a link to the report
-%
-\noindent\textbf{Tennis Match Prediction System}
+\vspace{2pt}
+\noindent\textbf{Zwift Shifter (macOS Virtual Gear Shifter)} \href{https://github.com/DimitriChrysafis/ZwiftShifter}{\underline{[GitHub]}} \href{https://dimitrichrysafis.github.io/#post/post12.md}{\underline{[Blog]}}
 \begin{itemize}[leftmargin=*, topsep=1pt, itemsep=1pt, parsep=0pt]
-\item Built a feature pipeline over \textbf{92,000 ATP matches (1982--2024)} with player and surface-specific ELO, head-to-head, recent-form, and schedule-fatigue features
-\item Trained a CatBoost ensemble to predict winners; achieved \textbf{83.7\% accuracy} and outperformed a baseline model
+\item Reverse-engineered Zwift's Click v2 Bluetooth path (FC82 service, 0x23 button frames) by tracing its Objective-C bridge with LLDB, then injected a dylib that calls Zwift's own shift logic with synthetic frames
+\item Shipped a SwiftUI app with status light and arrow controls that changes the real Zwift HUD gear over a local Unix socket, verified live on an Apple Silicon Mac
 \end{itemize}
 
-\vspace{3pt}
+\vspace{2pt}
 \noindent\textbf{GPU Fractal Rendering Engine} \href{https://github.com/DimitriChrysafis/Julia-Stuff}{\underline{[GitHub]}} \href{https://dimitrichrysafis.github.io/#post/post6.md}{\underline{[Blog]}}
 \begin{itemize}[leftmargin=*, topsep=1pt, itemsep=1pt, parsep=0pt]
-\item Built GPU fractal renderers in WebGL2/GLSL and Apple Metal for Newton, Kleinian, and Julia sets with interactive pan/zoom and shader-based iteration
+\item Developed GPU fractal renderers in WebGL2/GLSL and Apple Metal for Newton, Kleinian, and Julia sets with interactive pan/zoom and shader-based iteration
 \item Implemented a Metal compute pipeline for \textbf{6,000\(\times\)6,000} Julia frames with adaptive iteration counts and GPU-parallel image generation
 \end{itemize}
 
-\vspace{3pt}
+\vspace{2pt}
 \noindent\textbf{GPU-Accelerated Sphere Packing in Arbitrary Meshes} \href{https://github.com/DimitriChrysafis/SpherePacker}{\underline{[GitHub]}} \href{https://dimitrichrysafis.github.io/#post/post8.md}{\underline{[Blog]}}
 \begin{itemize}[leftmargin=*, topsep=1pt, itemsep=1pt, parsep=0pt]
-\item Built a stochastic tangent-sphere packing solver for arbitrary OBJ meshes, enforcing interior, surface-clearance, and pairwise non-overlap constraints
+\item Designed a stochastic tangent-sphere packing solver for arbitrary OBJ meshes, enforcing interior, surface-clearance, and pairwise non-overlap constraints
 \item Accelerated ray-mesh containment, nearest-surface queries, and candidate search with batched PyTorch tensors on MPS/CUDA; visualized results in Open3D
 \end{itemize}
 
