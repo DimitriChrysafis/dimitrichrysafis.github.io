@@ -1,5 +1,18 @@
 [
   {
+    "title": "Making a Mac Shifter for Zwift",
+    "filename": "post12.md",
+    "date": "2026-8-27",
+    "author": "Post 12",
+    "bio": "A Mac button that changes the real gear in Zwift.",
+    "imageHash": "zwift-shifter",
+    "categories": [
+      "Bluetooth",
+      "Computer"
+    ]
+  },
+  /* Temporarily hidden: X-Lab Power Meter
+  {
     "title": "X-Lab Power Meter",
     "filename": "post11.md",
     "date": "2026-6-9",
@@ -11,6 +24,7 @@
     ],
     "imageHash": "xlab-power-meter"
   },
+  */
   {
     "title": "3D Fluid Simulator",
     "filename": "post10.md",

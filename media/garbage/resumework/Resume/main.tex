@@ -15,14 +15,14 @@
 \renewcommand{\baselinestretch}{1.08}
 \setlist[itemize]{leftmargin=*, topsep=0pt, itemsep=3pt, parsep=0pt, partopsep=0pt}
 
-% Prevent text overflow
+
 \sloppy
 \emergencystretch=1em
 
-% Enhanced packages for better formatting
-\usepackage{fontawesome5} % For icons
-\usepackage{tikz} % For custom graphics and decorations
-\usepackage{tcolorbox} % For colored boxes
+
+\usepackage{fontawesome5} 
+\usepackage{tikz} 
+\usepackage{tcolorbox} 
 
 
 
@@ -43,11 +43,11 @@
     linkbordercolor=modernblue,
 }
 
-% Add page background for better contrast
+
 \usepackage{pagecolor}
 \pagecolor{white}
 
-% Custom command for experience entries
+
 \newcommand{\experienceentry}[4]{
     \begin{tcolorbox}[
         colback=lightgray,
@@ -67,14 +67,14 @@
     \vspace{2pt}
 }
 
-% Custom command for skill badges
+
 \newcommand{\skillbadge}[1]{
     \tikz[baseline=(text.base)]{
         \node[draw=accentgreen, fill=accentgreen!20, rounded corners=2pt, inner sep=2pt] (text) {\small #1};
     }
 }
 
-% Custom command for project entries
+
 \newcommand{\projectentry}[3]{
     \begin{tcolorbox}[
         colback=white,
@@ -103,19 +103,31 @@ dimitri.chrysafis@gmail.com \textbullet \ 650-305-9037\\
 \end{center}
 
 \section*{\textcolor{modernblue}{\Large Education}}
-\textbf{University of Wisconsin–Madison} \hfill Graduating May 2027\\
+\textbf{University of Wisconsin–Madison} \hfill August 2025 - May 2027\\
 Bachelor of Science in Computer Science
 
-\noindent\small{\textit{Relevant Coursework:} COMP SCI 577 (Algorithms), COMP SCI 524 (Optimization), MATH 435 (Cryptography)}\normalsize
+% TODO
+% You need to list all your classes
+%
+\noindent\small{\textit{Relevant Coursework:} COMP SCI 577 (Algorithms), COMP SCI 524 (Optimization), COMP SCI 400 (Programming III), COMP SCI 300 (Programming II), COMP SCI 252 (Computer Engineering), MATH 435 (Cryptography), MATH 331 (Probability), MATH 340 (Matrix and Linear Algebra)}\normalsize
+
 
 \vspace{3pt}
 \section*{\textcolor{modernblue}{\Large Technical Skills}}
-\small{\textbf{Languages:} Python, C++, Haskell, Julia, Go, JavaScript\\
+
+% TODO
+% You might need expertise level for each Language, say what have you done with C++?
+% Why don't you list Java?
+%
+
+% You might want to mention Devin + Claude or whatever other AI tools you know
+\small{\textbf{Languages:} Python, C++, Julia, Go, JavaScript\\
 \textbf{ML/GPU:} PyTorch, CatBoost, WebGPU/WGSL, WebGL/GLSL, Apple Metal, inference, quantization, model serving}
 \normalsize
 
-\noindent\rule{\textwidth}{0.5pt}
+%\noindent\rule{\textwidth}{0.5pt}
 
+% The report looks great
 \section*{\textcolor{modernblue}{\Large Experience}}
 \textbf{Quantum Circuit Routing} \href{https://dimitrichrysafis.github.io/media/post10/524-project-final-report.pdf}{\underline{[Final Report]}} \hfill \textcolor{modernblue}{\textbf{COMPSCI 524 Project}} \quad \textcolor{darkgray}{\small Jul 2026}
 \begin{itemize}
@@ -123,37 +135,43 @@ Bachelor of Science in Computer Science
 \item Solved 24 instances to proven optimality; grid3x3 lowered the objective \textbf{56.1\%} versus heavy-7
 \end{itemize}
 
-\noindent\rule{\textwidth}{0.5pt}
+%\noindent\rule{\textwidth}{0.5pt}
 
 \section*{\textcolor{modernblue}{\Large Projects}}
-\noindent\textbf{Qwen3.6 NVMe Inference Engine}
+% TODO
+% You need a link to the report
+%
+\noindent\textbf{Qwen3.8-Flash-Next NVMe Inference Engine} \href{https://github.com/DimitriChrysafis/qwen3.8-flash-next}{\underline{[GitHub]}}
 \begin{itemize}[leftmargin=*, topsep=1pt, itemsep=1pt, parsep=0pt]
-\item Developing a quantized, disk-backed Qwen3.6-35B-A3B format targeting a reduction from \textbf{about 25 GB} for standard Q4 inference to \textbf{about 12 GB} resident memory by streaming router-selected MoE experts from NVMe
-\item Building a runtime with memory-mapped weights, bounded expert caching, and asynchronous prefetching under configurable memory budgets; measuring cache hit rate, exact-logit agreement, throughput, latency, and minimum memory
+\item Building a disk-backed inference engine that runs the \textbf{180B-parameter Qwen3.8-Flash-Next} model on a Mac with \textbf{36 GB unified memory} by streaming MoE experts from NVMe instead of loading the full model into memory
+\item Implementing memory-mapped weights, dynamic expert caching, and asynchronous prefetching; benchmarking \textbf{throughput, latency, disk I/O, and peak memory}
 \end{itemize}
 
-\vspace{4pt}
+\vspace{3pt}
 \noindent\textbf{Interactive 3D Fluid Simulator (MLS-MPM)} \href{https://dimitrichrysafis.github.io/media/post10/index.html}{\underline{[Demo]}} \href{https://github.com/DimitriChrysafis/3d-Volumetric-Fluid-Simulator}{\underline{[GitHub]}}
 \begin{itemize}[leftmargin=*, topsep=1pt, itemsep=1pt, parsep=0pt]
 \item Built a browser-based 3D MLS-MPM simulator in JavaScript/WebGPU, keeping particle and grid state in GPU storage buffers and simulating \textbf{400,000 particles} with staged compute kernels
 \item Implemented fixed-point atomic accumulation for particle-to-grid transfers plus interactive dam-break, piston, particle-injection, and orbit-camera controls
 \end{itemize}
 
-\vspace{4pt}
+\vspace{3pt}
+% TODO
+% You need a link to the report
+%
 \noindent\textbf{Tennis Match Prediction System}
 \begin{itemize}[leftmargin=*, topsep=1pt, itemsep=1pt, parsep=0pt]
 \item Built a feature pipeline over \textbf{92,000 ATP matches (1982--2024)} with player and surface-specific ELO, head-to-head, recent-form, and schedule-fatigue features
 \item Trained a CatBoost ensemble to predict winners; achieved \textbf{83.7\% accuracy} and outperformed a baseline model
 \end{itemize}
 
-\vspace{4pt}
+\vspace{3pt}
 \noindent\textbf{GPU Fractal Rendering Engine} \href{https://github.com/DimitriChrysafis/Julia-Stuff}{\underline{[GitHub]}} \href{https://dimitrichrysafis.github.io/#post/post6.md}{\underline{[Blog]}}
 \begin{itemize}[leftmargin=*, topsep=1pt, itemsep=1pt, parsep=0pt]
 \item Built GPU fractal renderers in WebGL2/GLSL and Apple Metal for Newton, Kleinian, and Julia sets with interactive pan/zoom and shader-based iteration
 \item Implemented a Metal compute pipeline for \textbf{6,000\(\times\)6,000} Julia frames with adaptive iteration counts and GPU-parallel image generation
 \end{itemize}
 
-\vspace{4pt}
+\vspace{3pt}
 \noindent\textbf{GPU-Accelerated Sphere Packing in Arbitrary Meshes} \href{https://github.com/DimitriChrysafis/SpherePacker}{\underline{[GitHub]}} \href{https://dimitrichrysafis.github.io/#post/post8.md}{\underline{[Blog]}}
 \begin{itemize}[leftmargin=*, topsep=1pt, itemsep=1pt, parsep=0pt]
 \item Built a stochastic tangent-sphere packing solver for arbitrary OBJ meshes, enforcing interior, surface-clearance, and pairwise non-overlap constraints

@@ -13,10 +13,40 @@ function localServerHint() {
   ].join('\n');
 }
 
+function stripJsonComments(json) {
+  let out = '';
+  let inString = false;
+  for (let i = 0; i < json.length; i++) {
+    const c = json[i];
+    const n = json[i + 1];
+    if (inString) {
+      out += c;
+      if (c === '\\') {
+        out += n;
+        i++;
+      } else if (c === '"') {
+        inString = false;
+      }
+    } else if (c === '"') {
+      inString = true;
+      out += c;
+    } else if (c === '/' && n === '/') {
+      while (i < json.length && json[i] !== '\n') i++;
+    } else if (c === '/' && n === '*') {
+      i += 2;
+      while (i < json.length && !(json[i] === '*' && json[i + 1] === '/')) i++;
+      i++;
+    } else {
+      out += c;
+    }
+  }
+  return out;
+}
+
 async function fetchJson(path) {
   const response = await fetch(path, { cache: 'no-store' });
   if (!response.ok) throw new Error(`Failed to load ${path} (${response.status})`);
-  return await response.json();
+  return JSON.parse(stripJsonComments(await response.text()));
 }
 
 async function fetchText(path) {
@@ -101,7 +131,7 @@ function setPostCardImage(card, imageHash) {
 }
 
 async function displayPosts() {
-  document.body.classList.remove('resume-active');
+  document.body.classList.remove('resume-active', 'post12-active');
   const header = document.querySelector('.header');
   if (header) header.style.display = 'flex';
   document.title = "Dimitri's Blog";
@@ -168,8 +198,9 @@ function fixMediaPaths(rootEl) {
 
 async function loadPost(filename) {
   document.body.classList.remove('resume-active');
+  document.body.classList.toggle('post12-active', filename === 'post12.md');
   const header = document.querySelector('.header');
-  if (header) header.style.display = 'flex';
+  if (header) header.style.display = filename === 'post12.md' ? 'none' : 'flex';
   const post = posts.find(p => p.filename === filename) || { title: filename, date: '', author: '' };
   if (post.demoUrl) {
     window.location.href = post.demoUrl;
@@ -191,6 +222,10 @@ async function loadPost(filename) {
 
   const content = (window.marked && typeof marked.parse === 'function') ? marked.parse(markdown) : markdown;
   const markdownContent = postPageTemplate.querySelector('.markdown-content');
+  if (filename === 'post12.md') {
+    markdownContent.classList.add('post12-content');
+    markdownContent.closest('.post-page')?.classList.add('post12-page');
+  }
   markdownContent.innerHTML = content;
 
   fixMediaPaths(markdownContent);
