@@ -6,14 +6,14 @@
 \usepackage[utf8]{inputenc} 
 \usepackage[T1]{fontenc}
 \usepackage[english]{babel}
-\titlespacing*{\section}{0pt}{6pt}{4pt}
+\titlespacing*{\section}{0pt}{4pt}{3pt}
 \titleformat{\section}{\Large\bfseries}{}{}{}
 \usepackage[left=1.2cm,top=1.2cm,right=1.2cm,bottom=0.5cm]{geometry}
 \usepackage{xcolor}
 \usepackage{hyperref}
 \usepackage[svgnames,x11names,table]{xcolor}
 \renewcommand{\baselinestretch}{1.08}
-\setlist[itemize]{leftmargin=*, topsep=0pt, itemsep=3pt, parsep=0pt, partopsep=0pt}
+\setlist[itemize]{leftmargin=*, topsep=0pt, itemsep=2pt, parsep=0pt, partopsep=0pt}
 
 
 \sloppy
@@ -64,7 +64,7 @@
     \textcolor{darkgray}{\textit{#3}}\\[4pt]
     #4
     \end{tcolorbox}
-    \vspace{2pt}
+    \vspace{1pt}
 }
 
 
@@ -112,7 +112,7 @@ Bachelor of Science in Computer Science
 \noindent\small{\textit{Relevant Coursework:} COMP SCI 577 (Algorithms), COMP SCI 524 (Optimization), COMP SCI 400 (Programming III), COMP SCI 300 (Programming II), COMP SCI 252 (Computer Engineering), MATH 435 (Cryptography), MATH 331 (Probability), MATH 340 (Matrix and Linear Algebra)}\normalsize
 
 
-\vspace{2pt}
+\vspace{1pt}
 \section*{\textcolor{modernblue}{\Large Technical Skills}}
 
 % TODO
@@ -124,6 +124,9 @@ Bachelor of Science in Computer Science
 \small{\textbf{Languages:} Python, C++, Swift/SwiftUI, Julia, Go, JavaScript\\
 \textbf{ML/GPU:} PyTorch, WebGPU/WGSL, WebGL/GLSL, Metal, inference, quantization, model serving}
 \normalsize
+
+\vspace{1pt}
+\noindent\small{\textbf{Ironman Triathlon Finisher: 2.4 mi swim, 112 mi bike, 26.2 mi run}}\normalsize
 
 %\noindent\rule{\textwidth}{0.5pt}
 
@@ -144,28 +147,28 @@ Bachelor of Science in Computer Science
 \item Implemented memory-mapped weights, dynamic expert caching, and asynchronous prefetching, and benchmarked throughput, latency, disk I/O, and peak memory
 \end{itemize}
 
-\vspace{2pt}
+\vspace{1pt}
 \noindent\textbf{Interactive 3D Fluid Simulator (MLS-MPM)} \href{https://dimitrichrysafis.github.io/media/post10/index.html}{\underline{[Demo]}} \href{https://github.com/DimitriChrysafis/3d-Volumetric-Fluid-Simulator}{\underline{[GitHub]}}
 \begin{itemize}[leftmargin=*, topsep=1pt, itemsep=1pt, parsep=0pt]
 \item Engineered a browser-based 3D MLS-MPM simulator in JavaScript/WebGPU, keeping particle and grid state in GPU storage buffers and simulating \textbf{400,000 particles} with staged compute kernels
 \item Implemented fixed-point atomic accumulation for particle-to-grid transfers plus interactive dam-break, piston, particle-injection, and orbit-camera controls
 \end{itemize}
 
-\vspace{2pt}
+\vspace{1pt}
 \noindent\textbf{Zwift Shifter (macOS Virtual Gear Shifter)} \href{https://github.com/DimitriChrysafis/ZwiftShifter}{\underline{[GitHub]}} \href{https://dimitrichrysafis.github.io/#post/post12.md}{\underline{[Blog]}}
 \begin{itemize}[leftmargin=*, topsep=1pt, itemsep=1pt, parsep=0pt]
 \item Reverse-engineered Zwift's Click v2 Bluetooth path (FC82 service, 0x23 button frames) by tracing its Objective-C bridge with LLDB, then injected a dylib that calls Zwift's own shift logic with synthetic frames
 \item Shipped a SwiftUI app with status light and arrow controls that changes the real Zwift HUD gear over a local Unix socket, verified live on an Apple Silicon Mac
 \end{itemize}
 
-\vspace{2pt}
+\vspace{1pt}
 \noindent\textbf{GPU Fractal Rendering Engine} \href{https://github.com/DimitriChrysafis/Julia-Stuff}{\underline{[GitHub]}} \href{https://dimitrichrysafis.github.io/#post/post6.md}{\underline{[Blog]}}
 \begin{itemize}[leftmargin=*, topsep=1pt, itemsep=1pt, parsep=0pt]
 \item Developed GPU fractal renderers in WebGL2/GLSL and Apple Metal for Newton, Kleinian, and Julia sets with interactive pan/zoom and shader-based iteration
 \item Implemented a Metal compute pipeline for \textbf{6,000\(\times\)6,000} Julia frames with adaptive iteration counts and GPU-parallel image generation
 \end{itemize}
 
-\vspace{2pt}
+\vspace{1pt}
 \noindent\textbf{GPU-Accelerated Sphere Packing in Arbitrary Meshes} \href{https://github.com/DimitriChrysafis/SpherePacker}{\underline{[GitHub]}} \href{https://dimitrichrysafis.github.io/#post/post8.md}{\underline{[Blog]}}
 \begin{itemize}[leftmargin=*, topsep=1pt, itemsep=1pt, parsep=0pt]
 \item Designed a stochastic tangent-sphere packing solver for arbitrary OBJ meshes, enforcing interior, surface-clearance, and pairwise non-overlap constraints
