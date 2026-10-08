@@ -1,5 +1,4 @@
 \documentclass[11pt]{article}
-\usepackage{graphicx} % Required for inserting images
 \setlength{\parindent}{0pt}
 \usepackage{enumitem}
 \usepackage{titlesec}
@@ -7,30 +6,19 @@
 \usepackage[T1]{fontenc}
 \usepackage[english]{babel}
 \titlespacing*{\section}{0pt}{6pt}{4pt}
-\titleformat{\section}{\Large\bfseries}{}{}{}
+\titleformat{\section}{\large\bfseries}{}{}{}
 \usepackage[left=1.5cm,top=1.5cm,right=1.5cm,bottom=1cm]{geometry}
-\usepackage{xcolor}
 \usepackage{hyperref}
 \usepackage[svgnames,x11names,table]{xcolor}
 \renewcommand{\baselinestretch}{1.10}
-\setlist[itemize]{leftmargin=*, topsep=0pt, itemsep=2pt, parsep=0pt, partopsep=0pt}
-
+\setlist[itemize]{leftmargin=*, topsep=2pt, itemsep=2pt, parsep=0pt, partopsep=0pt}
 
 \sloppy
 \emergencystretch=1em
+\hyphenpenalty=10000
+\exhyphenpenalty=10000
 
-
-\usepackage{fontawesome5} 
-\usepackage{tikz} 
-\usepackage{tcolorbox} 
-
-
-
-\definecolor{coolblack}{rgb}{0.1, 0.1, 0.39}
 \definecolor{experienceblue}{rgb}{0.2, 0.4, 0.8}
-\definecolor{lightgray}{rgb}{0.95, 0.95, 0.95}
-\definecolor{darkgray}{rgb}{0.3, 0.3, 0.3}
-\definecolor{accentgreen}{rgb}{0.2, 0.7, 0.3}
 \definecolor{modernblue}{rgb}{0.1, 0.3, 0.6}
 
 \hypersetup{
@@ -39,59 +27,8 @@
     filecolor=modernblue,      
     urlcolor=modernblue,
     pdftitle={Dimitri Chrysafis Resume},
-    pdfpagemode=FullScreen,
+    pdfauthor={Dimitri Chrysafis},
     linkbordercolor=modernblue,
-}
-
-
-\usepackage{pagecolor}
-\pagecolor{white}
-
-
-\newcommand{\experienceentry}[4]{
-    \begin{tcolorbox}[
-        colback=lightgray,
-        colframe=experienceblue,
-        boxrule=1pt,
-        arc=3pt,
-        left=8pt,
-        right=8pt,
-        top=6pt,
-        bottom=6pt,
-        boxsep=0pt
-    ]
-    \textbf{\textcolor{experienceblue}{#1}} \hfill \textcolor{experienceblue}{\small #2}\\[2pt]
-    \textcolor{darkgray}{\textit{#3}}\\[4pt]
-    #4
-    \end{tcolorbox}
-    \vspace{1pt}
-}
-
-
-\newcommand{\skillbadge}[1]{
-    \tikz[baseline=(text.base)]{
-        \node[draw=accentgreen, fill=accentgreen!20, rounded corners=2pt, inner sep=2pt] (text) {\small #1};
-    }
-}
-
-
-\newcommand{\projectentry}[3]{
-    \begin{tcolorbox}[
-        colback=white,
-        colframe=modernblue,
-        boxrule=1pt,
-        arc=3pt,
-        left=4pt,
-        right=4pt,
-        top=3pt,
-        bottom=3pt,
-        boxsep=0pt
-    ]
-    \textbf{\textcolor{modernblue}{#1}}\\[1pt]
-    \textcolor{darkgray}{\small #2}\\[1pt]
-    \textcolor{darkgray}{\small #3}
-    \end{tcolorbox}
-    \vspace{1pt}
 }
 
 \begin{document}
@@ -99,74 +36,59 @@
 
 \begin{center}
 \textbf{\Large Dimitri Chrysafis}\\[2pt]
-dimitri.chrysafis@gmail.com \textbullet \ 650-305-9037\\
-\faGithub \ \href{https://github.com/DimitriChrysafis}{DimitriChrysafis} \textbullet \ \href{https://dimitrichrysafis.github.io/}{dimitrichrysafis.github.io}
+Madison, WI \textbullet \ dimitri.chrysafis@gmail.com \textbullet \ 650-305-9037\\
+\href{https://github.com/DimitriChrysafis}{github.com/DimitriChrysafis} \textbullet \ \href{https://www.linkedin.com/in/dimitri-c-b720a4368/}{linkedin.com/in/dimitri-c-b720a4368} \textbullet \ \href{https://dimitrichrysafis.github.io/}{dimitrichrysafis.github.io}
 \end{center}
 
-\section*{\textcolor{modernblue}{\Large Education}}
-\textbf{University of Wisconsin–Madison} \hfill \textcolor{experienceblue}{\small August 2025 - May 2027}\\
-Bachelor of Science in Computer Science
+\section*{\textcolor{modernblue}{\large Education}}
+\textbf{University of Wisconsin–Madison} \hfill \textcolor{experienceblue}{\small Expected May 2027}\\
+B.S. Computer Science \hfill GPA: 3.7/4.0\\
+\small{\textit{Coursework:} Algorithms, Computer Vision, Data Management for Data Science, Mobile Systems, Optimization}\normalsize
 
-% TODO
-% You need to list all your classes
-%
-\noindent\small{\textit{Relevant Coursework:} COMP SCI 577 (Algorithms), COMP SCI 566 (Computer Vision), COMP SCI 574 (Data Management), ISYE 524 (Optimization), MATH 340 (Linear Algebra)}\normalsize
-
-
-\vspace{1pt}
-\section*{\textcolor{modernblue}{\Large Technical Skills}}
-
-% TODO
-% You might need expertise level for each Language, say what have you done with C++?
-% Why don't you list Java?
-%
-
-% You might want to mention Devin + Claude or whatever other AI tools you know
-\small{\textbf{Languages:} Python, C++, Swift, Julia, Go, JavaScript\\
-\textbf{Tools:} MLX, PyTorch, WebGPU/WGSL, WebGL/GLSL, Metal, SwiftUI, JuMP/HiGHS}
+\section*{\textcolor{modernblue}{\large Technical Skills}}
+\small{\textbf{Languages:} Python, C, C++, Rust, TypeScript/JavaScript, Swift, Kotlin, Go, SQL\\
+\textbf{ML \& Inference:} MLX, PyTorch, llama.cpp, safetensors, Apple Accelerate\\
+\textbf{Systems \& GPU:} tokio, proptest, LLDB, AddressSanitizer, Metal, WebGPU/WGSL, SwiftUI}
 \normalsize
 
-%\noindent\rule{\textwidth}{0.5pt}
-
-% The report looks great
-%\noindent\rule{\textwidth}{0.5pt}
-
-\section*{\textcolor{modernblue}{\Large Projects}}
-\noindent\textbf{Qwen3.8-Flash-Next NVMe Inference Engine} \href{https://github.com/DimitriChrysafis/qwen3.8-flash-next}{\underline{[GitHub]}} \hfill \textcolor{experienceblue}{\small Aug--Sep 2026}
-\begin{itemize}[leftmargin=*, topsep=2pt, itemsep=2pt, parsep=0pt]
-\item Built a disk-backed inference engine that runs the \textbf{180B-parameter Qwen3.8-Flash-Next} model on a Mac with \textbf{36 GB unified memory} by streaming MoE experts from NVMe instead of loading the full model into memory
-\item Implemented memory-mapped weights, adaptive expert caching, and asynchronous prefetching; measured \textbf{11.3 GiB peak MLX allocation} during a 64-token run on M3 Max with an 8 GiB expert cache
+\section*{\textcolor{modernblue}{\large Projects}}
+\noindent\textbf{Qwen3.8-Flash-Next NVMe Inference Engine} \href{https://github.com/DimitriChrysafis/qwen3.8-flash-next}{[GitHub]} \hfill \textcolor{experienceblue}{\small Aug 2026 -- Present}
+\begin{itemize}
+\item Built an inference engine that runs the \textbf{180B-parameter} Qwen3.8-Flash-Next MoE on a 36~GB Mac by streaming 4-bit experts from NVMe through an adaptive cache, sustaining \textbf{1.33 tok/s} decode
+\item Porting the runtime to C with Accelerate GEMM kernels and a byte-level BPE tokenizer that matches Hugging~Face token for token on \textbf{416/416} test strings
 \end{itemize}
 
 \vspace{1pt}
-\noindent\textbf{Quantum Circuit Routing} \href{https://dimitrichrysafis.github.io/media/post10/524-project-final-report.pdf}{\underline{[Final Report]}} \hfill \textcolor{experienceblue}{\small Jul 2026}
-\begin{itemize}[leftmargin=*, topsep=2pt, itemsep=2pt, parsep=0pt]
-\item Built an exact Julia/JuMP/HiGHS MILP that routes logical circuits onto sparse superconducting hardware via SWAPs, with calibrated coupling and readout errors
-\item Solved all 24 experiment instances to proven optimality; a 3$\times$3 grid topology cut routing cost \textbf{56.1\%} versus the 7-qubit heavy-hex baseline
+\noindent\textbf{spackle: Local Coding Agent} \href{https://github.com/DimitriChrysafis/spackle}{[GitHub]} \hfill \textcolor{experienceblue}{\small Aug 2026 -- Present}
+\begin{itemize}
+\item Built a Rust coding agent that fixes bugs with a local Qwen3.8-27B through llama.cpp, using sandboxed read, edit, search, and shell tools behind approval gates; \textbf{0 malformed} tool calls across 1,297
+\item Wrote a 21-repo bug-fix benchmark whose prompts never name the bug; the local 27B solves \textbf{90\%} of runs, vs 19\% for gpt-4o-mini and 95\% for gpt-5-mini
+\item Added a grader that checks every test file against the original, which caught gpt-4o-mini rewriting or deleting tests in \textbf{20 of 126} runs; rerun under it, its score fell from 40\% to 19\%
 \end{itemize}
 
 \vspace{1pt}
-\noindent\textbf{Interactive 3D Fluid Simulator (MLS-MPM)} \href{https://dimitrichrysafis.github.io/media/post10/index.html}{\underline{[Demo]}} \href{https://github.com/DimitriChrysafis/3d-Volumetric-Fluid-Simulator}{\underline{[GitHub]}} \hfill \textcolor{experienceblue}{\small Sep 2025--Aug 2026}
-\begin{itemize}[leftmargin=*, topsep=2pt, itemsep=2pt, parsep=0pt]
-\item Engineered a browser-based 3D MLS-MPM simulator in JavaScript/WebGPU, simulating \textbf{400,000 particles} on an M3 Max with GPU-resident state and staged compute kernels
-\item Implemented fixed-point atomic accumulation for particle-to-grid transfers plus interactive dam-break, piston, particle-injection, and orbit-camera controls
+\noindent\textbf{Learned Expert Prefetching for MoE Inference} \href{https://github.com/DimitriChrysafis/moe-prefetch}{[GitHub]} \hfill \textcolor{experienceblue}{\small Oct 2026 -- Present}
+\begin{itemize}
+\item Traced routing and hidden states for all 48 MoE layers over 30 prompts, then trained low-rank per-layer heads that pick the next layer's experts with \textbf{67\%} top-10 recall, vs 22\% for the engine's heuristic
+\item Hooked the predictors into the engine's read path with pin-until-used caching, raising prefetch hit rate from under 1\% to \textbf{55\%} and cutting median expert wait 65\% with bit-identical outputs on 8 held-out prompts
+\item Built a trace-driven cache simulator and ran ablations on the real model, finding that without pinning the cache evicts prefetched experts before use and hit rate collapses to 8\%
 \end{itemize}
 
 \vspace{1pt}
-\noindent\textbf{Zwift Shifter (macOS Virtual Gear Shifter)} \href{https://github.com/DimitriChrysafis/ZwiftShifter}{\underline{[GitHub]}} \href{https://dimitrichrysafis.github.io/#post/post12.md}{\underline{[Blog]}} \hfill \textcolor{experienceblue}{\small Aug 2026}
-\begin{itemize}[leftmargin=*, topsep=2pt, itemsep=2pt, parsep=0pt]
-\item Reverse-engineered Zwift's Bluetooth shifter with LLDB and injected a dylib to feed synthetic events into its native gear-shifting logic
-\item Shipped a SwiftUI app that changes live Zwift HUD gears over a local Unix socket, verified on an Apple Silicon Mac
+\noindent\textbf{Interactive 3D Fluid Simulator (MLS-MPM)} \href{https://dimitrichrysafis.github.io/media/post10/index.html}{[Demo]} \href{https://github.com/DimitriChrysafis/3d-Volumetric-Fluid-Simulator}{[GitHub]} \hfill \textcolor{experienceblue}{\small Sep 2025--Aug 2026}
+\begin{itemize}
+\item Wrote a real-time 3D fluid simulator in WebGPU that runs \textbf{400,000 particles at 75+ fps} in the browser on an M3 Max, with all particle and grid state resident on the GPU across six compute kernels per substep
+\item Worked around WGSL's lack of float atomics by scattering particle momentum to the grid as fixed-point integer atomics; added a dam break, moving piston, particle injection, and an orbit camera
 \end{itemize}
 
 \vspace{1pt}
-\noindent\textbf{GPU Fractal Rendering Engine} \href{https://github.com/DimitriChrysafis/Julia-Stuff}{\underline{[GitHub]}} \href{https://dimitrichrysafis.github.io/#post/post6.md}{\underline{[Blog]}} \hfill \textcolor{experienceblue}{\small Feb 2025}
-\begin{itemize}[leftmargin=*, topsep=2pt, itemsep=2pt, parsep=0pt]
-\item Developed GPU fractal renderers in WebGL2/GLSL and Apple Metal for Newton, Kleinian, and Julia sets with interactive pan/zoom and shader-based iteration
-\item Implemented a Metal compute pipeline for \textbf{6,000\(\times\)6,000} Julia frames with adaptive iteration counts and GPU-parallel image generation
+\noindent\textbf{Zwift Shifter (macOS Virtual Gear Shifter)} \href{https://github.com/DimitriChrysafis/ZwiftShifter}{[GitHub]} \href{https://dimitrichrysafis.github.io/#post/post12.md}{[Blog]} \hfill \textcolor{experienceblue}{\small Aug 2026}
+\begin{itemize}
+\item Reverse-engineered the Zwift Click v2 Bluetooth protocol from Zwift's logs and LLDB, isolating the \textbf{2 bits} in its 32-bit button map that shift gears up and down
+\item Shipped a SwiftUI app that injects a dylib into Zwift, which feeds 7-byte button packets to its Bluetooth bridge with \textbf{80 ms} press and release timing so each click is exactly one shift
 \end{itemize}
 
-\section*{\textcolor{modernblue}{\Large Additional}}
-\noindent\small{\textbf{Ironman Wisconsin finisher:} 2.4 miles swimming, 112 miles cycling, 26.2 miles running}\normalsize
+\section*{\textcolor{modernblue}{\large Additional}}
+\noindent\small{\textbf{Ironman Wisconsin finisher} (Sep 2026): trained $\sim$20 hours/week for 8 months alongside a full CS course load}\normalsize
 
 \end{document}
