@@ -2,12 +2,12 @@
   {
     "title": "Making a Mac Shifter for Zwift",
     "filename": "post12.md",
-    "date": "2026-8-27",
+    "date": "2026-11-10",
     "author": "Post 12",
-    "bio": "A Mac button that changes the real gear in Zwift.",
+    "bio": "No Click, no debugger: my Mac pretends to be a LAN shifting controller and changes the real gear in Zwift.",
     "imageHash": "zwift-shifter",
     "categories": [
-      "Bluetooth",
+      "Networking",
       "Computer"
     ]
   },

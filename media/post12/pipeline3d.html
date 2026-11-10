@@ -1,0 +1,349 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ZwiftShift, life of one upshift (3D)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: #fbfbfa; color: #1a1a1a; font-family: "IBM Plex Mono", ui-monospace, monospace; overflow: hidden; }
+  #wrap { position: absolute; inset: 0 0 64px 0; }
+  canvas { display: block; width: 100%; height: 100%; cursor: grab; }
+  canvas:active { cursor: grabbing; }
+  .lbl { position: absolute; left: 0; top: 0; pointer-events: none; white-space: nowrap; font-size: 10.5px; transform: translate(-50%, -100%); transition: color .2s; }
+  .lbl b { display: inline-block; min-width: 18px; margin-right: 5px; padding: 0 3px; background: #1a1a1a; color: #fff; font-weight: 600; text-align: center; transition: background .2s; }
+  .lbl.on { color: #1d4ed8; }
+  .lbl.on b { background: #1d4ed8; }
+  .lbl i { display: block; font-style: normal; color: #8a8a8a; font-size: 9.5px; margin-top: 1px; }
+  .hud { position: absolute; left: 0; right: 0; bottom: 0; height: 64px; display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); border-top: 1px solid #e2e2e0; background: #fff; }
+  .hud > div { padding: 9px 10px; border-right: 1px solid #efefed; font-size: 10px; line-height: 1.45; color: #8a8a8a; transition: background .25s, color .25s; font-variant-numeric: tabular-nums; }
+  .hud > div:last-child { border-right: 0; }
+  .hud strong { display: block; color: #1a1a1a; font-size: 11px; font-weight: 600; }
+  .hud strong span { color: #b0b0ae; font-weight: 500; margin-right: 6px; }
+  .hud > div.on { background: #f3f6ff; color: #1d4ed8; }
+  .hud > div.on strong, .hud > div.on strong span { color: #1d4ed8; }
+  .hud > div.ok { background: #f1f8f3; color: #15803d; }
+  .hud > div.ok strong, .hud > div.ok strong span { color: #15803d; }
+  .hint { position: absolute; right: 12px; top: 10px; font-size: 10px; color: #a0a09e; pointer-events: none; }
+  @media (max-width: 640px) { .hud { grid-template-columns: repeat(3, minmax(0, 1fr)); height: 96px; } #wrap { bottom: 96px; } .lbl i { display: none; } }
+</style>
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+} }
+</script>
+</head>
+<body>
+<div id="wrap"></div>
+<div class="hint">drag to orbit</div>
+<div class="hud" id="hud">
+  <div><strong><span>01</span>input</strong>⌃⌥↑ · mouse · cli · phone</div>
+  <div><strong><span>02</span>ShiftService</strong>canShift ✓ · job == nil ✓</div>
+  <div><strong><span>03</span>ButtonPulse</strong>bit 12 low ≥ 120 ms</div>
+  <div><strong><span>04</span>DirCon :54872</strong>29 B notify frame</div>
+  <div><strong><span>05</span>Zwift</strong>FC82 · comp 23 · 0x183b13c</div>
+  <div><strong><span>06</span>Log.txt</strong>Shift 0-(8 -&gt; 9) · exit 0</div>
+</div>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
+
+const wrap = document.getElementById('wrap');
+const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+wrap.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0.1, 200);
+camera.position.set(14, 13, 17);
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.target.set(-0.2, 1.1, -1.4);
+controls.enableZoom = false;
+controls.enablePan = false;
+controls.enableDamping = true;
+controls.minPolarAngle = 0.55;
+controls.maxPolarAngle = 1.2;
+
+scene.add(new THREE.HemisphereLight(0xffffff, 0xdcdcd8, 1.6));
+const sun = new THREE.DirectionalLight(0xffffff, 1.6);
+sun.position.set(8, 18, 10);
+sun.castShadow = true;
+sun.shadow.mapSize.set(2048, 2048);
+Object.assign(sun.shadow.camera, { left: -16, right: 16, top: 12, bottom: -12, near: 1, far: 50 });
+sun.shadow.radius = 4;
+scene.add(sun);
+
+const ground = new THREE.Mesh(new THREE.PlaneGeometry(80, 80), new THREE.ShadowMaterial({ opacity: 0.1 }));
+ground.rotation.x = -Math.PI / 2;
+ground.receiveShadow = true;
+scene.add(ground);
+const grid = new THREE.GridHelper(30, 30, 0xe4e4e1, 0xe4e4e1);
+grid.material.transparent = true; grid.material.opacity = 0.45;
+grid.position.y = 0.001;
+scene.add(grid);
+
+const INK = 0x1a1a1a, BLUE = 0x1d4ed8, GREEN = 0x15803d;
+const mat = (color, extra = {}) => new THREE.MeshStandardMaterial({ color, roughness: 0.78, metalness: 0.02, ...extra });
+const M = { white: mat(0xffffff), paper: mat(0xf7f7f5), light: mat(0xe9e9e6), mid: mat(0xc9c9c5), dark: mat(0x2a2a2a, { roughness: 0.55 }), metal: mat(0xb8b8b4, { metalness: 0.6, roughness: 0.35 }) };
+
+function edges(mesh, color = INK, opacity = 0.9) {
+  const l = new THREE.LineSegments(new THREE.EdgesGeometry(mesh.geometry, 25), new THREE.LineBasicMaterial({ color, transparent: opacity < 1, opacity }));
+  mesh.add(l);
+  return l;
+}
+function solid(geo, material, pos, parent = scene, edge = true) {
+  const m = new THREE.Mesh(geo, material);
+  m.position.set(...pos);
+  m.castShadow = true;
+  m.receiveShadow = true;
+  if (edge) edges(m);
+  parent.add(m);
+  return m;
+}
+function textTex(lines, w, h, { bg = '#ffffff', fg = '#1a1a1a', size = 28, align = 'center', weight = 500, pad = 18, colors = [] } = {}) {
+  const c = document.createElement('canvas');
+  c.width = w; c.height = h;
+  const g = c.getContext('2d');
+  g.fillStyle = bg; g.fillRect(0, 0, w, h);
+  g.font = `${weight} ${size}px "IBM Plex Mono", monospace`;
+  g.textAlign = align; g.textBaseline = 'middle';
+  const lh = size * 1.35, y0 = h / 2 - (lines.length - 1) * lh / 2;
+  lines.forEach((t, i) => { g.fillStyle = colors[i] || fg; g.fillText(t, align === 'center' ? w / 2 : pad, y0 + i * lh); });
+  const tex = new THREE.CanvasTexture(c);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  tex.anisotropy = 8;
+  return tex;
+}
+function topLabel(parent, w, d, y, tex) {
+  const p = new THREE.Mesh(new THREE.PlaneGeometry(w, d), new THREE.MeshBasicMaterial({ map: tex, transparent: true }));
+  p.rotation.x = -Math.PI / 2;
+  p.position.y = y;
+  parent.add(p);
+  return p;
+}
+
+const nodes = [];
+
+const tray = new THREE.Group();
+tray.position.set(-9.4, 0, 0);
+scene.add(tray);
+solid(new RoundedBoxGeometry(3.0, 0.3, 2.6, 3, 0.08), M.light, [0, 0.15, 0], tray);
+const caps = [['⌃⌥↑', -0.68, -0.6], ['mouse', 0.68, -0.6], ['cli', -0.68, 0.6], ['phone', 0.68, 0.6]].map(([t, x, z]) => {
+  const k = solid(new RoundedBoxGeometry(1.1, 0.38, 1.0, 3, 0.1), mat(0xffffff), [x, 0.49, z], tray);
+  topLabel(k, 1.0, 0.9, 0.195, textTex([t], 256, 230, { size: t.length > 3 ? 46 : 64, bg: 'rgba(0,0,0,0)' }));
+  return k;
+});
+nodes.push({ obj: tray, anchor: new THREE.Vector3(-9.4, 1.4, 0), n: '01', t: 'input', s: '4 front ends' });
+
+const chip = new THREE.Group();
+chip.position.set(-5.2, 0, 0);
+scene.add(chip);
+solid(new THREE.BoxGeometry(2.8, 0.08, 2.8), M.paper, [0, 0.04, 0], chip);
+const chipBody = solid(new RoundedBoxGeometry(2.0, 0.42, 2.0, 2, 0.06), M.dark, [0, 0.33, 0], chip);
+topLabel(chipBody, 1.8, 1.8, 0.212, textTex(['ShiftService', '', '@MainActor', 'one job'], 360, 360, { bg: 'rgba(0,0,0,0)', fg: '#f0f0f0', size: 30, colors: ['#ffffff', '', '#9a9a9a', '#9a9a9a'] }));
+for (let s = 0; s < 4; s++) for (let i = 0; i < 7; i++) {
+  const o = -0.78 + i * 0.26, pin = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.06, 0.34), M.metal);
+  pin.castShadow = true;
+  const a = s * Math.PI / 2;
+  pin.position.set(Math.cos(a) * 1.13 - Math.sin(a) * o, 0.14, Math.sin(a) * 1.13 + Math.cos(a) * o);
+  pin.rotation.y = -a;
+  chip.add(pin);
+}
+const dot = new THREE.Mesh(new THREE.CircleGeometry(0.07, 20), new THREE.MeshBasicMaterial({ color: 0xffffff }));
+dot.rotation.x = -Math.PI / 2; dot.position.set(-0.78, 0.545, -0.78);
+chip.add(dot);
+nodes.push({ obj: chipBody, anchor: new THREE.Vector3(-5.2, 1.2, 0), n: '02', t: 'ShiftService', s: 'canShift · job == nil' });
+
+const pulse = new THREE.Group();
+pulse.position.set(-1.6, 0, 0);
+scene.add(pulse);
+solid(new THREE.BoxGeometry(3.0, 0.12, 1.2), M.paper, [0, 0.06, 0], pulse);
+const H1 = 1.6, H0 = 0.55, TH = 0.12, DEP = 0.5;
+const seg = (x0, x1, y, m) => solid(new THREE.BoxGeometry(x1 - x0, TH, DEP), m, [(x0 + x1) / 2, y, 0], pulse);
+const vert = (x, m) => solid(new THREE.BoxGeometry(TH, H1 - H0 + TH, DEP), m, [x, (H1 + H0) / 2, 0], pulse);
+const waveBlue = mat(BLUE, { emissive: BLUE, emissiveIntensity: 0.15 });
+seg(-1.4, -0.45, H1, M.white); vert(-0.45, M.white); seg(-0.45, 0.45, H0, waveBlue); vert(0.45, M.white); seg(0.45, 1.4, H1, M.white);
+const lowPlate = solid(new THREE.BoxGeometry(0.9, H0 - 0.12, DEP * 0.8), mat(0xdbe6ff, { transparent: true, opacity: 0.6 }), [0, (H0 - 0.12) / 2 + 0.12, 0], pulse, false);
+nodes.push({ obj: lowPlate, anchor: new THREE.Vector3(-1.6, 2.15, 0), n: '03', t: 'ButtonPulse', s: '0x1000 low ≥ 120 ms' });
+
+const sock = new THREE.Group();
+sock.position.set(1.9, 0, 0);
+scene.add(sock);
+const sockBody = solid(new RoundedBoxGeometry(1.6, 1.3, 1.6, 3, 0.1), M.white, [0, 0.65, 0], sock);
+solid(new THREE.BoxGeometry(0.05, 0.42, 0.7), M.dark, [-0.79, 0.72, 0], sock, false);
+solid(new THREE.BoxGeometry(0.05, 0.42, 0.7), M.dark, [0.79, 0.72, 0], sock, false);
+topLabel(sockBody, 1.4, 1.4, 0.652, textTex([':54872', 'TCP'], 300, 300, { bg: 'rgba(0,0,0,0)', size: 44, colors: ['#1a1a1a', '#9a9a9a'] }));
+nodes.push({ obj: sockBody, anchor: new THREE.Vector3(1.9, 1.75, 0), n: '04', t: 'DirCon', s: '29 B notify frame' });
+
+const zw = new THREE.Group();
+zw.position.set(5.6, 0, 0);
+scene.add(zw);
+solid(new THREE.BoxGeometry(3.0, 0.14, 3.0), M.dark, [0, 0.07, 0], zw);
+const glass = new THREE.Mesh(new RoundedBoxGeometry(2.8, 3.4, 2.8, 3, 0.08), new THREE.MeshPhysicalMaterial({ color: 0xffffff, transparent: true, opacity: 0.12, roughness: 0.1, depthWrite: false }));
+glass.position.y = 1.84;
+edges(glass, INK, 0.55);
+zw.add(glass);
+const slabNames = [['cassette', '0x183b13c'], ['action map', 'controller'], ['FC82', 'component 23'], ['DirCon', 'session']];
+const slabs = slabNames.map(([a, b], i) => {
+  const s = solid(new THREE.BoxGeometry(2.3, 0.32, 2.3), mat(i === 0 ? 0x2a2a2a : 0xf3f3f1), [0, 0.55 + i * 0.78, 0], zw);
+  topLabel(s, 2.1, 2.1, 0.162, textTex([a, b], 320, 320, { bg: 'rgba(0,0,0,0)', size: 34, colors: i === 0 ? ['#ffffff', '#93b4ff'] : ['#1a1a1a', '#8a8a8a'] }));
+  return s;
+});
+nodes.push({ obj: slabs[3], anchor: new THREE.Vector3(5.6, 4.0, 0), n: '05', t: 'Zwift', s: 'stripped C++, unpatched' });
+
+const cas = new THREE.Group();
+cas.position.set(9.4, 1.5, 0);
+scene.add(cas);
+const NC = 12, cogs = [];
+const axle = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.12, 2.0, 16), M.metal);
+axle.rotation.z = Math.PI / 2; axle.castShadow = true;
+cas.add(axle);
+for (let i = 0; i < NC; i++) {
+  const r = 1.25 - i * 0.07, x = -0.78 + i * 0.14;
+  const cog = new THREE.Mesh(new THREE.CylinderGeometry(r, r, 0.05, 56), mat(0xe9e9e6, { metalness: 0.35, roughness: 0.4 }));
+  cog.rotation.z = Math.PI / 2;
+  cog.position.x = x;
+  cog.castShadow = true;
+  edges(cog, INK, 0.25);
+  cas.add(cog);
+  const rim = new THREE.Mesh(new THREE.CylinderGeometry(r + 0.035, r + 0.035, 0.03, 56, 1, true), mat(0x6f6f6b, { metalness: 0.5, roughness: 0.4, side: THREE.DoubleSide }));
+  rim.rotation.z = Math.PI / 2;
+  rim.position.x = x;
+  cas.add(rim);
+  cogs.push(cog);
+}
+const stand = solid(new THREE.BoxGeometry(0.3, 0.2, 0.3), M.dark, [9.4, 0.1, 0]);
+const post = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 0.3, 10), M.metal);
+post.position.set(9.4, 0.25, 0);
+scene.add(post);
+nodes.push({ obj: cas, anchor: new THREE.Vector3(9.4, 3.05, 0), n: '', t: 'cassette', s: 'gear 8 → 9', small: true });
+
+const log = new THREE.Group();
+log.position.set(4.2, 0, -4.4);
+scene.add(log);
+const LOG = ['[10:33:41] Gearing: Front 1, Back 24', '[10:33:52] ZP User Input selected', '[10:33:56] Gearing: Shift 0-(8 -> 9)'];
+const logTexIdle = textTex(LOG, 640, 420, { bg: '#ffffff', size: 22, align: 'left', pad: 34, colors: ['#9a9a9a', '#9a9a9a', '#cfcfcf'] });
+const logTexOn = textTex(LOG, 640, 420, { bg: '#ffffff', size: 22, align: 'left', pad: 34, colors: ['#9a9a9a', '#9a9a9a', '#15803d'] });
+const sheet = solid(new THREE.BoxGeometry(3.2, 2.1, 0.06), [M.paper, M.paper, M.paper, M.paper, new THREE.MeshStandardMaterial({ map: logTexIdle, roughness: 0.9 }), M.paper], [0, 1.25, 0], log);
+const sheetFront = sheet.material[4];
+solid(new THREE.BoxGeometry(3.4, 0.16, 0.6), M.light, [0, 0.08, 0.1], log);
+nodes.push({ obj: sheet, anchor: new THREE.Vector3(4.2, 2.6, -4.4), n: '06', t: 'Log.txt', s: 'read-only tail, 250 ms' });
+
+const fwdPts = [[-9.4, 1.0, 0], [-5.2, 0.8, 0], [-1.6, 1.9, 0], [1.9, 1.5, 0], [5.6, 3.9, 0], [5.6, 0.75, 0], [9.4, 1.5, 0]].map(p => new THREE.Vector3(...p));
+const fwd = new THREE.CatmullRomCurve3(fwdPts, false, 'centripetal');
+const back = new THREE.CatmullRomCurve3([[5.6, 1.6, -1.0], [5.0, 1.4, -4.0], [2.0, 0.7, -4.6], [-3.0, 0.5, -4.2], [-5.2, 0.6, -2.2], [-5.2, 0.8, 0]].map(p => new THREE.Vector3(...p)), false, 'centripetal');
+const tube = new THREE.Mesh(new THREE.TubeGeometry(fwd, 260, 0.11, 12), new THREE.MeshPhysicalMaterial({ color: 0xdbe6ff, transparent: true, opacity: 0.35, roughness: 0.2, depthWrite: false }));
+scene.add(tube);
+const core = new THREE.Line(new THREE.BufferGeometry().setFromPoints(fwd.getPoints(260)), new THREE.LineBasicMaterial({ color: BLUE, transparent: true, opacity: 0.55 }));
+scene.add(core);
+const backLine = new THREE.Line(new THREE.BufferGeometry().setFromPoints(back.getPoints(200)), new THREE.LineDashedMaterial({ color: GREEN, dashSize: 0.18, gapSize: 0.14 }));
+backLine.computeLineDistances();
+scene.add(backLine);
+
+function packet(color) {
+  const g = new THREE.Group();
+  const cube = new THREE.Mesh(new RoundedBoxGeometry(0.34, 0.34, 0.34, 2, 0.05), new THREE.MeshStandardMaterial({ color, emissive: color, emissiveIntensity: 0.9 }));
+  const halo = new THREE.Mesh(new THREE.SphereGeometry(0.42, 20, 16), new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.14, depthWrite: false }));
+  const light = new THREE.PointLight(color, 3, 3.5);
+  g.add(cube, halo, light);
+  g.visible = false;
+  scene.add(g);
+  return g;
+}
+const pBlue = packet(BLUE), pGreen = packet(GREEN);
+
+const labels = nodes.map(nd => {
+  const d = document.createElement('div');
+  d.className = 'lbl';
+  d.innerHTML = nd.n ? `<b>${nd.n}</b>${nd.t}<i>${nd.s}</i>` : `${nd.t}<i>${nd.s}</i>`;
+  document.body.appendChild(d);
+  return d;
+});
+const hud = [...document.querySelectorAll('#hud > div')];
+
+function resize() {
+  const w = wrap.clientWidth, h = wrap.clientHeight, a = w / h, half = 5.5;
+  renderer.setSize(w, h, false);
+  camera.left = -half * a; camera.right = half * a; camera.top = half; camera.bottom = -half;
+  camera.zoom = a < 1.4 ? 0.58 : 0.92;
+  camera.updateProjectionMatrix();
+}
+addEventListener('resize', resize);
+resize();
+
+const ease = t => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+const CYCLE = 7.2, FWD = 3.8, BACK = 2.2;
+let gear = 7, lastCycle = -1, userTouched = 0;
+controls.addEventListener('start', () => { userTouched = performance.now(); });
+const tmp = new THREE.Vector3();
+const setGlow = (obj, on, color = BLUE) => {
+  obj.traverse(o => {
+    if (o.isMesh && o.material && o.material.emissive && !Array.isArray(o.material)) {
+      if (!o.userData.base) o.userData.base = o.material.emissive.clone();
+      o.material = o.userData.cloned || (o.userData.cloned = o.material.clone());
+      o.material.emissive.set(on ? color : 0x000000);
+      o.material.emissiveIntensity = on ? 0.35 : 0;
+    }
+  });
+};
+
+function frame(now) {
+  const t = reduced ? FWD * 0.55 : (now / 1000) % CYCLE;
+  const cycle = Math.floor(now / 1000 / CYCLE);
+  let step = -1, ok = false;
+  if (t < FWD) {
+    const u = ease(t / FWD);
+    pBlue.visible = true; pGreen.visible = false;
+    pBlue.position.copy(fwd.getPoint(u));
+    const k = u * (fwdPts.length - 1);
+    step = [0, 1, 2, 3, 4, 4, 4][Math.min(6, Math.round(k))];
+    slabs.forEach((s, i) => setGlow(s, k > 3.6 && k < 5.4 && Math.abs((3 - i) - (k - 4) * 3) < 0.9));
+    if (k > 5.6 && cycle !== lastCycle) { lastCycle = cycle; gear = gear % NC + 1; }
+  } else if (t < FWD + BACK) {
+    const u = ease((t - FWD) / BACK);
+    pBlue.visible = false; pGreen.visible = true;
+    pGreen.position.copy(back.getPoint(u));
+    step = 5; ok = true;
+    slabs.forEach(s => setGlow(s, false));
+  } else {
+    pBlue.visible = pGreen.visible = false;
+    step = 5; ok = true;
+  }
+  cogs.forEach((c, i) => { c.material.color.set(i === gear - 1 ? 0x9db7f5 : 0xe9e9e6); c.material.emissive.set(i === gear - 1 ? BLUE : 0x000000); c.material.emissiveIntensity = i === gear - 1 ? 0.25 : 0; });
+  cas.rotation.x = reduced ? 0 : now / 4000;
+  caps[0].position.y = step === 0 ? 0.42 : 0.49;
+  setGlow(chipBody, step === 1);
+  setGlow(sockBody, step === 3);
+  sheetFront.map = ok ? logTexOn : logTexIdle;
+  hud.forEach((h, i) => { h.classList.toggle('on', i === step && !ok); h.classList.toggle('ok', ok && (i === 5)); });
+  labels.forEach((l, i) => l.classList.toggle('on', i === (step < 5 ? step : (ok ? 6 : -1)) || (i === 5 && step === 4)));
+
+  if (!reduced && now - userTouched > 6000) {
+    const az = Math.sin(now / 9000) * 0.28;
+    const r = Math.hypot(14, 17);
+    camera.position.x += (Math.sin(0.69 + az) * r - camera.position.x) * 0.02;
+    camera.position.z += (Math.cos(0.69 + az) * r - camera.position.z) * 0.02;
+  }
+  controls.update();
+  renderer.render(scene, camera);
+  const w = wrap.clientWidth, h = wrap.clientHeight;
+  nodes.forEach((nd, i) => {
+    tmp.copy(nd.anchor); tmp.y += 0.35; tmp.project(camera);
+    labels[i].style.left = ((tmp.x + 1) / 2 * w) + 'px';
+    labels[i].style.top = ((1 - tmp.y) / 2 * h - 4) + 'px';
+  });
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>

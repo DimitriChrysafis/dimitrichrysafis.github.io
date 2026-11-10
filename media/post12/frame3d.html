@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ZwiftShift, the 29-byte frame exploded (3D)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  html, body { margin: 0; height: 100%; background: #fbfbfa; color: #1a1a1a; font-family: "IBM Plex Mono", ui-monospace, monospace; overflow: hidden; }
+  canvas { display: block; width: 100%; height: 100%; cursor: grab; }
+  canvas:active { cursor: grabbing; }
+  .lbl { position: absolute; left: 0; top: 0; pointer-events: none; white-space: nowrap; font-size: 11px; transform: translate(14px, -50%); transition: opacity .3s; font-variant-numeric: tabular-nums; }
+  .lbl::before { content: ""; position: absolute; left: -14px; top: 50%; width: 10px; border-top: 1px solid currentColor; opacity: .5; }
+  .lbl strong { font-weight: 600; }
+  .lbl span { color: #9a9a98; }
+  .lbl i { display: block; font-style: normal; font-size: 9.5px; color: #8a8a88; }
+  .sum { position: absolute; left: 16px; bottom: 14px; font-size: 11px; color: #8a8a88; font-variant-numeric: tabular-nums; }
+  .sum b { color: #1a1a1a; font-weight: 600; }
+  .mode { position: absolute; right: 14px; top: 12px; font-size: 10px; color: #a0a09e; }
+  .toggle { position: absolute; right: 14px; bottom: 12px; font: inherit; font-size: 11px; font-weight: 500; color: #1a1a1a; background: #fff; border: 1px solid #1a1a1a; padding: 5px 10px; cursor: pointer; }
+  .toggle:focus-visible { outline: 2px solid #1d4ed8; outline-offset: 2px; }
+</style>
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+} }
+</script>
+</head>
+<body>
+<div class="mode">drag to orbit</div>
+<div class="sum" id="sum"><b>6 + 16 + 1 + 6 = 29 bytes</b> · outermost layer at the bottom</div>
+<button class="toggle" id="tg">assemble</button>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+document.body.prepend(renderer.domElement);
+
+const scene = new THREE.Scene();
+const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0.1, 200);
+camera.position.set(-9, 9, 13);
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.target.set(0.4, 2.6, 0);
+controls.enableZoom = false; controls.enablePan = false; controls.enableDamping = true;
+controls.minPolarAngle = 0.5; controls.maxPolarAngle = 1.35;
+
+scene.add(new THREE.HemisphereLight(0xffffff, 0xd8d8d4, 1.7));
+const sun = new THREE.DirectionalLight(0xffffff, 1.5);
+sun.position.set(-6, 16, 8);
+sun.castShadow = true;
+sun.shadow.mapSize.set(2048, 2048);
+Object.assign(sun.shadow.camera, { left: -10, right: 10, top: 10, bottom: -10, near: 1, far: 40 });
+scene.add(sun);
+const ground = new THREE.Mesh(new THREE.PlaneGeometry(60, 60), new THREE.ShadowMaterial({ opacity: 0.1 }));
+ground.rotation.x = -Math.PI / 2; ground.receiveShadow = true;
+scene.add(ground);
+const grid = new THREE.GridHelper(24, 24, 0xe4e4e1, 0xe4e4e1);
+grid.material.transparent = true; grid.material.opacity = 0.5;
+scene.add(grid);
+
+const layers = [
+  { name: 'TCP stream', size: 'stream', sub: 'same-Mac peers only · :54872', cells: ['TCP', ':54872'], top: '#f4f4f2', side: '#d9d9d5', ink: '#1a1a1a', w: 7.2 },
+  { name: 'DirCon header', size: '6 B', sub: 'ver · 06 notify · seq · ok · len 23', cells: ['01', '06', '00', '00', '00', '17'], top: '#e8eefc', side: '#b9cbf3', ink: '#1d4ed8', w: 7.2 },
+  { name: 'characteristic', size: '16 B', sub: 'FC82 async · 00000002-19ca-…', cells: ['00','00','00','02','19','ca','46','51','86','e5','fa','29','dc','dd','09','d1'], top: '#efe9fd', side: '#d2c3f8', ink: '#7c3aed', w: 7.2 },
+  { name: 'opcode', size: '1 B', sub: '0x23 = Zwift Protocol button event', cells: ['23'], top: '#e6f4ea', side: '#b5dcc2', ink: '#15803d', w: 7.2 },
+  { name: 'protobuf field 1', size: '6 B', sub: 'tag 08 + 5-byte varint of 0xFFFFEFFF', cells: ['08', 'ff', 'df', 'ff', 'ff', '0f'], hi: 2, top: '#e6f4ea', side: '#b5dcc2', ink: '#15803d', w: 7.2 },
+  { name: 'button map', size: '32 bit', sub: 'active-low · bit 12 = 0 → shift up', bits: true, top: '#fff6e3', side: '#f6d595', ink: '#b45309', w: 7.2 },
+];
+const D = 1.7, T = 0.2;
+
+function faceTex(L) {
+  const W = 1440, H = Math.round(W * D / L.w);
+  const c = document.createElement('canvas');
+  c.width = W; c.height = H;
+  const g = c.getContext('2d');
+  g.fillStyle = L.top; g.fillRect(0, 0, W, H);
+  g.strokeStyle = 'rgba(0,0,0,0.08)';
+  for (let x = 0; x < W; x += 24) { g.beginPath(); g.moveTo(x, 0); g.lineTo(x, H); g.stroke(); }
+  g.textBaseline = 'middle'; g.textAlign = 'center';
+  const pad = 40, y = H / 2;
+  if (L.bits) {
+    const n = 16, cw = (W - pad * 2) / n;
+    for (let i = 0; i < n; i++) {
+      const bit = 15 - i, low = bit === 12, x = pad + i * cw;
+      g.fillStyle = low ? '#b45309' : '#ffffff';
+      g.fillRect(x + 4, y - 58, cw - 8, 116);
+      g.strokeStyle = low ? '#b45309' : 'rgba(0,0,0,0.25)'; g.lineWidth = 2;
+      g.strokeRect(x + 4, y - 58, cw - 8, 116);
+      g.fillStyle = low ? '#ffffff' : '#1a1a1a';
+      g.font = '600 64px "IBM Plex Mono", monospace';
+      g.fillText(low ? '0' : '1', x + cw / 2, y + 2);
+      g.font = '500 22px "IBM Plex Mono", monospace';
+      g.fillStyle = low ? '#b45309' : '#9a9a98';
+      g.fillText(String(bit), x + cw / 2, y + 80);
+    }
+  } else if (L.cells.length === 2) {
+    g.font = '600 92px "IBM Plex Mono", monospace'; g.fillStyle = L.ink;
+    g.fillText(L.cells.join('  '), W / 2, y);
+  } else {
+    const n = L.cells.length, cw = Math.min(150, (W - pad * 2) / n), x0 = (W - cw * n) / 2;
+    L.cells.forEach((t, i) => {
+      const x = x0 + i * cw, hot = i === L.hi;
+      g.fillStyle = hot ? L.ink : '#ffffff';
+      g.fillRect(x + 4, y - 56, cw - 8, 112);
+      g.strokeStyle = L.ink; g.globalAlpha = hot ? 1 : 0.35; g.lineWidth = 2;
+      g.strokeRect(x + 4, y - 56, cw - 8, 112); g.globalAlpha = 1;
+      g.fillStyle = hot ? '#ffffff' : L.ink;
+      g.font = `600 ${n > 10 ? 44 : 60}px "IBM Plex Mono", monospace`;
+      g.fillText(t, x + cw / 2, y + 2);
+    });
+  }
+  const t = new THREE.CanvasTexture(c);
+  t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8;
+  return t;
+}
+
+const plates = layers.map((L, i) => {
+  const sideM = new THREE.MeshStandardMaterial({ color: L.side, roughness: 0.7 });
+  const topM = new THREE.MeshStandardMaterial({ map: faceTex(L), roughness: 0.85 });
+  const m = new THREE.Mesh(new THREE.BoxGeometry(L.w, T, D), [sideM, sideM, topM, sideM, sideM, sideM]);
+  m.castShadow = true; m.receiveShadow = false;
+  m.add(new THREE.LineSegments(new THREE.EdgesGeometry(m.geometry), new THREE.LineBasicMaterial({ color: 0x1a1a1a })));
+  scene.add(m);
+  const lbl = document.createElement('div');
+  lbl.className = 'lbl';
+  lbl.style.color = L.ink;
+  lbl.innerHTML = `<strong>${L.name}</strong> <span>· ${L.size}</span><i>${L.sub}</i>`;
+  document.body.appendChild(lbl);
+  return { m, lbl, L };
+});
+
+const rails = [-1, 1].map(sx => [-1, 1].map(sz => {
+  const r = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.025, 1, 8), new THREE.MeshBasicMaterial({ color: 0xbdbdba }));
+  r.position.set(sx * 3.75, 0, sz * 1.0);
+  scene.add(r);
+  return r;
+})).flat();
+
+function resize() {
+  const w = innerWidth, h = innerHeight, a = w / h, half = 4.8;
+  renderer.setSize(w, h, false);
+  camera.left = -half * a; camera.right = half * a; camera.top = half; camera.bottom = -half;
+  camera.zoom = a < 1.3 ? 0.62 : 1;
+  camera.updateProjectionMatrix();
+}
+addEventListener('resize', resize); resize();
+
+const ease = t => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+let manual = null, gap = 1.05, mt = 0;
+const tg = document.getElementById('tg');
+tg.onclick = () => { manual = manual === 'closed' ? 'open' : 'closed'; mt = performance.now(); tg.textContent = manual === 'closed' ? 'explode' : 'assemble'; };
+let touched = 0;
+controls.addEventListener('start', () => { touched = performance.now(); });
+const v = new THREE.Vector3();
+
+function frame(now) {
+  let target;
+  if (reduced) target = 1.05;
+  else if (manual && now - mt < 9000) target = manual === 'closed' ? 0 : 1.05;
+  else {
+    manual = null; tg.textContent = 'assemble';
+    const t = (now / 1000) % 8;
+    target = t < 3 ? 1.05 : t < 4 ? 1.05 * (1 - ease(t - 3)) : t < 6.5 ? 0 : 1.05 * ease((t - 6.5) / 1.5);
+  }
+  gap += (target - gap) * (reduced ? 1 : 0.14);
+  plates.forEach((p, i) => { p.m.position.y = T / 2 + 0.05 + i * (T + gap); });
+  const topY = plates.at(-1).m.position.y;
+  rails.forEach(r => { r.scale.y = Math.max(0.001, topY); r.position.y = topY / 2; r.visible = gap > 0.05; });
+  const ty = topY / 2 + 0.2, dy = ty - controls.target.y;
+  controls.target.y += dy; camera.position.y += dy;
+  if (!reduced && now - touched > 6000) {
+    const az = -0.6 + Math.sin(now / 8000) * 0.22, rad = Math.hypot(9, 13);
+    camera.position.x += (Math.sin(az) * rad - camera.position.x) * 0.02;
+    camera.position.z += (Math.cos(az) * rad - camera.position.z) * 0.02;
+  }
+  controls.update();
+  renderer.render(scene, camera);
+  plates.forEach(p => {
+    v.set(p.L.w / 2 + 0.35, p.m.position.y, D / 2).project(camera);
+    p.lbl.style.left = ((v.x + 1) / 2 * innerWidth) + 'px';
+    p.lbl.style.top = ((1 - v.y) / 2 * innerHeight) + 'px';
+    p.lbl.style.opacity = gap > 0.45 ? 1 : 0;
+  });
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>
