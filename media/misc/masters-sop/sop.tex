@@ -1,0 +1,170 @@
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{lastpage}
+\usepackage{graphicx}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,shapes.geometric,calc}
+\usepackage[most]{tcolorbox}
+\usepackage[colorlinks=true,linkcolor=Primary,citecolor=Primary,urlcolor=Secondary]{hyperref}
+
+\definecolor{Primary}{HTML}{2C5F52}
+\definecolor{Secondary}{HTML}{B8860B}
+\definecolor{ProblemBg}{HTML}{FAF7F0}
+\definecolor{TitleBg}{HTML}{1F4037}
+\definecolor{Ink}{HTML}{24333A}
+\definecolor{SoftGreen}{HTML}{EAF1ED}
+\definecolor{SoftGold}{HTML}{F7F0DE}
+
+\newcommand{\Course}{Statement of Purpose}
+\newcommand{\Assignment}{Computer Science Master's Programs}
+\newcommand{\ProjectTitle}{Systems for Retrieval, Inference, and Evaluation}
+\newcommand{\Name}{Dimitri Chrysafis}
+\newcommand{\Date}{November 2026}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{5pt}
+\linespread{1.03}
+\setlist[itemize]{leftmargin=*, itemsep=0.15em, topsep=0.2em}
+
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{\textcolor{Primary}{\Name}}
+\chead{\textcolor{Primary}{Statement of Purpose}}
+\rhead{\textcolor{Primary}{Computer Science}}
+\cfoot{\textcolor{Primary!85!black}{Page \thepage\ of \pageref{LastPage}}}
+\setlength{\headheight}{24pt}
+\renewcommand{\headrulewidth}{0.7pt}
+\renewcommand{\headrule}{\hbox to\headwidth{\color{Primary!55}\leaders\hrule height \headrulewidth\hfill}}
+\fancypagestyle{coverpage}{
+  \fancyhf{}
+  \renewcommand{\headrulewidth}{0pt}
+}
+
+\begin{document}
+\newgeometry{left=1in,right=1in,top=0.55in,bottom=1in,headheight=24pt,headsep=0pt,footskip=0.5in}
+\pagecolor{ProblemBg}
+\thispagestyle{coverpage}
+
+\begin{center}
+\vspace*{0.12in}
+\begin{tcolorbox}[
+  enhanced,
+  width=0.93\textwidth,
+  height=0.87\textheight,
+  valign=center,
+  colback=ProblemBg,
+  colframe=Primary!85!black,
+  boxrule=1.1pt,
+  arc=2.5mm,
+  left=7mm,
+  right=7mm,
+  top=7mm,
+  bottom=7mm,
+  title={Graduate study focus},
+  fonttitle=\bfseries,
+  coltitle=Primary!95!black,
+  attach boxed title to top left={xshift=2mm,yshift*=-2mm},
+  boxed title style={
+    colback=Secondary!18,
+    colframe=Primary!80!black,
+    boxrule=0.9pt,
+    arc=1mm,
+    left=1.5mm,
+    right=1.5mm,
+    top=0.8mm,
+    bottom=0.8mm,
+  },
+]
+\begin{center}
+{\small\scshape\color{Primary}\Course\par}
+\vspace{4mm}
+{\color{Secondary}\rule{0.12\textwidth}{1.1pt}\par}
+\vspace{12mm}
+{\fontsize{27}{34}\selectfont\bfseries\color{TitleBg}\ProjectTitle\par}
+\vspace{5mm}
+{\normalsize\color{Primary}Retrieval that shows its evidence, inference under resource limits, and evaluation that cannot be gamed\par}
+\vspace{8mm}
+\begin{tikzpicture}[x=1cm,y=1cm,
+  box/.style={rounded corners=1.2mm, draw=Primary!70!black, fill=SoftGreen, minimum width=24mm, minimum height=10mm, align=center, font=\scriptsize\bfseries, text=TitleBg},
+  smallbox/.style={rounded corners=1.2mm, draw=Primary!55!black, fill=white, minimum width=22mm, minimum height=9mm, align=center, font=\scriptsize, text=Primary!90!black},
+  arrow/.style={-{Latex[length=2mm]}, line width=1pt, draw=Secondary!90!black},
+  note/.style={font=\tiny, text=Primary!75!black, align=center}
+]
+\node[box] (raw) at (0,0) {raw activity\\files};
+\node[smallbox] (lake) at (3.0,0) {document\\lake};
+\node[smallbox] (warehouse) at (6.0,0) {relational\\warehouse};
+\node[box] (evidence) at (9.1,0) {retrievable\\evidence};
+\draw[arrow] (raw)--(lake);
+\draw[arrow] (lake)--(warehouse);
+\draw[arrow] (warehouse)--(evidence);
+\node[note] at (4.55,-0.9) {the design question: which bytes, sessions, and answers can be trusted?};
+\end{tikzpicture}
+\vspace{9mm}
+{\color{Primary!35}\rule{0.70\textwidth}{0.55pt}\par}
+\vspace{7mm}
+\begin{tcolorbox}[
+  enhanced,
+  width=0.46\linewidth,
+  colback=SoftGreen!70!white,
+  colframe=Primary!60!black,
+  boxrule=0.75pt,
+  arc=1.5mm,
+  left=2mm,
+  right=2mm,
+  top=2.5mm,
+  bottom=2.5mm,
+]
+\centering
+{\normalsize\bfseries\color{TitleBg}\Name\par}
+\vspace{1mm}
+{\small\color{Primary}University of Wisconsin--Madison\par}
+\end{tcolorbox}
+\par
+\vspace{4mm}
+{\small\color{Primary}\Date\par}
+\end{center}
+\end{tcolorbox}
+\end{center}
+
+\clearpage
+\pagecolor{white}
+\restoregeometry
+
+\section{From raw files to reliable answers}
+
+In September 2026, I finished Ironman Wisconsin after eight months of training, much of it indoors on Zwift. Later that fall, I tried to identify the November ride with my highest whole-ride average power. The files could not give me a straightforward answer. Interrupted sessions had become separate activities, crashes had left incomplete FIT headers, and some short fragments looked like workouts. Before comparing power numbers, I had to decide what counted as a ride and which bytes could be trusted.
+
+I built Zwift Ride Analytics to recover that history. My recovery code compares declared and actual file sizes, repairs incomplete headers in memory, and retains decode errors. I keep decoded fields in MongoDB before curating them into MySQL session tables, then index ride text and embeddings in Elasticsearch for retrieval. The current archive contains 49 activity files grouped into 31 logical sessions and 143,400 timestamped records. Keeping those transformations traceable matters: an answer can sound precise while describing the wrong session.
+
+CS 574, Data Management for Data Science, gave me the framework for these choices. SQL can enumerate candidate rides under explicit conditions. Vector search can retrieve similar descriptions without guaranteeing complete coverage. If sessionization was wrong, my training history was wrong. If retrieval skipped a file, a generated answer could sound confident while missing evidence. I want to build AI applications whose answers can be checked against their evidence.
+
+\section{Inference under resource limits}
+
+I hit a different constraint while building a local inference engine for a 125B-parameter sparse mixture-of-experts Qwen model. To run it on a 36 GB Mac, I streamed quantized experts from NVMe storage. Profiling showed substantial time spent waiting for experts. I traced routing decisions and hidden states, trained small per-layer predictors, and used their predictions to prefetch experts. Prediction alone was insufficient: the cache had to pin prefetched experts until use.
+
+Across eight held-out prompts, median expert-read wait fell from 37.9 seconds to 13.3 seconds, and the generated token sequences matched the baseline on all eight. Lower read wait did not consistently improve decoding speed: throughput rose on five prompts and fell on three. That mixed result is what I want to investigate, especially how memory budgets, routing behavior, and runtime overhead change the benefit.
+
+\section{Evaluation as a systems problem}
+
+Evaluation became another systems problem in spackle, my local coding agent. During benchmarking, I found that an agent could appear to fix a bug by editing or deleting its tests. I added a grader that compared protected files against their originals. After protected-test grading, the measured solve rate for one cloud model fell from 40\% to 19\%. That result changed how I interpret a passing benchmark: the evaluator must check how a result was obtained, including whether the agent changed the test.
+
+The same bias toward checking implementation details shapes my open-source work. I have 56 merged pull requests in Unsloth and six in mlx-audio. Most are small repairs: preserving system messages during chat import, decoding datasets correctly, making sampler parameters actually apply, and returning failure when an export or transcription fails. They are not research results by themselves, but they taught me how much large-system behavior depends on details that benchmarks often hide.
+
+\section{Controlled comparison}
+
+My optimization coursework gave me another version of the same lesson. For my CS 524 final project, I formulated an exact time-expanded mixed-integer linear program for routing quantum circuits in Julia with JuMP and HiGHS. I then varied hardware topology, initial layout, calibration noise, and circuit structure one at a time. The important habit was controlled comparison: do not claim a better design when a stronger baseline or a different constraint explains the result. That habit carries directly into the inference and retrieval questions I want to study.
+
+\section{Graduate direction}
+
+I expect to finish my computer science degree at UW--Madison in May 2027, two years after starting there. The compressed timeline has made me deliberate about choosing projects, but it has also left little time for sustained research mentorship. I am seeking a master's degree to move from making these projects work to testing which design choices generalize. I want to study how storage, scheduling, and data-system design affect inference and retrieval when models operate under memory and storage constraints. My career goal is infrastructure for large models and AI agents across data, retrieval, inference, and evaluation.
+
+I am looking for a program where advanced systems courses lead into a substantial research project or thesis. I want to study how retrieval systems account for missing evidence, how expert prefetching performs under tighter memory limits, and how agent evaluation detects changed tests. Working with researchers who challenge my workloads, baselines, and conclusions would help me turn local results into defensible designs. I want to leave graduate school able to explain not just that a system is fast, but why it is correct.
+
+\end{document}
